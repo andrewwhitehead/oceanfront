@@ -120,15 +120,15 @@
 </template>
 
 <script lang="ts">
-import { expand } from 'src/formats/DateTime'
+import { expand } from '../formats/DateTime'
 import {
   monthGrid,
   MonthGridCell,
   nextMonth as _nextMonth,
   prevMonth as _prevMonth,
   sameDate,
-} from 'src/lib/datetime'
-import { useFormats } from 'src/lib/formats'
+} from '../lib/datetime'
+import { useFormats } from '../lib/formats'
 import {
   defineComponent,
   SetupContext,

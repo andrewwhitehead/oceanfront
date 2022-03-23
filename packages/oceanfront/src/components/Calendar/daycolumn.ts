@@ -1,7 +1,7 @@
-import { DateTimeFormatterOptions } from 'src/formats/DateTime'
-import { BusyInfo, layoutAllday } from 'src/lib/calendar/layout/allday'
-import { addMinutes } from 'src/lib/datetime'
-import { FormatState, useFormats } from 'src/lib/formats'
+import { DateTimeFormatterOptions } from '../../formats/DateTime'
+import { BusyInfo, layoutAllday } from '../../lib/calendar/layout/allday'
+import { addMinutes } from '../../lib/datetime'
+import { FormatState, useFormats } from '../../lib/formats'
 import { defineComponent, h } from 'vue'
 import {
   eventsStartingAtDay,

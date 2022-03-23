@@ -1,8 +1,18 @@
-import { VNode, Ref, readonly } from 'vue'
-import { Config } from './config'
+import {
+  Component,
+  computed,
+  inject,
+  PropType,
+  provide,
+  proxyRefs,
+  readonly,
+  SetupContext,
+  VNode,
+} from 'vue'
 import { ItemList } from './items'
-import { FormRecord } from './records'
-import { extendReactive } from './util'
+import { FormRecord, useRecords } from './records'
+import { useThemeOptions } from './theme'
+import { extendReactive, extractRefs } from './util'
 
 export type Renderable = VNode | VNode[] | string
 
@@ -12,14 +22,33 @@ export const newFieldId = (): string => {
   return 'of-field-' + _fieldIndex++
 }
 
-export type FieldType = FieldTypeConstructor | FieldInit
-
-export interface FieldTypeConstructor {
-  name?: string
-  init: FieldInit
+export interface FieldRender {
+  active?: boolean
+  append?: () => Renderable | undefined
+  // afterContent? (below)
+  blank?: boolean
+  class?: string | string[] | Record<string, boolean>
+  click?: (evt?: MouseEvent) => boolean | void
+  content?: () => Renderable | undefined
+  cursor?: string
+  dragIn?: FieldDragIn
+  focus?: () => void
+  // footer?: () => Renderable | undefined
+  focused?: boolean
+  hovered?: boolean
+  inputId?: string
+  inputValue?: any
+  invalid?: boolean
+  label?: string
+  loading?: boolean
+  // messages
+  pendingValue?: any
+  popup?: FieldPopup
+  prepend?: () => Renderable | undefined
+  size?: number | string
+  updated?: boolean
+  value?: any
 }
-
-export type FieldInit = (props: FieldProps, ctx: FieldContext) => FieldRender
 
 export type FieldMode =
   | 'editable'
@@ -27,6 +56,7 @@ export type FieldMode =
   | 'readonly'
   | 'locked'
   | 'static'
+  | 'fixed'
 
 export type FieldFormatProp = string | Record<string, any>
 
@@ -40,7 +70,6 @@ export type FieldLabelPositionProp =
   | 'right'
 
 export interface FieldContext {
-  config: Config
   container?: string
   density?: number
   editable?: boolean
@@ -87,34 +116,6 @@ export interface FieldProps {
 // set 'locked' property of context, which should close any popups, abort/commit pending changes
 // after timeout, change mode to readonly
 
-export interface FieldRender {
-  active?: boolean
-  append?: () => Renderable | undefined
-  // afterContent? (below)
-  blank?: boolean
-  class?: string | string[] | Record<string, boolean>
-  click?: (evt?: MouseEvent) => boolean | void
-  content?: () => Renderable | undefined
-  cursor?: string
-  dragIn?: FieldDragIn
-  focus?: () => void
-  // footer?: () => Renderable | undefined
-  focused?: boolean
-  hovered?: boolean
-  inputId?: string
-  inputValue?: any
-  invalid?: boolean
-  label?: string
-  loading?: boolean
-  // messages
-  pendingValue?: any
-  popup?: FieldPopup
-  prepend?: () => Renderable | undefined
-  size?: number | string
-  updated?: boolean
-  value?: any
-}
-
 export interface FieldDragIn {
   dropEffect?: 'none' | 'copy' | 'link' | 'move'
   onDrop: (evt: DragEvent) => void
@@ -130,8 +131,68 @@ export interface FieldPopup {
 }
 
 // helper to infer type
-export function defineFieldType<T extends FieldType>(f: T): T {
+export function defineFieldType<T extends Component>(f: T): T {
   return f
+}
+
+export const BaseFieldProps = {
+  align: String,
+  density: { type: [String, Number], default: undefined },
+  disabled: Boolean,
+  fixed: Boolean,
+  format: [String, Object] as PropType<FieldFormatProp>,
+  id: String,
+  initialValue: {
+    type: [String, Boolean, Number, Array, Object],
+    default: undefined,
+  },
+  inline: Boolean,
+  inputLabel: String,
+  invalid: Boolean,
+  items: [String, Array, Object] as PropType<string | any[] | ItemList>,
+  label: String,
+  labelPosition: String as PropType<FieldLabelPositionProp>,
+  loading: Boolean,
+  locked: Boolean,
+  // messages
+  maxlength: [Number, String],
+  mode: String as PropType<FieldMode>,
+  modelValue: {
+    type: [String, Boolean, Number, Array, Object],
+    default: undefined,
+  },
+  muted: Boolean,
+  name: String,
+  placeholder: String,
+  readonly: Boolean,
+  record: {
+    type: Object as PropType<FormRecord>,
+    required: false,
+  },
+  required: Boolean,
+  rounded: Boolean,
+  size: { type: [Number, String], default: undefined },
+  // style
+  type: String,
+  variant: String,
+  tint: String,
+  context: String,
+  //typeConstructor: Object as PropType<FieldTypeConstructor>,
+  active: Boolean,
+  blank: Boolean,
+  class: [String, Array, Object],
+  cursor: String,
+  dragIn: Object as PropType<FieldDragIn>,
+  focused: Boolean,
+  hovered: Boolean,
+  inputId: String,
+  inputValue: null,
+  pendingValue: null,
+  popup: Object as PropType<FieldPopup>,
+  updated: Boolean,
+  value: null,
+  formatOptions: null,
+  defaultValue: null,
 }
 
 export function extendFieldFormat(
@@ -146,10 +207,152 @@ export function extendFieldFormat(
   return extendReactive(format, props)
 }
 
-export type ExtFieldRender = {
-  [K in keyof FieldRender]: FieldRender[K] | Ref<FieldRender[K]>
+export const makeFieldContext = (
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+  props: any,
+  ctx: SetupContext
+): FieldContext => {
+  const themeOptions = useThemeOptions()
+  const density = computed(() => {
+    let d = props.density
+    if (d === 'default') {
+      d = undefined
+    } else if (typeof d === 'string') {
+      d = parseInt(d, 10)
+      if (isNaN(d)) d = undefined
+    }
+    if (typeof d !== 'number') {
+      d = themeOptions.defaultDensity
+    }
+    if (typeof d !== 'number') {
+      d = 2
+    }
+    return Math.max(0, Math.min(3, d || 0))
+  })
+  const recordMgr = useRecords()
+  const record = computed(() => {
+    return props.record || recordMgr.getCurrentRecord() || undefined
+  })
+  const metadata = computed(() =>
+    props.name ? record.value?.metadata?.[props.name] : null
+  )
+  const mode = computed(
+    () =>
+      props.mode ||
+      metadata.value?.mode ||
+      (props.fixed || metadata.value?.fixed
+        ? 'fixed'
+        : props.disabled || metadata.value?.disabled
+        ? 'disabled'
+        : props.readonly || metadata.value?.readonly
+        ? 'readonly'
+        : props.locked || record.value?.locked
+        ? 'locked'
+        : 'editable')
+  )
+  const editable = computed(() => mode.value === 'editable')
+  const interactive = computed(() => mode.value !== 'fixed')
+  const fieldType = computed(() => {
+    const fmt = props.format
+    return (
+      props.type ||
+      metadata.value?.type ||
+      (fmt && typeof fmt === 'string'
+        ? fmt
+        : typeof fmt === 'object'
+        ? (fmt as any).fieldType || (fmt as any).type
+        : undefined)
+    )
+  })
+  const initialValue = computed(() =>
+    props.name && record.value
+      ? (record.value.initialValue || {})[props.name]
+      : props.initialValue
+  )
+  const labelPosition = computed(() => {
+    let p = props.labelPosition
+    if (!p || p === 'default') {
+      p = themeOptions.defaultLabelPosition as
+        | FieldLabelPositionProp
+        | undefined
+    }
+    if (!p || p === 'default') {
+      p = props.variant === 'filled' ? 'frame' : 'top'
+    }
+    return p
+  })
+  const inputLabel = computed(
+    () =>
+      props.inputLabel ??
+      (labelPosition.value === 'input' ? props.label : undefined)
+  )
+  // may inherit default value from context in future
+  const value = computed(() =>
+    props.name && record.value
+      ? record.value.value[props.name]
+      : props.modelValue
+  )
+
+  const fctx: FieldContext = proxyRefs({
+    container: 'of-field',
+    density,
+    editable,
+    fieldType,
+    initialValue,
+    inputLabel,
+    interactive,
+    labelPosition,
+    mode,
+    record,
+    value,
+    onInput: (input: any, value: any) => {
+      ctx.emit('input', input, value)
+    },
+    onUpdate: (value: any) => {
+      if (props.name && record.value) record.value.value[props.name] = value
+      else ctx.emit('update:modelValue', value)
+    },
+    ...extractRefs(props, [
+      'id',
+      'inline',
+      'items',
+      'label',
+      'loading',
+      'muted',
+      'name',
+      'required',
+      'rounded',
+    ]),
+  })
+  return fctx
 }
+
 export function fieldRender<T extends object>(props: T): FieldRender {
   // FIXME lies
   return readonly(props) as any as FieldRender
+}
+
+const fieldContextKey = Symbol('[oceanfront-field-context')
+const fieldRenderKey = Symbol('[oceanfront-field-render')
+
+export const provideFieldContext = (
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+  props: any,
+  ctx: SetupContext
+): FieldContext => {
+  const fCtx = makeFieldContext(props, ctx)
+  provide(fieldContextKey, fCtx)
+  return fCtx
+}
+
+export const useFieldContext = (): FieldContext => {
+  return inject(fieldContextKey) as FieldContext
+}
+
+export const provideFieldRender = (r: FieldRender): void => {
+  provide(fieldRenderKey, r)
+}
+
+export const useFieldRender = (): FieldRender => {
+  return inject(fieldRenderKey) as FieldRender
 }

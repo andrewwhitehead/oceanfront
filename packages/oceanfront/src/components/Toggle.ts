@@ -1,13 +1,19 @@
-import { computed, defineComponent, h, PropType, ref, SetupContext } from 'vue'
-import { FieldContext, FieldMode, FieldRender } from '../lib/fields'
-import { useFormats } from '../lib/formats'
+import {
+  computed,
+  defineComponent,
+  h,
+  PropType,
+  ref,
+  SetupContext,
+  VNode,
+} from 'vue'
+import { FieldMode, newFieldId } from '../lib/fields'
 import { FormRecord, useRecords } from '../lib/records'
-import { proxyRefs } from 'vue'
-
-import { useConfig } from '../lib/config'
+import { ToggleInner } from './ToggleInner'
 
 export const OfToggle = defineComponent({
   name: 'OfToggle',
+  inheritAttrs: false,
   props: {
     checked: { type: Boolean, default: false },
     id: String,
@@ -29,101 +35,60 @@ export const OfToggle = defineComponent({
     'update:checked': null,
   },
   setup(props, ctx: SetupContext) {
-    const config = useConfig()
-    const formatMgr = useFormats()
+    const defaultId = newFieldId()
     const recordMgr = useRecords()
     const record = computed(() => {
       return props.record || recordMgr.getCurrentRecord() || undefined
     })
-    const initialValue = computed(() =>
-      props.name && record.value
-        ? (record.value.initialValue || {})[props.name]
-        : props.initialValue
-    )
-    const value = computed(() =>
-      props.name && record.value
+    const inputId = computed(() => props.id || defaultId)
+    const value = computed(() => {
+      return props.name && record.value
         ? record.value.value[props.name]
         : props.checked
-    )
-    const mode = computed(
-      () => props.mode || (props.readonly ? 'readonly' : 'editable')
-    )
+    })
     const locked = computed(() => props.locked || record.value?.locked)
-    const editable = computed(() => mode.value === 'editable')
     const focused = ref(false)
-
-    const fctx: FieldContext = proxyRefs({
-      config,
-      container: 'of-field',
-      editable,
-      fieldType: 'toggle',
-      initialValue,
-      locked,
-      mode,
-      record,
-      value,
-      onUpdate: (value: any) => {
-        if (props.name && record.value) record.value.value[props.name] = value
-        else ctx.emit('update:checked', value)
-      },
-      /*...extractRefs(props, [
-        'id',
-        'label',
-        'loading',
-        'muted',
-        'name',
-        'required',
-      ]),*/
-    })
-
-    const rendered = computed<FieldRender>(() => {
-      const found = formatMgr.getFieldType('toggle', true)
-      if (!found) {
-        throw new TypeError(`Unknown field type: toggle`)
-      }
-      return found.init(
-        {
-          inputType: props.inputType || (props.switch ? 'switch' : 'checkbox'),
-        },
-        fctx
-      )
-    })
-
+    const elt = ref<HTMLInputElement | undefined>()
     const handlers = {
       onBlur(_evt: FocusEvent) {
         focused.value = false
       },
-      onClick(evt: MouseEvent) {
-        const render = rendered.value
-        evt.stopPropagation()
-        if (render && render.click) return render.click(evt)
-      },
       onFocus(_evt: FocusEvent) {
         focused.value = true
       },
+      onClick() {
+        const val = !value.value
+        if (props.name && record.value) record.value.value[props.name] = val
+        else ctx.emit('update:checked', val)
+      },
+    }
+
+    const setElt = (e: VNode) => {
+      elt.value = e.el as HTMLInputElement
     }
 
     return () => {
-      const render = rendered.value
-      const content = render.content?.()
-      if (!content) return
+      const content = h(ToggleInner, {
+        switch: props.inputType === 'switch' || props.switch,
+        checked: !!value.value,
+        label: props.label,
+        inputId: inputId.value,
+        name: props.name,
+        onInputMounted: setElt,
+      })
       return h(
         'div',
         {
           class: [
             'of-toggle',
+            'of-field',
             {
               'of--active': true,
-              'of--blank': render.blank,
               'of--focused': focused.value,
-              'of--invalid': render.invalid,
               'of--muted': props.muted,
-              'of--loading': render.loading,
               'of--locked': locked.value,
-              'of--updated': render.updated,
+              'of--checked': !!value.value,
             },
-            'of--cursor-' + (render.cursor || 'default'),
-            render.class,
           ],
           tabIndex: -1,
           ...handlers,

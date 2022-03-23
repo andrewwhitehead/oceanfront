@@ -1,6 +1,6 @@
-import { DateTimeFormatterOptions } from 'src/formats/DateTime'
-import { sameDate } from 'src/lib/datetime'
-import { useFormats } from 'src/lib/formats'
+import { DateTimeFormatterOptions } from '../../formats/DateTime'
+import { sameDate } from '../../lib/datetime'
+import { useFormats } from '../../lib/formats'
 import { defineComponent, h } from 'vue'
 
 const weekDayFormat: DateTimeFormatterOptions = {

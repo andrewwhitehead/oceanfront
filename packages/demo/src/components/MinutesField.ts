@@ -1,14 +1,18 @@
 import {
-  defineFieldType,
-  FieldContext,
+  BaseFieldProps,
   fieldRender,
+  OfFieldBase,
+  provideFieldContext,
+  provideFieldRender,
   useRecords,
 } from 'oceanfront'
-import { computed, h, ref } from 'vue'
+import { computed, defineComponent, h, ref, SetupContext } from 'vue'
 
-export default defineFieldType({
-  name: 'minutes',
-  init(props, ctx: FieldContext) {
+export default defineComponent({
+  name: 'Minutes',
+  props: BaseFieldProps,
+  setup(props, ctx: SetupContext) {
+    const fieldCtx = provideFieldContext(props, ctx)
     const recordMgr = useRecords()
     const record = computed(() => {
       return props.record || recordMgr.getCurrentRecord()
@@ -58,24 +62,40 @@ export default defineFieldType({
       },
     }
 
-    return fieldRender({
-      class: {
-        'of-text-field': true,
-      },
-      content: () => {
+    const slots = {
+      interactiveContent: () => {
         return h('input', {
           type: 'number',
-          readonly: !ctx.editable,
+          readonly: !fieldCtx.editable,
           class: ['of-field-input'],
           value: value.value,
           ...hooks,
           ref: elt,
         })
       },
-      click: () => focus(ctx.editable),
-      cursor: computed(() => (ctx.editable ? 'text' : 'normal')),
+    }
+
+    const fRender = fieldRender({
+      cursor: computed(() => (fieldCtx.editable ? 'text' : 'normal')),
       focused,
       focus,
     })
+
+    provideFieldRender(fRender)
+
+    const theProps = computed(() => {
+      return {
+        ...props,
+        class: {
+          'of-text-field': true,
+        },
+        onClick: () => focus(fieldCtx.editable),
+      }
+    })
+
+    const render = () => {
+      return h(OfFieldBase, theProps, slots)
+    }
+    return render
   },
 })

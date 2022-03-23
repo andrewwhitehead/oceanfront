@@ -1,26 +1,30 @@
-import { ref, computed, VNode, watch, h } from 'vue'
-import { OfIcon } from '../components/Icon'
+import { computed, defineComponent, h, ref, VNode, watch } from 'vue'
+import { OfFieldBase } from '../components/FieldBase'
+import { ToggleInner } from '../components/ToggleInner'
 import {
-  defineFieldType,
-  FieldContext,
-  FieldProps,
-  newFieldId,
+  BaseFieldProps,
+  FieldRender,
   fieldRender,
+  newFieldId,
+  provideFieldContext,
+  provideFieldRender,
 } from '../lib/fields'
 
 export const supportedTypes = new Set(['checkbox', 'switch'])
 
-export const ToggleField = defineFieldType({
-  name: 'toggle',
-  init(props: FieldProps, ctx: FieldContext) {
+export const OfToggleField = defineComponent({
+  name: 'OfToggleField',
+  props: { ...BaseFieldProps, inputType: String, switch: Boolean },
+  setup(props, ctx) {
+    const fieldCtx = provideFieldContext(props, ctx)
     const initialValue = computed(() => {
-      let initial = ctx.initialValue
+      let initial = fieldCtx.initialValue
       if (initial === undefined) initial = props.defaultValue
       return initial ?? null
     })
     const stateValue = ref()
     watch(
-      () => ctx.value,
+      () => fieldCtx.value,
       (val) => {
         if (val === undefined || val === '') val = null
         stateValue.value = val
@@ -34,7 +38,7 @@ export const ToggleField = defineFieldType({
     const focused = ref(false)
     let defaultFieldId: string
     const inputId = computed(() => {
-      let id = ctx.id
+      let id = fieldCtx.id
       if (!id) {
         if (!defaultFieldId) defaultFieldId = newFieldId()
         id = defaultFieldId
@@ -43,11 +47,11 @@ export const ToggleField = defineFieldType({
     })
     const inputType = computed(() => {
       const pi = props.inputType
-      return pi && supportedTypes.has(pi) ? pi : 'checkbox'
-    })
-    const icon = computed(() => {
-      const checked = !!stateValue.value
-      return 'checkbox' + (checked ? ' checked' : '')
+      return pi && supportedTypes.has(pi)
+        ? pi
+        : props.switch
+        ? 'switch'
+        : 'checkbox'
     })
 
     const focus = () => {
@@ -55,9 +59,9 @@ export const ToggleField = defineFieldType({
       if (curelt) curelt.focus()
     }
     const clickToggle = (_evt?: MouseEvent) => {
-      if (ctx.editable) {
+      if (fieldCtx.editable) {
         stateValue.value = !stateValue.value
-        if (ctx.onUpdate) ctx.onUpdate(stateValue.value)
+        if (fieldCtx.onUpdate) fieldCtx.onUpdate(stateValue.value)
       }
       focus()
       return false
@@ -69,71 +73,49 @@ export const ToggleField = defineFieldType({
       onFocus(_evt: FocusEvent) {
         focused.value = true
       },
-      onVnodeMounted(vnode: VNode) {
+      onInputMounted(vnode: VNode) {
         elt.value = vnode.el as HTMLInputElement
+      },
+      'onUpdate:checked': (checked: boolean) => {
+        stateValue.value = checked
+        if (fieldCtx.onUpdate) fieldCtx.onUpdate(stateValue.value)
       },
     }
 
-    return fieldRender({
+    const slots = {
+      interactiveContent: () => {
+        return h(ToggleInner, {
+          switch: inputType.value === 'switch',
+          checked: stateValue.value,
+          label: fieldCtx.inputLabel,
+          inputId: inputId.value,
+          align: props.align,
+          name: props.name,
+          ...hooks,
+        })
+      },
+    }
+
+    const fRender: FieldRender = fieldRender({
       active: true, // always show content
       blank: computed(() => !stateValue.value),
       class: computed(() => {
         return { 'of-toggle-field': true, 'of--checked': !!stateValue.value }
       }),
-      content: () => {
-        const inputLabel = ctx.inputLabel
-        const label = inputLabel
-          ? h(
-              'label',
-              {
-                class: [
-                  'of-field-content-text',
-                  'of--align-' + (props.align || 'start'),
-                ],
-                for: inputId.value,
-                onClick: (evt: MouseEvent) => evt.stopPropagation(),
-              },
-              [inputLabel]
-            )
-          : undefined
-        const inner = [
-          h('div', { class: 'of-toggle-input' }, [
-            h('input', {
-              class: 'of-field-input',
-              checked: !!stateValue.value, // FIXME - make lazy
-              id: inputId.value,
-              // disabled: disabled.value,
-              name: ctx.name,
-              type: 'checkbox',
-              value: '1',
-              ...hooks,
-            }),
-            inputType.value === 'switch'
-              ? h('div', { class: 'of-switch' }, [
-                  h('div', { class: 'of-switch-track' }),
-                  h('div', { class: 'of-switch-thumb' }),
-                ])
-              : h(OfIcon, {
-                  class: 'of-toggle-icon',
-                  name: icon.value,
-                  size: 'input',
-                }),
-          ]),
-        ]
-        if (label) inner.push(label)
-        return [h('div', { class: 'of-toggle-wrapper' }, inner)]
-      },
       click: clickToggle,
-      cursor: computed(() => (ctx.editable ? 'pointer' : null)),
+      cursor: computed(() => (fieldCtx.editable ? 'pointer' : null)),
       focus,
       focused,
-      // hovered,
       inputId,
-      // inputValue,
-      // loading
-      // messages
       updated: computed(() => initialValue.value !== stateValue.value),
       value: stateValue,
+      fieldContext: fieldCtx,
     })
+    provideFieldRender(fRender)
+
+    const render = () => {
+      return h(OfFieldBase, props, { ...ctx.slots, ...slots })
+    }
+    return render
   },
 })

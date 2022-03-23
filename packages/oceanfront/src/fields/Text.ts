@@ -1,17 +1,32 @@
-import { computed, h, ref, VNode, watch } from 'vue'
+import { useConfig } from '../lib/config'
 import {
-  defineFieldType,
-  FieldContext,
-  FieldProps,
+  computed,
+  defineComponent,
+  h,
+  ref,
+  SetupContext,
+  VNode,
+  watch,
+} from 'vue'
+import { OfFieldBase } from '../components/FieldBase'
+import {
+  BaseFieldProps,
   fieldRender,
+  FieldRender,
+  makeFieldContext,
   newFieldId,
+  provideFieldRender,
 } from '../lib/fields'
 import { TextFormatter, useFormats } from '../lib/formats'
 import { removeEmpty } from '../lib/util'
+import urlFixed from './text-formats/url'
+
+const fixedFormats: any = {
+  url: urlFixed,
+}
 
 // editing a list field does not necessarily mean swapping input to edit mode
 // it may/should show a popup instead (this might be implied by 'muted' flag)
-
 const allowInputTypes = new Set([
   'date',
   'datetime-local',
@@ -30,20 +45,27 @@ const _inputTypeFrom = (type?: string) => {
   return 'text'
 }
 
-export const TextField = defineFieldType({
-  name: 'text',
-  init(props: FieldProps, ctx: FieldContext) {
-    const formatMgr = useFormats(ctx.config)
+export const OfTextField = defineComponent({
+  name: 'OfTextField',
+  props: {
+    ...BaseFieldProps,
+    rows: [Number, String],
+    inputType: String,
+  },
+  setup(props, ctx: SetupContext) {
+    const fieldCtx = makeFieldContext(props, ctx)
+    const config = useConfig()
+    const formatMgr = useFormats(config)
     const formatter = computed(() =>
       formatMgr.getTextFormatter(
         props.type,
         props.formatOptions,
-        ctx.name,
+        fieldCtx.name,
         props.record
       )
     )
     const initialValue = computed(() => {
-      let initial = ctx.initialValue
+      let initial = fieldCtx.initialValue
       if (initial === undefined) initial = props.defaultValue
       const fmt = formatter.value
       if (fmt) {
@@ -87,7 +109,7 @@ export const TextField = defineFieldType({
       invalid.value = updInvalid
     }
     watch(
-      () => [ctx.value, formatter.value],
+      () => [fieldCtx.value, formatter.value],
       ([val, fmt], _) => updateValue(val, fmt),
       {
         immediate: true,
@@ -98,7 +120,7 @@ export const TextField = defineFieldType({
     const focused = ref(false)
     let defaultFieldId: string
     const inputId = computed(() => {
-      let id = ctx.id
+      let id = fieldCtx.id
       if (!id) {
         if (!defaultFieldId) defaultFieldId = newFieldId()
         id = defaultFieldId
@@ -106,7 +128,7 @@ export const TextField = defineFieldType({
       return id
     })
     const multiline = computed(
-      () => ctx.fieldType === 'textarea' || formatter.value?.multiline
+      () => !!(fieldCtx.fieldType === 'textarea' || formatter.value?.multiline)
     )
     const inputType = computed(() => {
       const fmt = formatter.value
@@ -160,7 +182,7 @@ export const TextField = defineFieldType({
           blank.value = val == null || val === ''
           pendingValue.value = undefined
         }
-        if (ctx.onUpdate) ctx.onUpdate(val)
+        if (fieldCtx.onUpdate) fieldCtx.onUpdate(val)
       },
       onClick(evt: MouseEvent) {
         // avoid select() when clicking in unfocused field
@@ -183,7 +205,7 @@ export const TextField = defineFieldType({
             pendingValue.value = upd.value
           }
         }
-        if (ctx.onInput) ctx.onInput(evt.data, inputElt.value)
+        if (fieldCtx.onInput) fieldCtx.onInput(evt.data, inputElt.value)
       },
       onKeydown(evt: KeyboardEvent) {
         const fmt = formatter.value
@@ -196,21 +218,9 @@ export const TextField = defineFieldType({
       },
     }
 
-    return fieldRender({
-      blank,
-      class: {
-        'of-text-field': true,
-        'of--multiline': !!multiline.value,
-      },
-      content: () => {
+    const slots = {
+      interactiveContent: () => {
         const fmt = formatter.value
-        if (!ctx.interactive) {
-          return h(
-            'div',
-            { class: 'of-field-content-text' },
-            blank.value ? '—' : inputValue.value
-          )
-        }
         return h(multiline.value ? 'textarea' : 'input', {
           class: [
             'of-field-input',
@@ -221,9 +231,9 @@ export const TextField = defineFieldType({
             inputmode: fmt?.inputMode,
             id: inputId.value,
             maxlength: props.maxlength,
-            name: ctx.name,
+            name: fieldCtx.name,
             placeholder: props.placeholder,
-            readonly: !ctx.editable || undefined,
+            readonly: !fieldCtx.editable || undefined,
             rows: props.rows,
             // size: props.size,  - need to implement at field level?
             type: inputType.value,
@@ -233,20 +243,36 @@ export const TextField = defineFieldType({
           // ctx.label as aria label
         })
       },
-      click: () => focus(ctx.editable),
-      cursor: computed(() => (ctx.editable ? 'text' : 'normal')),
+      fixedContent: () => {
+        return (
+          fixedFormats[inputType.value ?? '']?.(lazyInputValue, props, ctx) ??
+          lazyInputValue
+        )
+      },
+    }
+
+    const fRender: FieldRender = fieldRender({
+      blank,
+      class: computed(() => ({
+        'of-text-field': true,
+        'of--multiline': multiline,
+      })),
+      click: () => focus(fieldCtx.editable),
+      cursor: computed(() => (fieldCtx.editable ? 'text' : 'normal')),
       focus,
       focused,
-      // hovered,
       inputId,
       inputValue,
       invalid,
-      // loading
-      // messages
       pendingValue,
-      // popup? - if autocomplete
       updated: computed(() => initialValue.value !== stateValue.value),
       value: stateValue,
     })
+    provideFieldRender(fRender)
+
+    const render = () => {
+      return h(OfFieldBase, props, { ...ctx.slots, ...slots })
+    }
+    return render
   },
 })

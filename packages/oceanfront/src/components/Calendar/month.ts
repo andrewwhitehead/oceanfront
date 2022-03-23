@@ -1,10 +1,14 @@
-import { getDayIdentifier, getEventsOfDay, toTimestamp } from 'src/lib/calendar'
+import {
+  getDayIdentifier,
+  getEventsOfDay,
+  toTimestamp,
+} from '../../lib/calendar'
 import {
   CalendarEvent,
   InternalEvent,
   parseEvent,
   uniqEvent,
-} from 'src/lib/calendar/common'
+} from '../../lib/calendar/common'
 import {
   addDays,
   firstMonday,
@@ -12,8 +16,8 @@ import {
   monthGrid,
   MonthGridCell,
   MonthGridData,
-} from 'src/lib/datetime'
-import { useFormats } from 'src/lib/formats'
+} from '../../lib/datetime'
+import { useFormats } from '../../lib/formats'
 import { defineComponent, h } from 'vue'
 import Base from './base'
 import calendarProps from './props'

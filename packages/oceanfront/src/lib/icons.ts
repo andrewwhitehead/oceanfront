@@ -1,4 +1,4 @@
-import { h, VNode, VNodeProps } from 'vue'
+import { h, VNode } from 'vue'
 import { Config, ConfigManager } from './config'
 import { readonlyUnref } from './util'
 

@@ -1,24 +1,38 @@
-import { ref, computed, VNode, watch, h } from 'vue'
+import {
+  computed,
+  defineComponent,
+  h,
+  ref,
+  SetupContext,
+  VNode,
+  watch,
+} from 'vue'
+import { OfFieldBase } from '../components/FieldBase'
 import { OfIcon } from '../components/Icon'
 import {
-  FieldContext,
-  FieldProps,
-  defineFieldType,
+  BaseFieldProps,
   fieldRender,
+  FieldRender,
+  makeFieldContext,
   newFieldId,
+  provideFieldRender,
 } from '../lib/fields'
 
-export const FileField = defineFieldType({
-  name: 'file',
-  init(props: FieldProps, ctx: FieldContext) {
+export const OfFileField = defineComponent({
+  name: 'OfFileField',
+  props: {
+    ...BaseFieldProps,
+  },
+  setup(props, ctx: SetupContext) {
+    const fieldCtx = makeFieldContext(props, ctx)
     const initialValue = computed(() => {
-      let initial = ctx.initialValue
+      let initial = fieldCtx.initialValue
       if (initial === undefined) initial = props.defaultValue
       return initial ?? null
     })
     const stateValue = ref()
     watch(
-      () => ctx.value,
+      () => fieldCtx.value,
       (val) => {
         if (val === undefined || val === '') val = null
         stateValue.value = val
@@ -27,12 +41,11 @@ export const FileField = defineFieldType({
         immediate: true,
       }
     )
-
     const elt = ref<HTMLInputElement | undefined>()
     const focused = ref(false)
     let defaultFieldId: string
     const inputId = computed(() => {
-      let id = ctx.id
+      let id = fieldCtx.id
       if (!id) {
         if (!defaultFieldId) defaultFieldId = newFieldId()
         id = defaultFieldId
@@ -44,14 +57,14 @@ export const FileField = defineFieldType({
       elt.value?.focus()
     }
     const clickOpen = (_evt?: MouseEvent) => {
-      if (ctx.editable) {
+      if (fieldCtx.editable) {
         elt.value?.focus()
         elt.value?.click()
       }
       return false
     }
     const clickClear = (evt?: MouseEvent) => {
-      if (!elt.value || !ctx.editable) {
+      if (!elt.value || !fieldCtx.editable) {
         return
       }
       elt.value.value = ''
@@ -61,7 +74,7 @@ export const FileField = defineFieldType({
         evt.preventDefault()
       }
       stateValue.value = null
-      if (ctx.onUpdate) ctx.onUpdate(null)
+      if (fieldCtx.onUpdate) fieldCtx.onUpdate(null)
     }
     const handleUpdate = (files: FileList | null) => {
       let val = null
@@ -70,7 +83,7 @@ export const FileField = defineFieldType({
       }
       // FIXME shouldn't need to set stateValue here
       stateValue.value = val
-      if (ctx.onUpdate) ctx.onUpdate(val)
+      if (fieldCtx.onUpdate) fieldCtx.onUpdate(val)
     }
     const hooks = {
       onBlur(_evt: FocusEvent) {
@@ -100,20 +113,19 @@ export const FileField = defineFieldType({
       },
     }
 
-    return fieldRender({
+    const slots = {
       append() {
-        if (stateValue.value && (ctx.editable || ctx.mode === 'locked'))
+        if (
+          stateValue.value &&
+          (fieldCtx.editable || fieldCtx.mode === 'locked')
+        )
           return h(OfIcon, {
             name: 'cancel circle',
             size: 'input',
             onClick: clickClear,
           })
       },
-      blank: computed(() => !stateValue.value),
-      class: computed(() => {
-        return { 'of-file-field': true }
-      }),
-      content: () => {
+      interactiveContent: () => {
         let label
         if (stateValue.value) {
           label = h(
@@ -147,29 +159,36 @@ export const FileField = defineFieldType({
           h('input', {
             class: 'of-field-input',
             id: inputId.value,
-            disabled: !ctx.editable,
-            name: ctx.name,
+            disabled: !fieldCtx.editable,
+            name: fieldCtx.name,
             type: 'file',
             ...hooks,
           }),
           label,
         ])
       },
-      click: clickOpen,
-      cursor: 'pointer', // FIXME depends if editable
-      dragIn,
-      focus,
-      focused,
-      // hovered,
-      inputId,
-      // inputValue,
-      // loading
-      // messages
       prepend() {
         return h(OfIcon, { name: 'attach', size: 'input' })
       },
+    }
+
+    const fRender: FieldRender = fieldRender({
+      blank: computed(() => !stateValue.value),
+      cursor: computed(() => (fieldCtx.editable ? 'pointer' : 'default')),
+      dragIn,
+      focus,
+      focused,
+      inputId,
       updated: computed(() => initialValue.value !== stateValue.value),
       value: stateValue,
+      class: computed(() => ({ 'of-file-field': true })),
+      click: clickOpen,
     })
+    provideFieldRender(fRender)
+
+    const render = () => {
+      return h(OfFieldBase, props, { ...ctx.slots, ...slots })
+    }
+    return render
   },
 })

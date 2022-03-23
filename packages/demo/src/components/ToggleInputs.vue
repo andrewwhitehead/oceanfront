@@ -11,11 +11,9 @@
           v-model="checkedValue"
           v-bind="{
             ...props,
-            format: {
-              inputType: customProps.switch ? 'switch' : null,
-              inputLabel: 'Toggled',
-              labelPosition: 'top',
-            },
+            inputType: customProps.switch ? 'switch' : null,
+            inputLabel: checkedValue ? 'On' : 'Off',
+            labelPosition: 'top',
           }"
         />
       </template>
