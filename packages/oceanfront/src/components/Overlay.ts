@@ -248,7 +248,9 @@ export const OfOverlay = defineComponent({
                   [
                     state.value == 'overlay'
                       ? h('div', {
-                          class: 'of-overlay-capture',
+                          class: {
+                            'of-overlay-capture': props.active && props.capture,
+                          },
                           onClick: handlers.onClick,
                           ref: clickCapture,
                         })
