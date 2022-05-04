@@ -2,6 +2,7 @@ import { Component } from 'vue'
 import { Config, ConfigManager } from './config'
 import { FormRecord } from './records'
 import { readonlyUnref } from './util'
+import { Renderable } from './fields'
 
 export interface TextFormatResult {
   blank?: boolean
@@ -21,6 +22,7 @@ export interface TextInputResult extends TextFormatResult {
 export interface TextFormatter {
   align?: 'start' | 'center' | 'end'
   format(modelValue: any): TextFormatResult
+  formatFixed?(modelValue: any, context?: string): Renderable | undefined
   unformat(input: string): any
   handleInput?: (evt: InputEvent) => TextInputResult
   handleKeyDown?: (evt: KeyboardEvent) => void
