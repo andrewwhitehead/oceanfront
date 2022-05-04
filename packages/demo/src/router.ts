@@ -24,6 +24,7 @@ import Badges from './components/Badges.vue'
 import ElevationDemo from './components/ElevationDemo.vue'
 import HtmlEditor from './components/HtmlEditor.vue'
 import ColorScheme from './components/ColorScheme.vue'
+import UrlInputs from './components/UrlInputs.vue'
 export const routerHistory = createWebHashHistory('/ofdocs')
 export const router = createRouter({
   history: routerHistory,
@@ -39,6 +40,7 @@ export const router = createRouter({
     { path: '/select-inputs', component: SelectInputs },
     { path: '/slider-inputs', component: SliderInputs },
     { path: '/text-inputs', component: TextInputs },
+    { path: '/url-inputs', component: UrlInputs },
     { path: '/toggle-inputs', component: ToggleInputs },
     { path: '/datetime-inputs', component: DateTimePickerInputs },
     { path: '/color-picker-inputs', component: ColorPickerInputs },

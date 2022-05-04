@@ -2,12 +2,12 @@ import { App, Component, Directive, Plugin } from 'vue'
 import OfBadge from './components/Badge.vue'
 import { OfButton } from './components/Button'
 import OfCalendar from './components/Calendar/Calendar'
-import { OfColorField } from './components/ColorField'
+import { OfColorField } from './fields/Color'
 import { OfConfig } from './components/Config'
 import OfDataTable from './components/DataTable.vue'
 import OfDataType from './components/DataType/DataType'
-import { OfDateField } from './components/DateField'
-import { OfDatetimeField } from './components/DatetimeField'
+import { OfDateField } from './fields/DateTime'
+import { OfDatetimeField } from './fields/DateTime'
 import OfDateTimePopup from './components/DateTimePopup.vue'
 import OfDialog from './components/Dialog.vue'
 import { OfField } from './components/Field'
@@ -21,24 +21,17 @@ import { OfNavGroup } from './components/NavGroup'
 import OfOptionList from './components/OptionList.vue'
 import { OfOverlay } from './components/Overlay'
 import OfPagination from './components/Pagination.vue'
-import { OfSelectField } from './components/SelectField'
+import { OfSelectField } from './fields/Select'
 import OfSidebar from './components/Sidebar.vue'
-import { OfSliderField } from './components/SliderField'
+import { OfSliderField } from './fields/Slider'
 import OfSpinner from './components/Spinner.vue'
 import OfTabs from './components/Tabs.vue'
-import { OfTextField } from './components/TextField'
-import { OfTimeField } from './components/TimeField'
+import { OfTextField } from './fields/Text'
+import { OfTimeField } from './fields/DateTime'
+import { OfToggleField } from './fields/Toggle'
 import { OfToggle } from './components/Toggle'
-import { OfToggleField } from './components/ToggleField'
 import Hue from './components/Hue'
 import Saturation from './components/Saturation'
-import { ColorField } from './fields/Color'
-import { DateField, DateTimeField, TimeField } from './fields/DateTime'
-import { FileField } from './fields/File'
-import { SelectField } from './fields/Select'
-import { SliderField } from './fields/Slider'
-import { TextField } from './fields/Text'
-import { ToggleField } from './fields/Toggle'
 import { ColorFormatter } from './formats/Color'
 import {
   DateFormatter,
@@ -49,7 +42,6 @@ import { DurationFormatter } from './formats/Duration'
 import { NumberFormatter } from './formats/Number'
 import { UrlFormatter } from './formats/Url'
 import { extendDefaultConfig } from './lib/config'
-import { FieldTypeConstructor } from './lib/fields'
 import { registerIconSet } from './lib/icons'
 import {
   registerFieldType,
@@ -58,6 +50,7 @@ import {
 } from './lib/formats'
 import './scss/index.scss'
 import { materialIconSet } from '../icons/material'
+import { OfFileField } from './fields/File'
 
 export const components: Record<string, Component> = {
   OfConfig,
@@ -83,8 +76,8 @@ export const components: Record<string, Component> = {
   OfTabs,
   OfCalendar,
   OfTextField,
-  OfToggle,
   OfToggleField,
+  OfToggle,
   OfSpinner,
   OfButton,
   OfColorField,
@@ -93,18 +86,18 @@ export const components: Record<string, Component> = {
   OfOptionList,
 }
 
-export const fieldTypes: Record<string, FieldTypeConstructor> = {
-  file: FileField,
-  select: SelectField,
-  text: TextField,
-  textarea: TextField,
-  password: TextField,
-  slider: SliderField,
-  toggle: ToggleField,
-  datetime: DateTimeField,
-  date: DateField,
-  time: TimeField,
-  color: ColorField,
+export const fieldTypes: Record<string, Component> = {
+  file: OfFileField,
+  select: OfSelectField,
+  text: OfTextField,
+  textarea: OfTextField,
+  password: OfTextField,
+  slider: OfSliderField,
+  toggle: OfToggleField,
+  datetime: OfDatetimeField,
+  date: OfDateField,
+  time: OfTimeField,
+  color: OfColorField,
 }
 
 export const textFormatters: Record<string, TextFormatterConstructor> = {
@@ -143,26 +136,31 @@ export const Oceanfront: Plugin = {
   },
 }
 
+export { OfFieldBase } from './components/FieldBase'
+
 export { extendConfig, useConfig, Config, ConfigFunction } from './lib/config'
 export { addDays, addMonths } from './lib/datetime'
 export {
-  ExtFieldRender,
   FieldContext,
   FieldDragIn,
-  FieldInit,
   FieldPopup,
   FieldProps,
-  FieldRender,
-  FieldType,
-  FieldTypeConstructor,
   FieldFormatProp,
   FieldMode,
   FieldLabelPositionProp,
   defineFieldType,
   extendFieldFormat,
-  fieldRender,
   newFieldId,
+  BaseFieldProps,
+  makeFieldContext,
+  fieldRender,
+  FieldRender,
+  provideFieldContext,
+  useFieldContext,
+  provideFieldRender,
+  useFieldRender,
 } from './lib/fields'
+
 export { Hue, Saturation }
 export { FocusGroup, provideFocusGroup, useFocusGroup } from './lib/focus'
 export {

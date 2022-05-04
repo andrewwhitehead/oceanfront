@@ -1,19 +1,22 @@
 import {
-  ref,
   computed,
-  watch,
+  defineComponent,
   h,
-  watchEffect,
-  triggerRef,
-  shallowRef,
   nextTick,
+  ref,
+  SetupContext,
+  shallowRef,
+  triggerRef,
+  watch,
+  watchEffect,
 } from 'vue'
+import { OfFieldBase } from '../components/FieldBase'
 import {
-  defineFieldType,
-  FieldContext,
-  FieldProps,
+  BaseFieldProps,
   fieldRender,
   newFieldId,
+  provideFieldContext,
+  provideFieldRender,
 } from '../lib/fields'
 import { watchPosition } from '../lib/util'
 
@@ -24,16 +27,23 @@ function intoInt(val?: string | number): number | undefined {
   if (val != null) return parseInt(val, 10)
 }
 
-export const SliderField = defineFieldType({
-  name: 'slider',
-  init(props: FieldProps, ctx: FieldContext) {
+export const OfSliderField = defineComponent({
+  name: 'OfSliderField',
+  props: {
+    ...BaseFieldProps,
+    min: [String, Number],
+    max: [String, Number],
+    step: [String, Number],
+  },
+  setup(props, ctx: SetupContext) {
+    const pendingValue = ref<number>(0)
+    const stateValue = ref()
+    const fieldCtx = provideFieldContext(props, ctx)
     const initialValue = computed(() => {
-      let initial = ctx.initialValue
+      let initial = fieldCtx.initialValue
       if (initial === undefined) initial = props.defaultValue
       return initial ?? null
     })
-    const pendingValue = ref<number>(0)
-    const stateValue = ref()
     const opts = computed(() => {
       let min = intoInt(props.min) ?? 0
       let max = intoInt(props.max) ?? 100
@@ -47,9 +57,9 @@ export const SliderField = defineFieldType({
       return { min, max, delta, step }
     })
     watch(
-      () => ctx.value,
+      () => fieldCtx?.value || null,
       (val) => {
-        if (val == null || val === '')
+        if (isNaN(val))
           val = opts.value.min + (opts.value.max - opts.value.min) / 2
         pendingValue.value = val
         stateValue.value = val
@@ -81,7 +91,7 @@ export const SliderField = defineFieldType({
       inputElt.value?.focus()
     }
     const inputId = computed(() => {
-      let id = ctx.id
+      let id = fieldCtx.id
       if (!id) {
         if (!defaultFieldId) defaultFieldId = newFieldId()
         id = defaultFieldId
@@ -109,7 +119,7 @@ export const SliderField = defineFieldType({
     const thumbHooks = {
       onMousedown(evt: MouseEvent) {
         const elt = thumbElt.value
-        if (!elt || !ctx.editable) return
+        if (!elt || !fieldCtx.editable) return
         evt.stopPropagation()
         evt.preventDefault()
         focus()
@@ -124,7 +134,7 @@ export const SliderField = defineFieldType({
     const trackHooks = {
       onMousedown(evt: MouseEvent) {
         const tg = evt.target as HTMLDivElement | null
-        if (!tg || !ctx.editable) return
+        if (!tg || !fieldCtx.editable) return
         const dims = tg.getBoundingClientRect()
         if (!dims.width) return
         evt.stopPropagation()
@@ -162,7 +172,7 @@ export const SliderField = defineFieldType({
       pendingValue.value = val
       stateValue.value = val
       if (inputElt.value) inputElt.value.value = '' + val
-      if (ctx.onUpdate) ctx.onUpdate(val)
+      if (fieldCtx.onUpdate) fieldCtx.onUpdate(val)
     }
 
     const trackPos = watchPosition({ immediate: true })
@@ -186,9 +196,8 @@ export const SliderField = defineFieldType({
       }
     })
 
-    return fieldRender({
-      class: 'of-slider-field',
-      content: () => {
+    const slots = {
+      interactiveContent: () => {
         return h(
           'div',
           {
@@ -202,7 +211,7 @@ export const SliderField = defineFieldType({
           [
             h('input', {
               id: inputId.value,
-              name: ctx.name,
+              name: fieldCtx.name,
               ref: inputElt,
               type: 'text',
               class: 'of-field-input',
@@ -221,11 +230,20 @@ export const SliderField = defineFieldType({
           ]
         )
       },
+    }
+    const fRender = fieldRender({
+      class: 'of-slider-field',
       focus,
       focused,
       pendingValue,
       updated: computed(() => initialValue.value !== stateValue.value),
       value: stateValue,
     })
+    provideFieldRender(fRender)
+
+    const render = () => {
+      return h(OfFieldBase, props, { ...ctx.slots, ...slots })
+    }
+    return render
   },
 })

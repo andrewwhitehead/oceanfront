@@ -95,11 +95,10 @@
         <div class="record-info">
           <h4>Record state</h4>
           <div class="row">
-            <div class="column sm-4">Locked:</div>
             <div class="column sm-8">
               <of-toggle
+                label="Locked"
                 v-model:checked="testRecord.locked"
-                style="vertical-align: top"
                 switch
               />
             </div>
@@ -118,8 +117,8 @@
 </template>
 
 <script lang="ts">
-import { ref, defineComponent, computed } from 'vue'
 import { makeRecord } from 'oceanfront'
+import { computed, defineComponent, ref } from 'vue'
 
 const testRecord = makeRecord({
   one: 'optionA',
@@ -129,6 +128,7 @@ const testRecord = makeRecord({
   five: '2021-03-14 15:45',
   six: '2021-02-15',
   seven: '12:00:00',
+  eight: 'https://1crm.com/',
 })
 
 export default defineComponent({

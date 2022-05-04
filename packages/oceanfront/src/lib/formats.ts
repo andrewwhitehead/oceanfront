@@ -1,7 +1,8 @@
-import { FormRecord } from './records'
+import { Component } from 'vue'
 import { Config, ConfigManager } from './config'
-import { FieldType, FieldTypeConstructor, Renderable } from './fields'
+import { FormRecord } from './records'
 import { readonlyUnref } from './util'
+import { Renderable } from './fields'
 
 export interface TextFormatResult {
   blank?: boolean
@@ -11,6 +12,7 @@ export interface TextFormatResult {
   value?: any
   [_: string]: any
 }
+
 export interface TextInputResult extends TextFormatResult {
   selStart?: number
   selEnd?: number
@@ -60,7 +62,7 @@ export interface FormatState {
   getFieldType(
     type?: string,
     defaultType?: boolean | string
-  ): FieldTypeConstructor | undefined
+  ): Component | undefined
 
   getTextFormatter(
     type?: string | TextFormatterDef,
@@ -72,7 +74,7 @@ export interface FormatState {
 
 class FormatManager implements FormatState {
   defaultFieldType = 'text'
-  readonly fieldTypes: Record<string, FieldType> = {}
+  readonly fieldTypes: Record<string, Component> = {}
   readonly textFormats: Record<string, TextFormatterDef> = {}
   readonly config: Config
 
@@ -83,7 +85,7 @@ class FormatManager implements FormatState {
   getFieldType(
     type: string,
     defaultType?: boolean | string
-  ): FieldTypeConstructor | undefined {
+  ): Component | undefined {
     let ctor = this.fieldTypes[type]
     if (!ctor && defaultType) {
       if (typeof defaultType === 'string') ctor = this.fieldTypes[defaultType]
@@ -123,7 +125,7 @@ class FormatManager implements FormatState {
 
 const configManager = new ConfigManager('offmt', FormatManager)
 
-export function registerFieldType(name: string, fmt: FieldType): void {
+export function registerFieldType(name: string, fmt: Component): void {
   configManager.extendingManager.fieldTypes[name] = fmt
 }
 

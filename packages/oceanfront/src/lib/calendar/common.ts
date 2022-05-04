@@ -1,5 +1,5 @@
-import { DateTimeFormatter } from 'src/formats/DateTime'
-import { FormatState } from 'src/lib/formats'
+import { DateTimeFormatter } from '../../formats/DateTime'
+import { FormatState } from '../../lib/formats'
 import {
   getDayIdentifier,
   getTimeIdentifier,

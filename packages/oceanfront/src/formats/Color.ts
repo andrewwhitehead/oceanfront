@@ -2,6 +2,7 @@ import { rgbToHex, loadColor } from '../lib/color'
 import { TextFormatter, TextFormatResult } from '../lib/formats'
 
 export class ColorFormatter implements TextFormatter {
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
   format(modelValue: any): TextFormatResult {
     let value = modelValue
     let textValue = ''

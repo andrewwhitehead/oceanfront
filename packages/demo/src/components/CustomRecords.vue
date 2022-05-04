@@ -47,11 +47,10 @@
         <div class="record-info">
           <h4>Record state</h4>
           <div class="row">
-            <div class="column sm-4">Locked:</div>
             <div class="column sm-8">
               <of-toggle
+                label="Locked"
                 v-model:checked="testRecord.locked"
-                style="vertical-align: top"
                 switch
               />
             </div>

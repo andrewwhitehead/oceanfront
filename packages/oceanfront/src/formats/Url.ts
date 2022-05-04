@@ -1,7 +1,5 @@
 import { Config } from '../lib/config'
-import { h } from 'vue'
 import { TextFormatResult, TextFormatter } from '../lib/formats'
-import { Renderable } from 'src/lib/fields'
 
 export interface UrlFormatterOptions {
   target?: string
@@ -12,28 +10,13 @@ export class UrlFormatter implements TextFormatter {
   constructor(config?: Config, options?: UrlFormatterOptions) {
     this.options = options
   }
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
   loadValue(modelValue: any): string | null {
     if (modelValue === null || modelValue === undefined) return null
     return modelValue.toString().trim()
   }
 
-  formatFixed(modelValue: any): Renderable {
-    let value: string | null = modelValue
-    let error
-    try {
-      value = this.loadValue(value)
-      if (value != null) {
-        value = this.fixUrl(value)
-      }
-    } catch (e: any) {
-      error = e.toString()
-      console.error(error)
-    }
-    return value
-      ? h('a', { href: value, target: this.options?.target }, value)
-      : ''
-  }
-
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
   format(modelValue: any): TextFormatResult {
     let value = modelValue
     let textValue = ''

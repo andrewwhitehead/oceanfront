@@ -1,23 +1,29 @@
-import { ref, computed, watch, h } from 'vue'
-import OfOptionList from '../components/OptionList.vue'
+import { useConfig } from '../lib/config'
+import { computed, defineComponent, h, ref, watch } from 'vue'
+import { OfFieldBase } from '../components/FieldBase'
 import { OfIcon } from '../components/Icon'
+import OfOptionList from '../components/OptionList.vue'
 import {
-  defineFieldType,
-  FieldContext,
-  FieldProps,
-  newFieldId,
+  BaseFieldProps,
   fieldRender,
+  makeFieldContext,
+  newFieldId,
+  provideFieldRender,
 } from '../lib/fields'
 import { useItems } from '../lib/items'
 
 type ActiveItem = { text?: string; [key: string]: any }
 
-export const SelectField = defineFieldType({
-  name: 'select',
-  init(props: FieldProps, ctx: FieldContext) {
-    const itemMgr = useItems(ctx.config)
+export const OfSelectField = defineComponent({
+  name: 'OfSelectField',
+  props: BaseFieldProps,
+  setup(props, ctx) {
+    const config = useConfig()
+    const itemMgr = useItems(config)
+    const fieldCtx = makeFieldContext(props, ctx)
+
     const initialValue = computed(() => {
-      let initial = ctx.initialValue
+      let initial = fieldCtx.initialValue
       if (initial === undefined) initial = props.defaultValue
       return initial ?? null
     })
@@ -27,7 +33,7 @@ export const SelectField = defineFieldType({
     const pendingValue = ref() // store selected but unconfirmed value
     const stateValue = ref()
     watch(
-      () => ctx.value,
+      () => fieldCtx.value,
       (val) => {
         if (val === undefined || val === '') val = null
         inputValue.value = val
@@ -43,7 +49,7 @@ export const SelectField = defineFieldType({
     const focused = ref(false)
     let defaultFieldId: string
     const inputId = computed(() => {
-      let id = ctx.id
+      let id = fieldCtx.id
       if (!id) {
         if (!defaultFieldId) defaultFieldId = newFieldId()
         id = defaultFieldId
@@ -130,7 +136,7 @@ export const SelectField = defineFieldType({
     const clickOpen = (_evt?: MouseEvent) => {
       if (opened.value) {
         closePopup()
-      } else if (ctx.editable && !closing) {
+      } else if (fieldCtx.editable && !closing) {
         opened.value = true
       }
       return false
@@ -151,7 +157,7 @@ export const SelectField = defineFieldType({
     }
     const setValue = (val: any) => {
       inputValue.value = val
-      if (ctx.onUpdate) ctx.onUpdate(val)
+      fieldCtx.onUpdate?.(val)
       closePopup(true)
     }
     const hooks = {
@@ -194,22 +200,16 @@ export const SelectField = defineFieldType({
       },
     }
 
-    return fieldRender({
+    const slots = {
       append: () => {
-        if (ctx.editable || ctx.mode === 'locked')
+        if (fieldCtx.editable || fieldCtx.mode === 'locked')
           return h(OfIcon, {
             class: 'of-select-icon',
             name: opened.value ? 'bullet up' : 'bullet down',
             size: 'input',
           })
       },
-      blank: computed(() => {
-        if (!activeItem.value.item) return true
-        const val = inputValue.value
-        return val === undefined || val === null || val === ''
-      }),
-      class: 'of-select-field',
-      content: () => {
+      interactiveContent: () => {
         const label = activeItem.value.item?.text || ''
 
         return [
@@ -229,15 +229,21 @@ export const SelectField = defineFieldType({
           ),
         ]
       },
+    }
+
+    const fRender = fieldRender({
+      blank: computed(() => {
+        if (!activeItem.value.item) return true
+        const val = inputValue.value
+        return val === undefined || val === null || val === ''
+      }),
+      class: 'of-select-field',
       click: clickOpen,
-      cursor: computed(() => (ctx.editable ? 'pointer' : null)),
+      cursor: computed(() => (fieldCtx.editable ? 'pointer' : null)),
       focus,
       focused,
-      // hovered,
       inputId,
       inputValue,
-      // loading
-      // messages
       pendingValue,
       popup: {
         content: () =>
@@ -254,5 +260,11 @@ export const SelectField = defineFieldType({
       updated: computed(() => initialValue.value !== stateValue.value),
       value: stateValue,
     })
+    provideFieldRender(fRender)
+
+    const render = () => {
+      return h(OfFieldBase, props, { ...ctx.slots, ...slots })
+    }
+    return render
   },
 })

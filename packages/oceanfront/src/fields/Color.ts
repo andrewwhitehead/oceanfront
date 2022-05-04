@@ -1,26 +1,29 @@
-import { computed, h, ref, watch } from 'vue'
-import Saturation from '../components/Saturation'
+import { computed, defineComponent, h, ref, watch } from 'vue'
+import { OfFieldBase } from '../components/FieldBase'
 import Hue from '../components/Hue'
-import { hsvToHsl, hsvToRgb, loadColor, rgbToHsv, rgbToHex } from '../lib/color'
+import Saturation from '../components/Saturation'
+import { hsvToHsl, hsvToRgb, loadColor, rgbToHex, rgbToHsv } from '../lib/color'
 import {
-  FieldContext,
-  FieldProps,
-  defineFieldType,
+  BaseFieldProps,
   fieldRender,
+  FieldRender,
+  makeFieldContext,
   newFieldId,
+  provideFieldRender,
 } from '../lib/fields'
 
-export const ColorField = defineFieldType({
-  name: 'color',
+export const OfColorField = defineComponent({
+  name: 'OfColorField',
   class: 'of-color-field',
-
-  init(props: FieldProps, ctx: FieldContext) {
+  props: BaseFieldProps,
+  setup(props, ctx) {
+    const fieldCtx = makeFieldContext(props, ctx)
     const opened = ref(false)
     const focused = ref(false)
     const elt = ref<HTMLElement | undefined>()
     let defaultFieldId: string
     const inputId = computed(() => {
-      let id = ctx.id
+      let id = fieldCtx.id
       if (!id) {
         if (!defaultFieldId) defaultFieldId = newFieldId()
         id = defaultFieldId
@@ -35,10 +38,10 @@ export const ColorField = defineFieldType({
       if (refocus) focus()
     }
     const clickOpen = () => {
-      if (ctx.editable) opened.value = true
+      if (fieldCtx.editable) opened.value = true
     }
     const initialValue = computed(() => {
-      let initial = ctx.initialValue
+      let initial = fieldCtx.initialValue
       if (initial === undefined) initial = props.defaultValue
       return initial ?? null
     })
@@ -62,7 +65,7 @@ export const ColorField = defineFieldType({
       }
     })
     watch(
-      () => ctx.value,
+      () => fieldCtx.value,
       (val) => {
         try {
           const rgb = val ? loadColor(val) : null
@@ -85,7 +88,7 @@ export const ColorField = defineFieldType({
       onChange(compColor.value.hex)
     }
     const onChange = (data: string): void => {
-      if (stateValue.value && ctx.onUpdate) ctx.onUpdate(data)
+      if (stateValue.value && fieldCtx.onUpdate) fieldCtx.onUpdate(data)
     }
     const renderPopup = () => {
       const color = compColor.value
@@ -128,9 +131,8 @@ export const ColorField = defineFieldType({
       },
     }
 
-    return fieldRender({
-      class: 'of-color-field',
-      content: () =>
+    const slots = {
+      interactiveContent: () =>
         h(
           'div',
           {
@@ -145,15 +147,6 @@ export const ColorField = defineFieldType({
           },
           [compColor.value.hex]
         ),
-      focused,
-      click: clickOpen,
-      cursor: computed(() => (ctx.editable ? 'pointer' : 'default')),
-      inputId,
-      popup: {
-        content: () => (opened.value ? renderPopup() : undefined),
-        visible: opened,
-        onBlur: closePopup,
-      },
       prepend: () =>
         h(
           'div',
@@ -165,8 +158,26 @@ export const ColorField = defineFieldType({
           },
           h('div', { class: 'of-color-swatch-border' })
         ),
+    }
+
+    const fRender: FieldRender = fieldRender({
+      class: 'of-color-field',
+      focused,
+      click: clickOpen,
+      cursor: computed(() => (fieldCtx.editable ? 'pointer' : 'default')),
+      inputId,
+      popup: {
+        content: () => (opened.value ? renderPopup() : undefined),
+        visible: opened,
+        onBlur: closePopup,
+      },
       updated: computed(() => initialValue.value !== stateValue.value),
       value: stateValue,
     })
+    provideFieldRender(fRender)
+    const render = () => {
+      return h(OfFieldBase, props, { ...ctx.slots, ...slots })
+    }
+    return render
   },
 })
