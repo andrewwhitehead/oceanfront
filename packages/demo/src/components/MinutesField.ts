@@ -94,7 +94,7 @@ export default defineComponent({
     })
 
     const render = () => {
-      return h(OfFieldBase, theProps, slots)
+      return h(OfFieldBase, theProps, { ...slots, ...ctx.slots })
     }
     return render
   },

@@ -176,7 +176,7 @@ export const OfColorField = defineComponent({
     })
     provideFieldRender(fRender)
     const render = () => {
-      return h(OfFieldBase, props, { ...ctx.slots, ...slots })
+      return h(OfFieldBase, props, { ...slots, ...ctx.slots })
     }
     return render
   },
