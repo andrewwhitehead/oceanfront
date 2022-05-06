@@ -1,5 +1,7 @@
+import { Renderable } from '../lib/fields'
 import { Config } from '../lib/config'
 import { TextFormatResult, TextFormatter } from '../lib/formats'
+import { h } from 'vue'
 
 export interface UrlFormatterOptions {
   target?: string
@@ -37,8 +39,8 @@ export class UrlFormatter implements TextFormatter {
     }
   }
 
-  fixUrl(value: string): string {
-    let url = value,
+  fixUrl(value: any): string {
+    let url = typeof value === 'string' ? value : value ? value.toString() : '',
       tail
 
     // fix duplicate schema
@@ -60,5 +62,10 @@ export class UrlFormatter implements TextFormatter {
 
   unformat(input: string): string | null {
     return input
+  }
+
+  formatFixed(modelValue: any, context?: string): Renderable | undefined {
+    const url = this.fixUrl(modelValue as string)
+    return h('a', { href: url, target: '_blank' }, url)
   }
 }

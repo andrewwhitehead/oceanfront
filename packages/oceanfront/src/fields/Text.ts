@@ -19,11 +19,6 @@ import {
 } from '../lib/fields'
 import { TextFormatter, useFormats } from '../lib/formats'
 import { removeEmpty } from '../lib/util'
-import urlFixed from './text-formats/url'
-
-const fixedFormats: any = {
-  url: urlFixed,
-}
 
 // editing a list field does not necessarily mean swapping input to edit mode
 // it may/should show a popup instead (this might be implied by 'muted' flag)
@@ -56,14 +51,14 @@ export const OfTextField = defineComponent({
     const fieldCtx = makeFieldContext(props, ctx)
     const config = useConfig()
     const formatMgr = useFormats(config)
-    const formatter = computed(() =>
-      formatMgr.getTextFormatter(
-        props.type,
+    const formatter = computed(() => {
+      return formatMgr.getTextFormatter(
+        props.type || props.inputType,
         props.formatOptions,
         fieldCtx.name,
         props.record
       )
-    )
+    })
     const initialValue = computed(() => {
       let initial = fieldCtx.initialValue
       if (initial === undefined) initial = props.defaultValue
@@ -244,10 +239,7 @@ export const OfTextField = defineComponent({
         })
       },
       fixedContent: () => {
-        return (
-          fixedFormats[inputType.value ?? '']?.(lazyInputValue, props, ctx) ??
-          lazyInputValue
-        )
+        return formatter.value?.formatFixed?.(lazyInputValue) ?? lazyInputValue
       },
     }
 
