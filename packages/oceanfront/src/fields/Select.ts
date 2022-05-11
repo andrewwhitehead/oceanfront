@@ -64,6 +64,7 @@ export const OfSelectField = defineComponent({
         specialKey: 'special',
         textKey: 'text',
         valueKey: 'value',
+        iconKey: 'icon',
       }
       let items
       if (props.name && props.record) {
@@ -125,6 +126,7 @@ export const OfSelectField = defineComponent({
             value: item[resolved.valueKey],
             selected: active.idx === idx,
             special: item[resolved.specialKey],
+            icon: item[resolved.iconKey] ?? '',
           })
         }
         idx++
