@@ -54,6 +54,9 @@ export default defineComponent({
           menu: 'menu',
           more: 'more',
           'more alt': 'more alt',
+          'theme settings': 'theme settings',
+          'theme light': 'light mode',
+          'theme dark': 'dark mode',
         },
         {
           required: 'required',
