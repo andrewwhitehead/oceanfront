@@ -15,7 +15,7 @@ export const OfToggle = defineComponent({
   name: 'OfToggle',
   inheritAttrs: false,
   props: {
-    checked: { type: Boolean, default: false },
+    checked: { type: [Boolean, Number], default: false },
     id: String,
     initialValue: { type: Boolean, default: undefined },
     inputType: String,
@@ -42,9 +42,12 @@ export const OfToggle = defineComponent({
     })
     const inputId = computed(() => props.id || defaultId)
     const value = computed(() => {
-      return props.name && record.value
-        ? record.value.value[props.name]
-        : props.checked
+      const val =
+        props.name && record.value
+          ? record.value.value[props.name]
+          : props.checked
+
+      return typeof val === 'number' ? Boolean(val) : val
     })
     const locked = computed(() => props.locked || record.value?.locked)
     const focused = ref(false)

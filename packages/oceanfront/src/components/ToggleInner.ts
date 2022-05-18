@@ -4,7 +4,7 @@ import { OfIcon } from './Icon'
 export const ToggleInner = defineComponent({
   props: {
     switch: Boolean,
-    checked: Boolean,
+    checked: [Boolean, Number],
     label: String,
     inputId: String,
     align: String,
