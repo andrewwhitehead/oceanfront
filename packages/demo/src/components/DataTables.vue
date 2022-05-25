@@ -24,7 +24,7 @@
           rows-selector
           :density="params.density"
           @rows-selected="onRowsSelected"
-          @rows-sorted="onItems2Sorted"
+          @rows-sorted="onRowsSorted"
           :headers="headers2"
           :items="items2"
           :footer-items="footerItems"
@@ -51,10 +51,10 @@ export default defineComponent({
         value: 'name',
         divider: true,
         width: '150px',
-        sort: false,
+        sortable: false,
       },
-      { text: 'Category', value: 'category', sort: false },
-      { text: 'Size', value: 'size', align: 'end', sort: false },
+      { text: 'Category', value: 'category', sortable: false },
+      { text: 'Size', value: 'size', align: 'end', sortable: false },
     ]
     const items = [
       {
@@ -105,33 +105,47 @@ export default defineComponent({
         divider: true,
         width: '150px',
         sort: 'desc',
+        sortable_fields: [
+          { label: 'Address', value: 'address' },
+          { label: 'Phone', value: 'phone' },
+        ],
       },
-      { text: 'Category', value: 'category', sort: false },
-      { text: 'Size', value: 'size', align: 'end' },
+      { text: 'Category', value: 'category' },
+      { text: 'Address', value: 'address', sortable: false },
+      { text: 'Phone', value: 'phone', sortable: false },
+      { text: 'Size', value: 'size', align: 'end', sort: 'asc' },
     ]
     const items2 = ref([
       {
         id: '1',
         name: 'First item',
         category: 'Category 1',
+        address: 'Lisbon, CA, USA',
+        phone: '+1 (961) 209-1256',
         size: 15.56,
       },
       {
         id: '2',
         name: 'Second item',
         category: 'Category 2',
+        address: 'San Francisco, CA, USA',
+        phone: '+1 (416) 269-0823',
         size: -15.56,
       },
       {
         id: '3',
         name: 'Third item',
         category: 'Category 3',
+        address: 'Orléans, CA, USA',
+        phone: '+1 (125) 853-7161',
         size: 15125.56,
       },
       {
         id: '4',
         name: 'Fourth item',
         category: 'Category 3',
+        address: 'New York, NY, USA',
+        phone: '+1 (041) 102-0224',
         size: 45.56,
       },
     ])
@@ -142,7 +156,7 @@ export default defineComponent({
       console.log(values)
     }
 
-    const onItems2Sorted = function (sort: { column: string; order: string }) {
+    const onRowsSorted = function (sort: { column: string; order: string }) {
       if (sort.order == '') {
         items2.value = [...initialItems2]
       } else {
@@ -168,7 +182,7 @@ export default defineComponent({
       items2,
       footerItems,
       onRowsSelected,
-      onItems2Sorted,
+      onRowsSorted,
       params,
       densityOptions,
     }

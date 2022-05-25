@@ -1,5 +1,5 @@
 <template>
-  <div :class="tableClass" :style="columnsStyle">
+  <div :class="tableClass" :style="columnsStyle" :id="outerId">
     <div class="of-data-table-header">
       <div v-if="rowsSelector" class="of-data-table-rows-selector">
         <slot name="header-rows-selector">
@@ -24,23 +24,35 @@
         :class="[
           col.class,
           {
-            sortable: col.sort !== false,
+            sortable: col.sortable !== false,
             [sort.order]: sort.column === col.value,
           },
         ]"
         :key="idx"
       >
-        <span :onclick="col.sort == false ? null : () => onSort(col.value)">
+        <span
+          v-if="col.sortable !== false"
+          :id="createColId(idx)"
+          @mouseenter="
+            col.sortable_fields
+              ? sortColEnter('#' + createColId(idx), col.sortable_fields)
+              : null
+          "
+          @mouseleave="col.sortable_fields ? sortColLeave() : null"
+          @click="onSort(col.value)"
+        >
           {{ col.text }}
           <of-icon
-            v-if="col.sort !== false"
             :name="
-              sort.order == 'desc' && sort.column == col.value
+              sort.order == RowSortOrders.desc && sort.column == col.value
                 ? 'bullet down'
                 : 'bullet up'
             "
           />
         </span>
+        <div v-else>
+          {{ col.text }}
+        </div>
       </div>
     </div>
     <div
@@ -81,6 +93,41 @@
       </div>
     </template>
   </div>
+  <of-overlay
+    :active="sortPopupOpened"
+    :capture="false"
+    :shade="false"
+    :target="sortPopupTarget"
+  >
+    <div
+      class="of-multi-sort-popup of-menu of-group of--elevated-1"
+      @mouseenter="sortPopupEnter()"
+      @mouseleave="sortPopupLeave()"
+    >
+      <template v-for="(field, idx) of selectedColFields" :key="idx">
+        <of-button
+          @click="onSort(field.value, RowSortOrders.desc)"
+          variant="text"
+          icon="bullet down"
+          :class="{
+            active:
+              sort.column === field.value && sort.order === RowSortOrders.desc,
+          }"
+          >{{ field.label }}</of-button
+        >
+        <of-button
+          @click="onSort(field.value, RowSortOrders.asc)"
+          variant="text"
+          icon="bullet up"
+          :class="{
+            active:
+              sort.column === field.value && sort.order === RowSortOrders.asc,
+          }"
+          >{{ field.label }}</of-button
+        >
+      </template>
+    </div>
+  </of-overlay>
 </template>
 
 <script lang="ts">
@@ -117,6 +164,8 @@ const showSelector = (hasSelector: boolean, rows: any[]): boolean => {
   return (hasSelector && issetId) ?? false
 }
 
+let sysDataTableIndex = 0
+
 export default defineComponent({
   name: 'OfDataTable',
   // components: { OfFormat },
@@ -140,6 +189,61 @@ export default defineComponent({
   setup(props, ctx: SetupContext) {
     const themeOptions = useThemeOptions()
     const sort = ref({ column: '', order: '' })
+
+    const outerId = computed(() => {
+      return 'of-data-table-' + ++sysDataTableIndex
+    })
+
+    const sortPopupCloseTimerId = ref()
+    const sortPopupOpenTimerId = ref()
+    const sortPopupChangeTimerId = ref()
+    const sortPopupOpened = ref(false)
+    const sortPopupTarget = ref('')
+    const selectedColFields = ref([{}])
+
+    const createColId = (idx: number) => outerId.value + '-header-' + idx
+
+    const sortColLeave = () => {
+      clearTimeout(sortPopupChangeTimerId.value)
+      clearTimeout(sortPopupOpenTimerId.value)
+      if (sortPopupOpened.value !== true) return
+      sortPopupCloseTimerId.value = window.setTimeout(() => {
+        closeSortPopup()
+      }, 500)
+    }
+
+    const sortColEnter = (
+      target: string,
+      sortable_fields: { label: string; value: string; order?: string }[]
+    ) => {
+      selectedColFields.value = sortable_fields
+      clearTimeout(sortPopupCloseTimerId.value)
+      sortPopupChangeTimerId.value = window.setTimeout(
+        () => {
+          sortPopupTarget.value = target
+        },
+        sortPopupOpened.value ? 500 : 0
+      )
+      if (sortPopupOpened.value !== true) {
+        clearTimeout(sortPopupOpenTimerId.value)
+        sortPopupOpenTimerId.value = window.setTimeout(() => {
+          openSortPopup()
+        }, 500)
+      }
+    }
+
+    const sortPopupEnter = () => {
+      clearTimeout(sortPopupCloseTimerId.value)
+    }
+    const sortPopupLeave = () => {
+      sortColLeave()
+    }
+    const openSortPopup = () => {
+      sortPopupOpened.value = true
+    }
+    const closeSortPopup = () => {
+      sortPopupOpened.value = false
+    }
 
     const columns = computed(() => {
       const cols: any[] = []
@@ -283,8 +387,9 @@ export default defineComponent({
       sort.value.column = column
     }
 
-    const onSort = function (column: string) {
-      const order =
+    const onSort = function (column: string, order = undefined) {
+      closeSortPopup()
+      const autoOrder =
         sort.value.order == RowSortOrders.noOrder ||
         sort.value.column !== column
           ? RowSortOrders.asc
@@ -292,7 +397,7 @@ export default defineComponent({
           ? RowSortOrders.desc
           : RowSortOrders.asc
 
-      setSort(column, order)
+      setSort(column, order || autoOrder)
       selectRows(RowsSelectorValues.DeselectAll)
       ctx.emit('rows-sorted', sort.value)
     }
@@ -332,6 +437,16 @@ export default defineComponent({
       onSort,
       sort,
       tableClass,
+      outerId,
+      RowSortOrders,
+      sortPopupTarget,
+      sortPopupOpened,
+      selectedColFields,
+      createColId,
+      sortColEnter,
+      sortColLeave,
+      sortPopupEnter,
+      sortPopupLeave,
     }
   },
 })
