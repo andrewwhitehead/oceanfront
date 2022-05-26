@@ -105,7 +105,7 @@ export default defineComponent({
         divider: true,
         width: '150px',
         sort: 'desc',
-        sortable_fields: [
+        extra_sort_fields: [
           { label: 'Address', value: 'address' },
           { label: 'Phone', value: 'phone' },
         ],

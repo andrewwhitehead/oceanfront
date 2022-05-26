@@ -34,11 +34,11 @@
           v-if="col.sortable !== false"
           :id="createColId(idx)"
           @mouseenter="
-            col.sortable_fields
-              ? sortColEnter('#' + createColId(idx), col.sortable_fields)
+            col.extra_sort_fields
+              ? sortColEnter('#' + createColId(idx), col.extra_sort_fields)
               : null
           "
-          @mouseleave="col.sortable_fields ? sortColLeave() : null"
+          @mouseleave="col.extra_sort_fields ? sortColLeave() : null"
           @click="onSort(col.value)"
         >
           {{ col.text }}
@@ -92,42 +92,21 @@
         </div>
       </div>
     </template>
-  </div>
-  <of-overlay
-    :active="sortPopupOpened"
-    :capture="false"
-    :shade="false"
-    :target="sortPopupTarget"
-  >
-    <div
-      class="of-multi-sort-popup of-menu of-group of--elevated-1"
-      @mouseenter="sortPopupEnter()"
-      @mouseleave="sortPopupLeave()"
+    <of-overlay
+      :active="sortPopupOpened"
+      :capture="false"
+      :shade="false"
+      :target="sortPopupTarget"
     >
-      <template v-for="(field, idx) of selectedColFields" :key="idx">
-        <of-button
-          @click="onSort(field.value, RowSortOrders.desc)"
-          variant="text"
-          icon="bullet down"
-          :class="{
-            active:
-              sort.column === field.value && sort.order === RowSortOrders.desc,
-          }"
-          >{{ field.label }}</of-button
-        >
-        <of-button
-          @click="onSort(field.value, RowSortOrders.asc)"
-          variant="text"
-          icon="bullet up"
-          :class="{
-            active:
-              sort.column === field.value && sort.order === RowSortOrders.asc,
-          }"
-          >{{ field.label }}</of-button
-        >
-      </template>
-    </div>
-  </of-overlay>
+      <of-option-list
+        @mouseenter="sortPopupEnter()"
+        @mouseleave="sortPopupLeave()"
+        @click="onSort"
+        class="of-extra-sort-popup of--elevated-1"
+        :items="selectedColFields"
+      />
+    </of-overlay>
+  </div>
 </template>
 
 <script lang="ts">
@@ -140,6 +119,7 @@ import {
   PropType,
   SetupContext,
   ComputedRef,
+  Ref,
 } from 'vue'
 import { DataTableHeader } from '../lib/datatable'
 import { useThemeOptions } from '../lib/theme'
@@ -154,6 +134,12 @@ enum RowSortOrders {
   asc = 'asc',
   desc = 'desc',
   noOrder = '',
+}
+
+interface ExtraSortField {
+  label: string
+  value: string
+  order?: string
 }
 
 const showSelector = (hasSelector: boolean, rows: any[]): boolean => {
@@ -199,7 +185,7 @@ export default defineComponent({
     const sortPopupChangeTimerId = ref()
     const sortPopupOpened = ref(false)
     const sortPopupTarget = ref('')
-    const selectedColFields = ref([{}])
+    const selectedColFields: Ref<Object[]> = ref([])
 
     const createColId = (idx: number) => outerId.value + '-header-' + idx
 
@@ -214,12 +200,12 @@ export default defineComponent({
 
     const sortColEnter = (
       target: string,
-      sortable_fields: { label: string; value: string; order?: string }[]
+      extraSortFields: ExtraSortField[]
     ) => {
-      selectedColFields.value = sortable_fields
       clearTimeout(sortPopupCloseTimerId.value)
       sortPopupChangeTimerId.value = window.setTimeout(
         () => {
+          setSelectedColFields(extraSortFields)
           sortPopupTarget.value = target
         },
         sortPopupOpened.value ? 500 : 0
@@ -229,6 +215,32 @@ export default defineComponent({
         sortPopupOpenTimerId.value = window.setTimeout(() => {
           openSortPopup()
         }, 500)
+      }
+    }
+
+    const setSelectedColFields = (extraSortFields: ExtraSortField[]) => {
+      selectedColFields.value = []
+      for (const field of extraSortFields) {
+        const item = {
+          value: field.value,
+          text: field.label,
+        }
+        const itemAsc = {
+          icon: 'bullet up',
+          selected:
+            sort.value.column === field.value &&
+            sort.value.order === RowSortOrders.asc,
+          order: RowSortOrders.asc,
+        }
+        const itemDesc = {
+          icon: 'bullet down',
+          selected:
+            sort.value.column === field.value &&
+            sort.value.order === RowSortOrders.desc,
+          order: RowSortOrders.desc,
+        }
+        selectedColFields.value.push({ ...itemDesc, ...item })
+        selectedColFields.value.push({ ...itemAsc, ...item })
       }
     }
 
@@ -387,7 +399,10 @@ export default defineComponent({
       sort.value.column = column
     }
 
-    const onSort = function (column: string, order = undefined) {
+    const onSort = function (
+      column: string,
+      field: ExtraSortField | undefined = undefined
+    ) {
       closeSortPopup()
       const autoOrder =
         sort.value.order == RowSortOrders.noOrder ||
@@ -397,7 +412,7 @@ export default defineComponent({
           ? RowSortOrders.desc
           : RowSortOrders.asc
 
-      setSort(column, order || autoOrder)
+      setSort(column, field?.order || autoOrder)
       selectRows(RowsSelectorValues.DeselectAll)
       ctx.emit('rows-sorted', sort.value)
     }

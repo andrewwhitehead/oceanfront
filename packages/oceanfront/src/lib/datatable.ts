@@ -10,6 +10,6 @@ export interface DataTableHeader {
   width?: string | number
   filter?: (value: any, search: string, item: any) => boolean // provide via formatter?
   sort?: 'asc' | 'desc' // provide via formatter?
-  sortable_fields?: { label: string; value: string; order?: string }[]
+  extra_sort_fields?: { label: string; value: string; order?: string }[]
   editable?: boolean | string
 }
