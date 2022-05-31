@@ -44,10 +44,14 @@ const checkFocused = (elt?: HTMLElement) => {
   return (active && elt.contains(active)) || false
 }
 
+let overlayZIndex = 200
 let overlayStack: HTMLElement[] = []
 
 const removeFromStack = (elt?: HTMLElement) => {
   overlayStack = overlayStack.filter((e) => e !== elt)
+  if (overlayStack.length == 0) {
+    overlayZIndex = 200
+  }
   const top = overlayStack[overlayStack.length - 1]
   if (!top) return
   if (!checkFocused(top)) top.focus()
@@ -116,6 +120,8 @@ export const OfOverlay = defineComponent({
       )
       ;((findFocus as HTMLElement) || outer).focus()
       overlayStack.push(outer)
+      overlayZIndex++
+      outer.style.zIndex = overlayZIndex.toString()
       focused = true
     }
     const reparent = () => {
@@ -243,7 +249,9 @@ export const OfOverlay = defineComponent({
                 h(
                   'div',
                   {
-                    style: { display: props.active ? 'contents' : 'none' },
+                    style: {
+                      display: props.active ? 'block' : 'none',
+                    },
                   },
                   [
                     state.value == 'overlay'
