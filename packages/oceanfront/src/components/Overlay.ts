@@ -250,7 +250,7 @@ export const OfOverlay = defineComponent({
                   'div',
                   {
                     style: {
-                      display: props.active ? 'block' : 'none',
+                      display: props.active ? 'contents' : 'none',
                     },
                   },
                   [
