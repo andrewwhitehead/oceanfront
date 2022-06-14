@@ -63,6 +63,7 @@ export const OfSelectField = defineComponent({
         items: [],
         specialKey: 'special',
         textKey: 'text',
+        selectedTextKey: 'selectedText',
         valueKey: 'value',
         iconKey: 'icon',
       }
@@ -123,6 +124,7 @@ export const OfSelectField = defineComponent({
           rows.push({
             disabled: item[resolved.disabledKey],
             text: item[resolved.textKey],
+            selectedText: item[resolved.selectedTextKey],
             value: item[resolved.valueKey],
             selected: active.idx === idx,
             special: item[resolved.specialKey],
@@ -212,7 +214,10 @@ export const OfSelectField = defineComponent({
           })
       },
       interactiveContent: () => {
-        const label = activeItem.value.item?.text || ''
+        const label =
+          activeItem.value.item?.selectedText ||
+          activeItem.value.item?.text ||
+          ''
 
         return [
           h(
