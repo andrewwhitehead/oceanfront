@@ -1,5 +1,32 @@
 <template>
-  <div role="menu" class="of-menu" :class="menuClass" :style="menuStyle">
+  <div
+    role="menu"
+    class="of-menu options"
+    :class="menuClass"
+    :style="menuStyle"
+  >
+    <div class="search-row">
+      <of-field
+        type="text"
+        v-model="searchText"
+        ref="searchField"
+        @input="onSearchInput"
+        tabindex="0"
+      >
+        <template #prepend>
+          <of-icon name="search" />
+        </template>
+        <template #append>
+          <of-icon
+            v-if="searchNotEmpty"
+            name="cancel circle"
+            style="cursor: pointer"
+            size="input"
+            @click="clearSearch"
+          />
+        </template>
+      </of-field>
+    </div>
     <of-nav-group>
       <div v-if="isEmpty" style="padding: 0 0.5em">No items</div>
       <template v-if="!isEmpty">
@@ -27,7 +54,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, computed, PropType } from 'vue'
+import { defineComponent, computed, PropType, ref, Ref } from 'vue'
 import { OfNavGroup } from '../components/NavGroup'
 import { OfListItem } from '../components/ListItem'
 const OfOptionList = defineComponent({
@@ -50,7 +77,32 @@ const OfOptionList = defineComponent({
     const theItems = computed(() => props.items as any[])
     const menuClass = computed(() => props.class)
     const menuStyle = computed(() => props.style)
-    return { isEmpty, theItems, menuClass, menuStyle }
+
+    const searchField = ref<HTMLElement | null>(null)
+    const searchText: Ref<string> = ref('')
+    const searchNotEmpty = computed(() => searchText.value !== '')
+
+    const onSearchInput = (_: never, value: string) => {
+      console.log(value)
+      searchText.value = value
+    }
+
+    const clearSearch = () => {
+      searchText.value = ''
+    }
+
+    return {
+      isEmpty,
+      theItems,
+      menuClass,
+      menuStyle,
+
+      searchField,
+      searchText,
+      onSearchInput,
+      searchNotEmpty,
+      clearSearch,
+    }
   },
 })
 

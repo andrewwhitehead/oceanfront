@@ -173,6 +173,7 @@ export const OfSelectField = defineComponent({
         searchText.value = ''
       },
       onKeydown(evt: KeyboardEvent) {
+        console.log(evt)
         if (evt.key == ' ' || evt.key == 'ArrowUp' || evt.key == 'ArrowDown') {
           clickOpen()
           evt.preventDefault()
@@ -185,6 +186,7 @@ export const OfSelectField = defineComponent({
           !evt.metaKey &&
           !evt.ctrlKey
         ) {
+          console.log(evt)
           searchText.value += evt.key
           for (let i = 0; i < formatItems.value.length; i++) {
             const option = formatItems.value[i]
