@@ -384,3 +384,29 @@ export const watchPosition = (
 ): PositionObserver => {
   return new PositionObserverImpl(options)
 }
+
+type throttleFunc<T> = {
+  cancel: () => void
+  (input: T): void
+}
+
+export const throttle = <T>(
+  inteval: number,
+  handler: (input: T) => void
+): throttleFunc<T> => {
+  let timeout: number | null = null
+  const func = (input: T) => {
+    if (timeout !== null) {
+      clearTimeout(timeout)
+    }
+    timeout = setTimeout(() => {
+      handler(input)
+    }, inteval)
+  }
+  func.cancel = () => {
+    if (timeout !== null) {
+      clearTimeout(timeout)
+    }
+  }
+  return func
+}

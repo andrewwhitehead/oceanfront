@@ -55,35 +55,18 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, computed, PropType, ref, Ref, nextTick } from 'vue'
+import {
+  defineComponent,
+  computed,
+  PropType,
+  ref,
+  Ref,
+  nextTick,
+  watch,
+} from 'vue'
 import { OfNavGroup } from '../components/NavGroup'
 import { OfListItem } from '../components/ListItem'
-
-type throttleFunc<T> = {
-  cancel: () => void
-  (input: T): void
-}
-
-const throttle = <T>(
-  inteval: number,
-  handler: (input: T) => void
-): throttleFunc<T> => {
-  let timeout: number | null = null
-  const func = (input: T) => {
-    if (timeout !== null) {
-      clearTimeout(timeout)
-    }
-    timeout = setTimeout(() => {
-      handler(input)
-    }, inteval)
-  }
-  func.cancel = () => {
-    if (timeout !== null) {
-      clearTimeout(timeout)
-    }
-  }
-  return func
-}
+import { throttle } from '../lib/util'
 
 const OfOptionList = defineComponent({
   name: 'OfOptionList',
@@ -101,8 +84,8 @@ const OfOptionList = defineComponent({
     onClick: { type: Function, required: true },
   },
   setup(props) {
-    const isEmpty = computed(() => !props.items || !props.items.length)
-    const theItems = computed(() => props.items as any[])
+    const isEmpty = computed(() => !theItems.value || !theItems.value.length)
+    const theItems = ref(props.items as any[])
     const menuClass = computed(() => props.class)
     const menuStyle = computed(() => props.style)
 
@@ -117,6 +100,26 @@ const OfOptionList = defineComponent({
 
     const search = throttle(300, (input: string) => {
       searchText.value = input.trim()
+    })
+
+    watch(
+      () => props.items,
+      (value) => {
+        theItems.value = value
+      }
+    )
+
+    watch(searchText, () => {
+      if (searchText.value.trim() === '') theItems.value = props.items
+      console.log(searchText.value)
+      theItems.value = props.items.filter((item) => {
+        if (item.value !== undefined) {
+          const optionText: string = item.text
+          return optionText
+            .toLowerCase()
+            .includes(searchText.value.toLowerCase())
+        }
+      })
     })
 
     const clearSearch = () => {
@@ -138,7 +141,7 @@ const OfOptionList = defineComponent({
         !evt.metaKey &&
         !evt.ctrlKey
       ) {
-        if (!showSearch.value) {
+        if (!showSearch.value && props.items?.length > 0) {
           showSearch.value = true
           nextTick(() => {
             focusSearch()

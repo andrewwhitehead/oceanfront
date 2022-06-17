@@ -177,30 +177,7 @@ export const OfSelectField = defineComponent({
           clickOpen()
           evt.preventDefault()
           evt.stopPropagation()
-        } /*else if (
-          formatItems.value.length &&
-          (/(^Key([A-Z]$))/.test(evt.code) ||
-            /(^Digit([0-9]$))/.test(evt.code)) &&
-          !evt.altKey &&
-          !evt.metaKey &&
-          !evt.ctrlKey
-        ) {
-          searchText.value += evt.key
-          for (let i = 0; i < formatItems.value.length; i++) {
-            const option = formatItems.value[i]
-            if (option.value !== undefined) {
-              const optionText: string = option.text
-              if (
-                optionText
-                  .substring(0, searchText.value.length)
-                  .toLowerCase() == searchText.value.toLowerCase()
-              ) {
-                setValue(option.value)
-                return
-              }
-            }
-          }
-        }*/
+        }
       },
     }
 
