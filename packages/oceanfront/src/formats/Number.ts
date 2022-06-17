@@ -174,9 +174,9 @@ export class NumberFormatter implements TextFormatter {
     try {
       value = this.loadValue(value)
       if (value != null) {
-        const selStart = 1;
-        const unformat = this.parseInput(value.toString(), selStart);
-        textValue = this.applyOptions(value, selStart, unformat);
+        const selStart = 1
+        const unformat = this.parseInput(value.toString(), selStart)
+        textValue = this.applyOptions(value, selStart, unformat)
       }
     } catch (e: any) {
       error = e.toString()
@@ -202,50 +202,51 @@ export class NumberFormatter implements TextFormatter {
     throw new TypeError('Unsupported value')
   }
 
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
   applyOptions(textValue: string, selStart: number, unformat: any): string {
-    const fmtOpts = this.formatterOptions(true);
-    const { seps } = unformat;
-    let { minDecs } = unformat;
+    const fmtOpts = this.formatterOptions(true)
+    const { seps } = unformat
+    let { minDecs } = unformat
     if (minDecs !== null)
-      minDecs = Math.min(minDecs, fmtOpts.maximumFractionDigits || 0);
-    const formatter = Intl.NumberFormat(this.options.locale, fmtOpts);
+      minDecs = Math.min(minDecs, fmtOpts.maximumFractionDigits || 0)
+    const formatter = Intl.NumberFormat(this.options.locale, fmtOpts)
     const parts: any[] =
       unformat.value === null
         ? []
-        : (formatter as any).formatToParts(unformat.value);
-    textValue = "";
-    let parsedPos = 0;
+        : (formatter as any).formatToParts(unformat.value)
+    textValue = ''
+    let parsedPos = 0
     for (const part of parts) {
-      if (part.type === "group") textValue += seps.group;
-      else if (part.type === "decimal") {
-        textValue += seps.decimal;
-        parsedPos++;
-      } else if (part.type === "integer" || part.type === "fraction") {
-        let pval = part.value as string;
-        if (part.type === "fraction") {
+      if (part.type === 'group') textValue += seps.group
+      else if (part.type === 'decimal') {
+        textValue += seps.decimal
+        parsedPos++
+      } else if (part.type === 'integer' || part.type === 'fraction') {
+        let pval = part.value as string
+        if (part.type === 'fraction') {
           if (minDecs && minDecs > pval.length)
-            pval += "0".repeat(minDecs - pval.length);
-          minDecs = null;
+            pval += '0'.repeat(minDecs - pval.length)
+          minDecs = null
         }
-        for (const c of pval.split("")) {
+        for (const c of pval.split('')) {
           if (!unformat.selAfterDigit && parsedPos === unformat.selStart) {
-            selStart = textValue.length;
+            selStart = textValue.length
           }
-          parsedPos++;
-          textValue += c;
+          parsedPos++
+          textValue += c
           if (unformat.selAfterDigit && parsedPos === unformat.selStart) {
-            selStart = textValue.length;
+            selStart = textValue.length
           }
         }
       } else {
-        textValue += part.value;
+        textValue += part.value
       }
     }
     if (minDecs !== null) {
-      textValue += seps.decimal + "0".repeat(minDecs);
+      textValue += seps.decimal + '0'.repeat(minDecs)
     }
 
-    return textValue;
+    return textValue
   }
 
   handleInput(evt: InputEvent): TextInputResult {
@@ -253,9 +254,9 @@ export class NumberFormatter implements TextFormatter {
     let textValue = input.value
     let selStart = input.selectionStart || 0
     if (textValue.length) {
-      const unformat = this.parseInput(textValue, selStart);
-      textValue = this.applyOptions(textValue, selStart, unformat);
-      selStart = Math.min(selStart, textValue.length);
+      const unformat = this.parseInput(textValue, selStart)
+      textValue = this.applyOptions(textValue, selStart, unformat)
+      selStart = Math.min(selStart, textValue.length)
 
       return {
         textValue,
