@@ -4,13 +4,14 @@
     class="of-menu options"
     :class="menuClass"
     :style="menuStyle"
+    @keydown="onKeyPress"
   >
-    <div class="search-row">
+    <div class="search-row" v-if="showSearch">
       <of-field
         type="text"
         v-model="searchText"
-        ref="searchField"
         @input="onSearchInput"
+        ref="searchField"
         tabindex="0"
       >
         <template #prepend>
@@ -40,7 +41,7 @@
               v-if="!item.special"
               :active="item.selected"
               :disabled="item.disabled"
-              @click="() => item.disabled || onClick(item.value, item)"
+              @click="() => item.disabled || click(item.value, item)"
               :attrs="item.attrs"
             >
               <of-icon v-if="item.icon" :name="item.icon" size="input" />
@@ -54,9 +55,36 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, computed, PropType, ref, Ref } from 'vue'
+import { defineComponent, computed, PropType, ref, Ref, nextTick } from 'vue'
 import { OfNavGroup } from '../components/NavGroup'
 import { OfListItem } from '../components/ListItem'
+
+type throttleFunc<T> = {
+  cancel: () => void
+  (input: T): void
+}
+
+const throttle = <T>(
+  inteval: number,
+  handler: (input: T) => void
+): throttleFunc<T> => {
+  let timeout: number | null = null
+  const func = (input: T) => {
+    if (timeout !== null) {
+      clearTimeout(timeout)
+    }
+    timeout = setTimeout(() => {
+      handler(input)
+    }, inteval)
+  }
+  func.cancel = () => {
+    if (timeout !== null) {
+      clearTimeout(timeout)
+    }
+  }
+  return func
+}
+
 const OfOptionList = defineComponent({
   name: 'OfOptionList',
   components: {
@@ -78,16 +106,59 @@ const OfOptionList = defineComponent({
     const menuClass = computed(() => props.class)
     const menuStyle = computed(() => props.style)
 
-    const searchField = ref<HTMLElement | null>(null)
+    const searchField = ref<any>(null)
     const searchText: Ref<string> = ref('')
     const searchNotEmpty = computed(() => searchText.value !== '')
+    const showSearch: Ref<boolean> = ref(false)
 
     const onSearchInput = (_: never, value: string) => {
-      console.log(value)
-      searchText.value = value
+      if (showSearch.value) search(value)
     }
 
+    const search = throttle(300, (input: string) => {
+      searchText.value = input.trim()
+    })
+
     const clearSearch = () => {
+      searchText.value = ''
+    }
+
+    const onKeyPress = (evt: KeyboardEvent) => {
+      let consumed = false
+
+      if (evt.key === 'Escape') {
+        if (searchText.value !== '') {
+          consumed = true
+          searchText.value = ''
+        }
+      } else if (
+        (/(^Key([A-Z]$))/.test(evt.code) ||
+          /(^Digit([0-9]$))/.test(evt.code)) &&
+        !evt.altKey &&
+        !evt.metaKey &&
+        !evt.ctrlKey
+      ) {
+        if (!showSearch.value) {
+          showSearch.value = true
+          nextTick(() => {
+            focusSearch()
+          })
+        }
+      }
+
+      if (consumed) {
+        evt.stopPropagation()
+        evt.preventDefault()
+      }
+    }
+
+    const focusSearch = () => {
+      searchField?.value?.$el.querySelector('input')?.focus()
+    }
+
+    const click = (value: any, item: any): any => {
+      if (props.onClick) props.onClick(value, item)
+      showSearch.value = false
       searchText.value = ''
     }
 
@@ -96,12 +167,15 @@ const OfOptionList = defineComponent({
       theItems,
       menuClass,
       menuStyle,
+      click,
 
       searchField,
       searchText,
       onSearchInput,
       searchNotEmpty,
       clearSearch,
+      showSearch,
+      onKeyPress,
     }
   },
 })
