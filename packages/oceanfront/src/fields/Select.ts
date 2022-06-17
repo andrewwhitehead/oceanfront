@@ -236,6 +236,7 @@ export const OfSelectField = defineComponent({
                 items: formatItems.value,
                 class: 'of--elevated-1',
                 onClick: setValue,
+                addSearch: true,
               })
             : undefined,
         visible: opened,

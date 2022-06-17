@@ -6,7 +6,7 @@
     :style="menuStyle"
     @keydown="onKeyPress"
   >
-    <div class="search-row" v-if="showSearch">
+    <div class="search-row" v-if="showSearch && addSearch">
       <of-field
         type="text"
         v-model="searchText"
@@ -82,6 +82,7 @@ const OfOptionList = defineComponent({
       default: () => [],
     },
     onClick: { type: Function, required: true },
+    addSearch: { type: Boolean, default: false },
   },
   setup(props) {
     const isEmpty = computed(() => !theItems.value || !theItems.value.length)
@@ -111,7 +112,6 @@ const OfOptionList = defineComponent({
 
     watch(searchText, () => {
       if (searchText.value.trim() === '') theItems.value = props.items
-      console.log(searchText.value)
       theItems.value = props.items.filter((item) => {
         if (item.value !== undefined) {
           const optionText: string = item.text
@@ -129,7 +129,7 @@ const OfOptionList = defineComponent({
     const onKeyPress = (evt: KeyboardEvent) => {
       let consumed = false
 
-      if (evt.key === 'Escape') {
+      if (showSearch.value && evt.key === 'Escape') {
         if (searchText.value !== '') {
           consumed = true
           searchText.value = ''
@@ -141,7 +141,7 @@ const OfOptionList = defineComponent({
         !evt.metaKey &&
         !evt.ctrlKey
       ) {
-        if (!showSearch.value && props.items?.length > 0) {
+        if (props.addSearch && !showSearch.value && props.items?.length > 0) {
           showSearch.value = true
           nextTick(() => {
             focusSearch()
