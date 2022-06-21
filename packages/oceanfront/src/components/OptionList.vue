@@ -117,7 +117,7 @@ const OfOptionList = defineComponent({
           const optionText: string = item.text
           return optionText
             .toLowerCase()
-            .includes(searchText.value.toLowerCase())
+            .includes(searchText.value.trim().toLowerCase())
         }
       })
     })
