@@ -126,12 +126,20 @@ export default defineComponent({
   label="Field Label"
   v-model="fieldValue"
 />`
-    const customProps = reactive({ multiline: false })
+
+    const items = [
+      { text: 'Test', value: 'Test' },
+      { text: 'Test1', value: 'Test1' },
+      { text: 'Test2', value: 'Test2' },
+    ]
+
+    const customProps = reactive({ multiline: false, items })
     return {
       change,
       customProps,
       sampleCode,
       textValue,
+      items,
     }
   },
 })
