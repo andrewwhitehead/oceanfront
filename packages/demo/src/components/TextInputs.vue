@@ -33,6 +33,7 @@
         />
         <of-text-field
           :model-value="withItemsVal"
+          @update:modelValue="upd"
           style="width: 10em"
           frame="none"
           :items="items"
@@ -139,6 +140,7 @@ export default defineComponent({
       { text: 'Items3', value: 'Items3' },
     ]
     const withItemsVal = ref('Items')
+    const upd = (v: any) => (withItemsVal.value = v)
 
     const customProps = reactive({ multiline: false })
 
@@ -149,6 +151,7 @@ export default defineComponent({
       textValue,
       items,
       withItemsVal,
+      upd,
     }
   },
 })
