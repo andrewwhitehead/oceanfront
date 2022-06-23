@@ -17,8 +17,10 @@ import {
   newFieldId,
   provideFieldRender,
 } from '../lib/fields'
+import OfOptionList from '../components/OptionList.vue'
 import { TextFormatter, useFormats } from '../lib/formats'
-import { removeEmpty } from '../lib/util'
+import { removeEmpty, throttle } from '../lib/util'
+import { useItems } from 'src/lib/items'
 
 // editing a list field does not necessarily mean swapping input to edit mode
 // it may/should show a popup instead (this might be implied by 'muted' flag)
@@ -50,6 +52,7 @@ export const OfTextField = defineComponent({
   setup(props, ctx: SetupContext) {
     const fieldCtx = makeFieldContext(props, ctx)
     const config = useConfig()
+    const itemMgr = useItems(config)
     const formatMgr = useFormats(config)
     const formatter = computed(() => {
       return formatMgr.getTextFormatter(
@@ -131,6 +134,94 @@ export const OfTextField = defineComponent({
         ? undefined
         : fmt?.inputType || _inputTypeFrom(props.inputType)
     })
+
+    const itemsOpened = ref(false)
+
+    const hasItems = computed(() => {
+      return (
+        fieldCtx.editable &&
+        !multiline.value &&
+        (props.items as any[])?.length > 0
+      )
+    })
+
+    const items = computed(() => {
+      const input = searchText.value?.trim().toLowerCase()
+      if (!input) return props.items
+      return (props.items as any[]).filter((item) => {
+        if (item.value !== undefined) {
+          const optionText: string = item.text
+          return optionText.toLowerCase().includes(input)
+        }
+      })
+    })
+
+    const formatItems = computed(() => {
+      const data = {
+        items: [],
+        textKey: 'text',
+        valueKey: 'value',
+        iconKey: 'icon',
+      }
+      const list = itemMgr.getItemList(items.value)
+      if (list) Object.assign(data, list)
+
+      const rows = []
+      if (!data.items.length) return []
+
+      for (const item of data.items) {
+        if (typeof item === 'string') {
+          rows.push({
+            text: item,
+            value: item,
+          })
+        } else if (typeof item === 'object') {
+          rows.push({
+            text: item[data.textKey],
+            value: item[data.valueKey],
+            icon: item[data.iconKey] ?? '',
+          })
+        }
+      }
+      return rows
+    })
+
+    let closing: number | null = null
+    let focusing: number | null = null
+    const openItemsPopup = (_evt?: MouseEvent) => {
+      if (itemsOpened.value) {
+        closeItemsPopup()
+      } else if (hasItems.value && !closing) {
+        itemsOpened.value = true
+        if (focusing) clearTimeout(focusing)
+        focusing = window.setTimeout(() => {
+          focus()
+          focusing = null
+        }, 0)
+      }
+      return false
+    }
+    const closeItemsPopup = (refocus?: boolean) => {
+      if (itemsOpened.value) {
+        itemsOpened.value = false
+        if (closing) clearTimeout(closing)
+        closing = window.setTimeout(() => {
+          closing = null
+        }, 150)
+        if (refocus) focus()
+      }
+    }
+    const setItem = (val: any) => {
+      updateValue(val, formatter.value)
+      fieldCtx.onUpdate?.(val)
+      closeItemsPopup(true)
+    }
+
+    const searchText = ref('')
+    const search = throttle(300, (input: string) => {
+      searchText.value = input.trim()
+    })
+
     const focus = (select?: boolean) => {
       if (elt.value) {
         elt.value.focus()
@@ -148,6 +239,7 @@ export const OfTextField = defineComponent({
       },
       onFocus(_evt: FocusEvent) {
         focused.value = true
+        if (!itemsOpened.value) openItemsPopup()
       },
       onChange(evt: Event) {
         const target = evt.target as
@@ -185,6 +277,7 @@ export const OfTextField = defineComponent({
       },
       onInput(evt: InputEvent) {
         const inputElt = evt.target as HTMLInputElement | HTMLTextAreaElement
+        if (hasItems.value) search(inputElt.value)
         const fmt = formatter.value
         if (fmt?.handleInput) {
           const upd = fmt.handleInput(evt)
@@ -203,9 +296,20 @@ export const OfTextField = defineComponent({
         if (fieldCtx.onInput) fieldCtx.onInput(evt.data, inputElt.value)
       },
       onKeydown(evt: KeyboardEvent) {
-        const fmt = formatter.value
-        if (fmt?.handleKeyDown) {
-          fmt.handleKeyDown(evt)
+        if (
+          hasItems.value &&
+          (evt.key == 'ArrowUp' || evt.key == 'ArrowDown')
+        ) {
+          openItemsPopup()
+          evt.preventDefault()
+          evt.stopPropagation()
+        } else if (evt.key == 'Tab') {
+          closeItemsPopup()
+        } else {
+          const fmt = formatter.value
+          if (fmt?.handleKeyDown) {
+            fmt.handleKeyDown(evt)
+          }
         }
       },
       onVnodeMounted(vnode: VNode) {
@@ -257,6 +361,18 @@ export const OfTextField = defineComponent({
       inputValue,
       invalid,
       pendingValue,
+      popup: {
+        content: () =>
+          hasItems.value && itemsOpened.value
+            ? h(OfOptionList, {
+                items: formatItems.value,
+                class: 'of--elevated-1',
+                onClick: setItem,
+              })
+            : undefined,
+        visible: itemsOpened,
+        onBlur: closeItemsPopup,
+      },
       updated: computed(() => initialValue.value !== stateValue.value),
       value: stateValue,
     })

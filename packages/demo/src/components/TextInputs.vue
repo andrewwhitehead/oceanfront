@@ -32,6 +32,12 @@
           frame="none"
         />
         <of-text-field
+          :model-value="withItemsVal"
+          style="width: 10em"
+          frame="none"
+          :items="items"
+        />
+        <of-text-field
           model-value="Normal text input"
           style="width: 10em"
           frame="none"
@@ -126,12 +132,23 @@ export default defineComponent({
   label="Field Label"
   v-model="fieldValue"
 />`
+
+    const items = [
+      { text: 'Items', value: 'Items' },
+      { text: 'Items2', value: 'Items2' },
+      { text: 'Items3', value: 'Items3' },
+    ]
+    const withItemsVal = ref('Items')
+
     const customProps = reactive({ multiline: false })
+
     return {
       change,
       customProps,
       sampleCode,
       textValue,
+      items,
+      withItemsVal,
     }
   },
 })

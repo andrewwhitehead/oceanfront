@@ -145,4 +145,30 @@
   max-width: 400px;
   min-width: 200px;
   overflow: hidden auto;
+
+  &.options {
+    max-height: 40%;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    
+    .search-row {
+      background-color: var(--of-color-section-header2);
+      padding: 1ex;
+      overflow: hidden;
+      min-height: 2.2em;
+      max-height: 2.2em;
+
+      .of-field {
+        padding: 0 0.5em 0 0;
+      }
+    }
+    .of-list-outer {
+      overflow: hidden auto;
+      height: 100%;
+      padding-top: 0;      
+      padding-bottom: 0;
+      flex: 0 1 auto;
+    }
+  }
 }
