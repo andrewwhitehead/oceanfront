@@ -3,6 +3,9 @@
     <template #default="{ active: dlgActive }">
       <transition :name="transition">
         <div class="of-dialog-outer">
+          <div class="of-dialog-header">
+            <slot name="header" />
+          </div>
           <div
             role="dialog"
             :id="id"
@@ -12,6 +15,9 @@
           >
             <slot name="title" />
             <slot />
+          </div>
+          <div class="of-dialog-footer">
+            <slot name="footer" />
           </div>
         </div>
       </transition>

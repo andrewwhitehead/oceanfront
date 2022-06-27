@@ -5,19 +5,25 @@
     <hr />
     <of-button @click="toggleDialog">Show dialog</of-button>
     <of-dialog v-model="dialogActive">
-      <div class="container">
-        <h4>Test Dialog</h4>
-        <of-select-field :items="['one', 'two']" label="Test select" />
-        <p>
-          <of-button @click="toggleNestedDialog">Show nested dialog</of-button>
-        </p>
-      </div>
-      <of-dialog v-model="nestedDialogActive">
+      <template #header></template>
+      <template #default>
         <div class="container">
-          <h4>Nested Dialog</h4>
+          <h4>Test Dialog</h4>
           <of-select-field :items="['one', 'two']" label="Test select" />
+          <p>
+            <of-button @click="toggleNestedDialog">
+              Show nested dialog
+            </of-button>
+          </p>
         </div>
-      </of-dialog>
+        <of-dialog v-model="nestedDialogActive">
+          <div class="container">
+            <h4>Nested Dialog</h4>
+            <of-select-field :items="['one', 'two']" label="Test select" />
+          </div>
+        </of-dialog>
+      </template>
+      <template #footer></template>
     </of-dialog>
   </div>
 </template>

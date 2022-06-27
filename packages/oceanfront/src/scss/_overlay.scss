@@ -83,10 +83,27 @@
   pointer-events: none;
 }
 
+.of-dialog-header, .of-dialog-footer {
+  position: fixed;
+  min-height: 1em;
+  align-items: center;
+  line-height: 3rem;
+}
+
+.of-dialog-header {
+  top: 0;
+}
+
+.of-dialog-footer {
+  bottom: 0;
+}
+
 .of-dialog {
   border-radius: 5px;
+  overflow: scroll;
   background: var(--of-color-surface);
   min-height: 200px;
+  max-height: 800px;
   min-width: 100%;
   box-shadow: 0 2px 4px 1px rgba(0, 0, 0, 0.2);
   pointer-events: auto;
