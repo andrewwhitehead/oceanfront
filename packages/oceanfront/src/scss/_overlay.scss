@@ -81,21 +81,25 @@
   display: flex;
   justify-content: center;
   pointer-events: none;
+  position: relative;
 }
 
 .of-dialog-header, .of-dialog-footer {
-  position: fixed;
+  position: absolute;
   min-height: 2em;
   align-items: center;
   line-height: 2em;
+  width: 80%;
+  text-align: center;
+  border-radius: 5px;
 }
 
 .of-dialog-header {
-  top: 0;
+  top: -2.2em;
 }
 
 .of-dialog-footer {
-  bottom: 0;
+  bottom: -2.2em;
 }
 
 .of-dialog {
@@ -103,7 +107,7 @@
   overflow: scroll;
   background: var(--of-color-surface);
   min-height: 200px;
-  max-height: 800px;
+  max-height: 500px;
   min-width: 100%;
   box-shadow: 0 2px 4px 1px rgba(0, 0, 0, 0.2);
   pointer-events: auto;
