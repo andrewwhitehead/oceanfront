@@ -3,21 +3,20 @@
     <template #default="{ active: dlgActive }">
       <transition :name="transition">
         <div class="of-dialog-outer">
-          <div class="of-dialog-header">
-            <slot name="header" />
-          </div>
           <div
             role="dialog"
             :id="id"
-            class="of-dialog of--elevated-3"
+            class="of-dialog"
             :class="classAttr"
             v-if="dlgActive"
           >
-            <slot name="title" />
+            <div class="of-dialog-header">
+              <slot name="header" />
+            </div>
             <slot />
-          </div>
-          <div class="of-dialog-footer">
-            <slot name="footer" />
+            <div class="of-dialog-footer">
+              <slot name="footer" />
+            </div>
           </div>
         </div>
       </transition>
