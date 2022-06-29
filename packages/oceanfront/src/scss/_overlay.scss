@@ -87,10 +87,13 @@
   .of-dialog-header, .of-dialog-footer {
     background-color: var(--of-color-surface);
     max-height: 2em;
-    min-height: 2em;
     line-height: 2em;
     width: 100%;
     text-align: center;
+
+    &:empty {
+      height: 0;
+    }
   }
 }
 
