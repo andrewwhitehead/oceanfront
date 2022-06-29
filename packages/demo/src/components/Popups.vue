@@ -19,7 +19,9 @@
       Show dialog (with nested dialog and header and footer)
     </of-button>
     <of-dialog v-model="secondDialogActive">
-      <template #header>header</template>
+      <template #header>
+        <div class="of-dialog-fixed-content">Header</div>
+      </template>
       <template #default>
         <div class="container">
           <h4>Dialog with nested</h4>
@@ -37,7 +39,9 @@
           </div>
         </of-dialog>
       </template>
-      <template #footer>footer</template>
+      <template #footer>
+        <div class="of-dialog-fixed-content">Footer</div>
+      </template>
     </of-dialog>
 
     <p></p>
@@ -76,7 +80,9 @@
       Show dialog with scrolling content
     </of-button>
     <of-dialog v-model="fourthDialogActive">
-      <template #header>header</template>
+      <template #header>
+        <div class="of-dialog-fixed-content">Header</div>
+      </template>
       <template #default>
         <div class="container">
           <h4>Dialog with scrolling content</h4>
@@ -432,7 +438,9 @@
           </div>
         </div>
       </template>
-      <template #footer>footer</template>
+      <template #footer>
+        <div class="of-dialog-fixed-content">Footer</div>
+      </template>
     </of-dialog>
   </div>
 </template>

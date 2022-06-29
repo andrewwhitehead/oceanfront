@@ -13,7 +13,9 @@
             <div class="of-dialog-header">
               <slot name="header" />
             </div>
-            <slot />
+            <div class="of-dialog-content">
+              <slot />
+            </div>
             <div class="of-dialog-footer">
               <slot name="footer" />
             </div>

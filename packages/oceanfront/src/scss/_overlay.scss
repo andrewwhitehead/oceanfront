@@ -91,6 +91,11 @@
     width: 100%;
     text-align: center;
 
+    .of-dialog-fixed-content {
+      background: var(--of-primary-tint);
+      color: var(--of-on-primary-tint);
+    }
+
     &:empty {
       height: 0;
     }
@@ -109,10 +114,9 @@
   box-shadow: 0 2px 4px 1px rgba(0, 0, 0, 0.2);
   border-radius: 5px;
 
-  .container{
+  .of-dialog-content {
     overflow: scroll;
     margin: 0;
-    padding-bottom: 1.5em;
   }
 }
 
