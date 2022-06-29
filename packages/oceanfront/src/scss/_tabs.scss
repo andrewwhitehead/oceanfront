@@ -271,20 +271,20 @@
       @include apply-tab-bg(mat);
       @include apply-tab-color(mat);
       &:not(.is-disabled) {
-        &:hover {
-          @include apply-tab-bg(mat, hover);
-          @include apply-tab-color(mat, hover);
-          @include apply-tab-state(mat, hover);
-        }
-        &:focus {
-          @include apply-tab-bg(mat, focus);
-          @include apply-tab-color(mat, focus);
-          @include apply-tab-state(mat, focus);
-        }
         &.is-active {
           @include apply-tab-bg(mat, active);
           @include apply-tab-color(mat, active);
           @include apply-tab-state(mat, active);
+        }
+        &:hover,
+        &.focus-visible {
+          @include apply-tab-bg(mat, hover);
+          @include apply-tab-color(mat, hover);
+          @include apply-tab-state(mat, hover);
+        }
+        &:focus,
+        &:focus-visible {
+          outline: none;
         }
       }
       &.is-disabled {
@@ -302,15 +302,15 @@
       @include apply-tab-color(att);
       @include apply-tab-border(att);
       &:not(.is-disabled) {
-        &:hover {
+        &:hover,
+        &.focus-visible {
           @include apply-tab-bg(att, hover);
           @include apply-tab-color(att, hover);
           @include apply-tab-state(att, hover);
         }
-        &:focus {
-          @include apply-tab-bg(att, focus);
-          @include apply-tab-color(att, focus);
-          @include apply-tab-state(att, focus);
+        &:focus,
+        &:focus-visible {
+          outline: none;
         }
         &.is-active {
           @include apply-tab-bg(att, active);
@@ -391,15 +391,15 @@
         }
 
         &:not(.is-disabled) {
-          &:hover {
+          &:hover,
+          &.focus-visible {
             @include apply-tab-bg(osx, hover);
             @include apply-tab-color(osx, hover);
             @include apply-tab-state(osx, hover);
           }
-          &:focus {
-            @include apply-tab-bg(osx, focus);
-            @include apply-tab-color(osx, focus);
-            @include apply-tab-state(osx, focus);
+          &:focus,
+          &.focus-visible {
+            outline: none;
           }
           &.is-active {
             @include apply-tab-bg(osx, active);
