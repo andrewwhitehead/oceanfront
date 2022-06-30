@@ -32,15 +32,24 @@
             />
           </div>
           <div class="of-tabs-header" ref="ofTabsHeader">
-            <template :key="tab.key" v-for="tab in tabsList">
+            <template :key="tab.key" v-for="(tab, idx) in tabsList">
               <div class="overflow-separator" v-if="tab.overflowButton" />
               <div
                 @click="tab.disabled || selectTab(tab.key)"
                 @mouseover="tab.disabled || openSubMenu(tab.key, $event)"
                 @mouseleave="tab.disabled || subMenuLeave()"
+                @focus="resetFocus"
+                @blur="removeFocus"
+                @keydown="navigate($event)"
+                :tabindex="
+                  selectedTabKey === tab.key || (!selectedTabKey && idx == 0)
+                    ? '0'
+                    : '-1'
+                "
                 :class="{
                   'is-active': selectedTabKey === tab.key,
                   'is-disabled': tab.disabled,
+                  'focus-visible': focusedTabKey === tab.key,
                   'of-tab-header-item': true,
                   'overflow-button': tab.overflowButton,
                   'of--rounded': rounded,
@@ -557,6 +566,7 @@ export default defineComponent({
           closeOverflowPopup()
           repositionLine()
           repositionTabs()
+          resetFocus()
         })
       }
     }
@@ -651,6 +661,75 @@ export default defineComponent({
       }
     }
 
+    const focusedTabKey = ref()
+    const resetFocus = () => {
+      focusedTabKey.value = selectedTabKey.value || 0
+    }
+    const removeFocus = () => {
+      focusedTabKey.value = undefined
+    }
+    const navigate = (evt: KeyboardEvent) => {
+      let idx = items.value.items.findIndex(
+        (item: { key: number }) => item.key === focusedTabKey.value
+      )
+
+      switch (evt.code) {
+        case 'ArrowRight':
+          idx = getNextTabIdx(idx)
+          break
+        case 'ArrowLeft':
+          idx = getPrevTabIdx(idx)
+          break
+        case 'Space':
+          evt.stopPropagation()
+          evt.preventDefault()
+          selectTab(focusedTabKey.value)
+          break
+      }
+
+      focusedTabKey.value = items.value.items[idx].key
+    }
+
+    const getNextTabIdx = (idx: number) => {
+      let result = false
+      let count = 0
+      let nextIdx = Math.min(idx + 1, items.value.items.length - 1)
+
+      while (!result) {
+        if (
+          items.value.items[nextIdx].disabled == true &&
+          count < items.value.items.length
+        ) {
+          nextIdx++
+        } else {
+          result = true
+        }
+        count++
+      }
+
+      return nextIdx
+    }
+
+    const getPrevTabIdx = (idx: number) => {
+      let result = false
+      let count = 0
+      let prevIdx = Math.max(idx - 1, 0)
+
+      while (!result) {
+        if (
+          items.value.items[prevIdx].disabled == true &&
+          count < items.value.items.length
+        ) {
+          prevIdx--
+        } else {
+          result = true
+        }
+        count++
+      }
+
+      return prevIdx
+    }
+
     return {
       tabsList,
       selectedTabKey,
@@ -684,6 +763,11 @@ export default defineComponent({
       selectSubMenuTab,
       subMenuLeave,
       subMenuClearTimeout,
+
+      navigate,
+      resetFocus,
+      removeFocus,
+      focusedTabKey,
     }
   },
 })
