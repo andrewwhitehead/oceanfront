@@ -79,23 +79,60 @@
 
 .of-dialog-outer {
   display: flex;
+  flex-direction: column;
   justify-content: center;
+  align-items: center;
   pointer-events: none;
+
+  .of-dialog-header, .of-dialog-footer {
+    background-color: var(--of-color-surface);
+    max-height: 2em;
+    line-height: 2em;
+    width: 100%;
+    text-align: center;
+
+    .of-dialog-fixed-content {
+      background: var(--of-primary-tint);
+      color: var(--of-on-primary-tint);
+    }
+
+    &:empty {
+      height: 0;
+    }
+  }
 }
 
 .of-dialog {
-  border-radius: 5px;
   background: var(--of-color-surface);
   min-height: 200px;
+  max-height: 500px;
   min-width: 100%;
-  box-shadow: 0 2px 4px 1px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
   pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 2px 4px 1px rgba(0, 0, 0, 0.2);
+  border-radius: 5px;
+
+  .of-dialog-content {
+    overflow: scroll;
+    margin: 0;
+  }
 }
 
 @media (min-width: 800px) {
   .of-dialog {
     max-width: 80%;
     min-width: 45%;
+  }
+}
+@media (max-width: 800px) {
+  .of-dialog-header {
+    top: 0.3em;
+  }
+
+  .of-dialog-footer {
+    bottom: 0.3em;
   }
 }
 

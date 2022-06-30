@@ -6,12 +6,19 @@
           <div
             role="dialog"
             :id="id"
-            class="of-dialog of--elevated-3"
+            class="of-dialog"
             :class="classAttr"
             v-if="dlgActive"
           >
-            <slot name="title" />
-            <slot />
+            <div class="of-dialog-header">
+              <slot name="header" />
+            </div>
+            <div class="of-dialog-content">
+              <slot />
+            </div>
+            <div class="of-dialog-footer">
+              <slot name="footer" />
+            </div>
           </div>
         </div>
       </transition>
