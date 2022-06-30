@@ -214,10 +214,11 @@ export const OfTextField = defineComponent({
     const setItem = (val: any) => {
       updateValue(val, formatter.value)
       fieldCtx.onUpdate?.(val)
+      searchText.value = val
       closeItemsPopup(true)
     }
 
-    const searchText = ref('')
+    const searchText = ref(inputValue.value)
     const search = throttle(300, (input: string) => {
       searchText.value = input.trim()
     })
