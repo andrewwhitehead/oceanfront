@@ -63,6 +63,7 @@ import {
   Ref,
   nextTick,
   watch,
+  onMounted,
 } from 'vue'
 import { OfNavGroup } from '../components/NavGroup'
 import { OfListItem } from '../components/ListItem'
@@ -113,11 +114,21 @@ const OfOptionList = defineComponent({
     watch(searchText, () => {
       if (searchText.value.trim() === '') theItems.value = props.items
       theItems.value = props.items.filter((item) => {
+        if (item.special) return true
         if (item.value !== undefined) {
           const optionText: string = item.text
           return optionText
             .toLowerCase()
             .includes(searchText.value.trim().toLowerCase())
+        }
+      })
+      //Remove empty special items
+      theItems.value = theItems.value.filter((item, index) => {
+        if (item.special) {
+          const nextItem = theItems.value[index + 1] ?? null
+          return nextItem && !nextItem.special
+        } else {
+          return true
         }
       })
     })
@@ -164,6 +175,23 @@ const OfOptionList = defineComponent({
       showSearch.value = false
       searchText.value = ''
     }
+
+    const focusFirstItem = () => {
+      //If there is selected item it is alredy focused
+      const selected = theItems.value.find(
+        (item) => item.selected && item.selected === true
+      )
+      if (selected) return true
+
+      theItems.value.some((item) => {
+        if (!item.special) {
+          item.attrs = { ...item.attrs, ...{ isFocused: true } }
+          return true
+        }
+      })
+    }
+
+    focusFirstItem()
 
     return {
       isEmpty,
