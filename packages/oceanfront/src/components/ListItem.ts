@@ -108,7 +108,7 @@ export const OfListItem = defineComponent({
                 },
                 href: link.href,
                 ref: elt,
-                tabIndex: active ? 0 : -1,
+                tabIndex: active || props.attrs?.isFocused ? 0 : -1,
                 onClick(evt: MouseEvent) {
                   if (evt.button != null && evt.button !== 0) return
                   activate(evt)
