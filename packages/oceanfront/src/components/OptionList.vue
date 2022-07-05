@@ -63,7 +63,6 @@ import {
   Ref,
   nextTick,
   watch,
-  onMounted,
 } from 'vue'
 import { OfNavGroup } from '../components/NavGroup'
 import { OfListItem } from '../components/ListItem'
