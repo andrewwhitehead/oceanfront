@@ -270,6 +270,7 @@ div.of-date-picker-cur-year {
 
 .of-calendar-gutter,
 .of-calendar-day-supertitle {
+  background-color: var(--calendar-day-color);
   border-left: solid 1px var(--calendar-grid-color);
   border-right: solid 1px var(--calendar-grid-color);
   &.of-week-number {
@@ -294,6 +295,7 @@ div.of-date-picker-cur-year {
   display: flex;
   justify-content: center;
   padding-bottom: 2px;
+  background-color: var(--calendar-day-color);
 }
 
 .of-calendar-day-title {
