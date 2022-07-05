@@ -411,8 +411,7 @@ export default defineComponent({
     ]
     timezones.sort()
     const tzOpts = { items: [] as Record<string, any>[] }
-    //const tzValue = ref('America/Vancouver')
-    const tzValue = ref('')
+    const tzValue = ref('America/Vancouver')
     let tzGrp = null
     for (const value of timezones) {
       const gPos = value.indexOf('/')
