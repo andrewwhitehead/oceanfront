@@ -47,13 +47,24 @@
           :items="modeOptions"
         />
         <slot name="options"></slot>
+        <of-field
+          type="toggle"
+          label="Required"
+          v-model="params.required"
+          v-bind="{
+            ...props,
+            inputType: customProps.switch ? 'switch' : null,
+            inputLabel: checkedValue ? 'Off' : 'On',
+            labelPosition: 'top',
+          }"
+        />
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { computed, reactive, defineComponent } from 'vue'
+import { computed, reactive, defineComponent, ref } from 'vue'
 
 export default defineComponent({
   props: {
@@ -99,6 +110,10 @@ export default defineComponent({
         return [p]
       }
     })
+
+    const checkedValue = ref(false)
+    const customProps = reactive({ switch: false })
+
     return {
       allParams,
       densityOptions,
@@ -108,6 +123,9 @@ export default defineComponent({
       modeOptions,
       variantOptions,
       params,
+      checkedValue,
+      props,
+      customProps,
     }
   },
 })
