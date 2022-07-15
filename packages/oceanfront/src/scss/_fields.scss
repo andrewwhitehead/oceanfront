@@ -685,6 +685,19 @@
   }
 }
 
+.of-field.of--required {
+  .of--icon-required {
+    vertical-align: top;
+
+    svg {
+      fill: #C10015;
+      font-size: .6em;
+      height: 1em;
+      width: 0.8em;
+    }
+  }
+}
+
 .of-field-label {
   align-self: center;
   color: var(--field-label-color);

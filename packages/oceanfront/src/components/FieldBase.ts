@@ -4,6 +4,7 @@ import {
   h,
   ref,
   Ref,
+  resolveComponent,
   SetupContext,
   VNode,
   watch,
@@ -113,6 +114,7 @@ export const OfFieldBase = defineComponent({
     const focusGrp = useFocusGroup()
     const recordMgr = useRecords()
     const themeOptions = useThemeOptions()
+    const OfIcon = resolveComponent('of-icon')
 
     const record = computed(() => {
       return props.record || recordMgr.getCurrentRecord() || undefined
@@ -131,6 +133,7 @@ export const OfFieldBase = defineComponent({
       return v || 'outlined'
     })
     const tint = computed(() => props.tint)
+    const required = computed(() => props.required)
 
     const padState = { listen: watchPosition() }
     const checkPad = (node: VNode) => calcPadding(node, padState)
@@ -179,6 +182,11 @@ export const OfFieldBase = defineComponent({
           !(showFocused || overlayActive || mode.value === 'fixed')
         const metaLabel = props.name ? metadata.value?.label : undefined
         const labelText = fieldRender.label ?? props.label ?? metaLabel
+
+        const asterisk: VNode | null = required.value
+          ? h(OfIcon, { name: 'required', class: 'of--icon-required' })
+          : null
+
         const label = ctx.slots.label
           ? ctx.slots.label()
           : labelPosition.value !== 'none' &&
@@ -190,7 +198,7 @@ export const OfFieldBase = defineComponent({
                 class: 'of-field-label',
                 /*, for: render.inputId: triggering duplicate click events */
               },
-              [labelText]
+              [labelText, asterisk]
             )
           : undefined
         const cls = [
@@ -206,6 +214,7 @@ export const OfFieldBase = defineComponent({
             'of--invalid': props.invalid || fieldRender.invalid,
             'of--interactive': interactive.value,
             'of--muted': props.muted,
+            'of--required': required.value,
             'of--loading': fieldRender.loading,
             'of--rounded': props.rounded,
             'of--updated': fieldRender.updated,
