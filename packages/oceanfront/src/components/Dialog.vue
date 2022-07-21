@@ -83,22 +83,28 @@ export default defineComponent({
       }
     )
 
+    function countDialogSize() {
+      const dialogContent = dialog.value.querySelector('.of-dialog-content')
+      dialog.value.style.zIndex = '' + ++currentZIndex.value
+
+      startWidth.value = parseInt(
+        window.getComputedStyle(dialogContent).width,
+        10
+      )
+      startHeight.value = parseInt(
+        window.getComputedStyle(dialogContent).height,
+        10
+      )
+    }
+
     const resizeAction = (e: MouseEvent) => {
       // @media (max-width: 800px)
       if (window.innerWidth > 800) {
-        const dialogContent = dialog.value.querySelector('.of-dialog-content')
+        countDialogSize()
 
         resizerStartX.value = e.clientX
         resizerStartY.value = e.clientY
 
-        startWidth.value = parseInt(
-          window.getComputedStyle(dialogContent).width,
-          10
-        )
-        startHeight.value = parseInt(
-          window.getComputedStyle(dialogContent).height,
-          10
-        )
         document.documentElement.addEventListener('mousemove', doResize, false)
         document.documentElement.addEventListener('mouseup', stopResize, false)
       }
@@ -124,7 +130,7 @@ export default defineComponent({
     const dragAndDropAction = (e: MouseEvent) => {
       // @media (max-width: 800px)
       if (window.innerWidth > 800 && props.dragAndDrop) {
-        dialog.value.style.zIndex = '' + ++currentZIndex.value
+        countDialogSize()
 
         // get the mouse cursor position at startup
         position3.value = e.clientX
@@ -140,15 +146,40 @@ export default defineComponent({
       if (!dialog.value) {
         return
       }
+      const padding = 10
+      const bottomPadding = 75
+
       // calculate the new cursor position:
       position1.value = position3.value - e.clientX
       position2.value = position4.value - e.clientY
       position3.value = e.clientX
       position4.value = e.clientY
 
+      let offsetLeft = dialog.value.offsetLeft
+      let offsetTop = dialog.value.offsetTop
+      let newOffsetLeft = offsetLeft - position1.value
+      let newOffsetTop = offsetTop - position2.value
+
+      let rightLimit = window.innerWidth - startWidth.value - offsetLeft
+      let bottomLimit = window.innerHeight - startHeight.value - offsetTop
+
+      // popup can't go out of the visible area
+      if (newOffsetLeft <= padding) {
+        newOffsetLeft = padding
+      }
+      if (newOffsetTop <= padding) {
+        newOffsetTop = padding
+      }
+      if (rightLimit <= padding && offsetLeft < newOffsetLeft) {
+        newOffsetLeft = window.innerWidth - startWidth.value - padding
+      }
+      if (bottomLimit <= bottomPadding && offsetTop < newOffsetTop) {
+        newOffsetTop = window.innerHeight - startHeight.value - bottomPadding
+      }
+
       // set the element's new position:
-      dialog.value.style.left = dialog.value.offsetLeft - position1.value + 'px'
-      dialog.value.style.top = dialog.value.offsetTop - position2.value + 'px'
+      dialog.value.style.left = newOffsetLeft + 'px'
+      dialog.value.style.top = newOffsetTop + 'px'
     }
 
     function closeDragElement() {

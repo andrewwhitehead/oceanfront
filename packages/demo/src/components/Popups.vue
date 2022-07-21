@@ -296,7 +296,7 @@
                         label="City"
                         model-value="Vancouver"
                         variant="filled"
-                        id="city"
+                        id="city5"
                       />
                       <of-field
                         type="text"
@@ -318,9 +318,9 @@
                         model-value="999-888-7777"
                         variant="filled"
                         density="3"
-                        id="ph1"
+                        id="ph14"
                       />
-                      <label class="of-group-label" for="ph1">work</label>
+                      <label class="of-group-label" for="ph14">work</label>
                     </div>
                     <div class="of-group-row of--pad">
                       <of-field
@@ -340,9 +340,9 @@
                         model-value="999-888-7789"
                         variant="filled"
                         density="3"
-                        id="ph3"
+                        id="ph31"
                       />
-                      <label class="of-group-label" for="ph3">home</label>
+                      <label class="of-group-label" for="ph31">home</label>
                     </div>
                   </div>
                 </div>
@@ -352,12 +352,12 @@
                   <div class="of-group of--elevated">
                     <div class="of-group-row of--pad">
                       <of-field
-                        id="pw"
+                        id="pw2"
                         input-type="password"
                         label="Password"
                       />
                       <of-field
-                        id="cpw"
+                        id="cpw2"
                         input-type="password"
                         label="Confirm Password"
                       />
@@ -372,7 +372,7 @@
                         type="text"
                         label="Street"
                         model-value="99 Street Ave."
-                        id="street"
+                        id="street2"
                         variant="filled"
                         size="50"
                       />
@@ -383,14 +383,14 @@
                         label="City"
                         model-value="Vancouver"
                         variant="filled"
-                        id="city"
+                        id="city2"
                       />
                       <of-field
                         type="text"
                         label="State"
                         model-value="BC"
                         variant="filled"
-                        id="state"
+                        id="state2"
                       />
                     </div>
                   </div>
@@ -405,9 +405,9 @@
                         model-value="999-888-7777"
                         variant="filled"
                         density="3"
-                        id="ph1"
+                        id="ph11"
                       />
-                      <label class="of-group-label" for="ph1">work</label>
+                      <label class="of-group-label" for="ph11">work</label>
                     </div>
                     <div class="of-group-row of--pad">
                       <of-field
@@ -427,9 +427,295 @@
                         model-value="999-888-7789"
                         variant="filled"
                         density="3"
-                        id="ph3"
+                        id="ph32"
                       />
-                      <label class="of-group-label" for="ph3">home</label>
+                      <label class="of-group-label" for="ph32">home</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </template>
+      <template #footer>
+        <div class="of-dialog-fixed-content">Footer</div>
+      </template>
+    </of-dialog>
+
+    <p></p>
+
+    <of-button @click="toggleFifthDialog">
+      Show dialog with resize possibility
+    </of-button>
+    <of-dialog v-model="fifthDialogActive" resize>
+      <template #header>
+        <div class="of-dialog-fixed-content">Header</div>
+      </template>
+      <template #default>
+        <div class="container">
+          <h4>Show dialog with resize possibility</h4>
+          <p>
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+            eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
+            ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+            aliquip ex ea commodo consequat. Duis aute irure dolor in
+            reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+            pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
+            culpa qui officia deserunt mollit anim id est laborum."
+          </p>
+          <div class="row content">
+            <div class="column">
+              <div class="record-info">
+                <h4>Record state</h4>
+                <div class="row">
+                  <div class="column sm-8">
+                    <of-toggle
+                      label="Locked"
+                      v-model:checked="testRecord.locked"
+                      switch
+                    />
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="column sm-4">Updated:</div>
+                  <div class="column sm-8">
+                    {{ testRecord.updated || false }}
+                  </div>
+                </div>
+                <of-highlight lang="json" :value="formatValue" />
+              </div>
+            </div>
+          </div>
+          <p>
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+            eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
+            ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+            aliquip ex ea commodo consequat. Duis aute irure dolor in
+            reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+            pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
+            culpa qui officia deserunt mollit anim id est laborum."
+          </p>
+          <p>
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+            eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
+            ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+            aliquip ex ea commodo consequat. Duis aute irure dolor in
+            reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+            pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
+            culpa qui officia deserunt mollit anim id est laborum."
+          </p>
+          <p>
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+            eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
+            ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+            aliquip ex ea commodo consequat. Duis aute irure dolor in
+            reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+            pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
+            culpa qui officia deserunt mollit anim id est laborum."
+          </p>
+          <p>
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+            eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
+            ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+            aliquip ex ea commodo consequat. Duis aute irure dolor in
+            reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+            pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
+            culpa qui officia deserunt mollit anim id est laborum."
+          </p>
+          <p>
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+            eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
+            ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+            aliquip ex ea commodo consequat. Duis aute irure dolor in
+            reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+            pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
+            culpa qui officia deserunt mollit anim id est laborum."
+          </p>
+          <p>
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+            eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
+            ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+            aliquip ex ea commodo consequat. Duis aute irure dolor in
+            reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+            pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
+            culpa qui officia deserunt mollit anim id est laborum."
+          </p>
+          <div
+            class="demo-fields of--elevated-1"
+            style="max-width: fit-content"
+          >
+            <div class="row form-row">
+              <div class="column filled" style="margin-right: 5px">
+                <div class="of-block">
+                  <div class="of-group of--elevated">
+                    <div class="of-group-row of--pad">
+                      <of-field
+                        id="pw3"
+                        input-type="password"
+                        label="Password"
+                      />
+                      <of-field
+                        id="cpw3"
+                        input-type="password"
+                        label="Confirm Password"
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div class="of-block">
+                  <div class="of-group of--elevated">
+                    <div class="of-group-label">Primary Address</div>
+                    <div class="of-group-row of--pad">
+                      <of-field
+                        type="text"
+                        label="Street"
+                        model-value="99 Street Ave."
+                        id="street3"
+                        variant="filled"
+                        size="50"
+                      />
+                    </div>
+                    <div class="of-group-row of--pad">
+                      <of-field
+                        type="text"
+                        label="City"
+                        model-value="Vancouver"
+                        variant="filled"
+                        id="city3"
+                      />
+                      <of-field
+                        type="text"
+                        label="State"
+                        model-value="BC"
+                        variant="filled"
+                        id="state3"
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div class="of-block">
+                  <div class="of-group of--elevated">
+                    <div class="of-group-label">Phone Numbers</div>
+                    <div class="of-group-row of--pad">
+                      <of-field
+                        type="text"
+                        frame="none"
+                        model-value="999-888-7777"
+                        variant="filled"
+                        density="3"
+                        id="ph12"
+                      />
+                      <label class="of-group-label" for="ph12">work</label>
+                    </div>
+                    <div class="of-group-row of--pad">
+                      <of-field
+                        type="text"
+                        frame="none"
+                        model-value="999-888-7778"
+                        variant="filled"
+                        density="3"
+                        id="ph22"
+                      />
+                      <label class="of-group-label" for="ph22">mobile</label>
+                    </div>
+                    <div class="of-group-row of--pad">
+                      <of-field
+                        type="text"
+                        frame="none"
+                        model-value="999-888-7789"
+                        variant="filled"
+                        density="3"
+                        id="ph33"
+                      />
+                      <label class="of-group-label" for="ph33">home</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="column filled" style="margin-right: 5px">
+                <div class="of-block">
+                  <div class="of-group of--elevated">
+                    <div class="of-group-row of--pad">
+                      <of-field
+                        id="pw4"
+                        input-type="password"
+                        label="Password"
+                      />
+                      <of-field
+                        id="cpw4"
+                        input-type="password"
+                        label="Confirm Password"
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div class="of-block">
+                  <div class="of-group of--elevated">
+                    <div class="of-group-label">Primary Address</div>
+                    <div class="of-group-row of--pad">
+                      <of-field
+                        type="text"
+                        label="Street"
+                        model-value="99 Street Ave."
+                        id="street4"
+                        variant="filled"
+                        size="50"
+                      />
+                    </div>
+                    <div class="of-group-row of--pad">
+                      <of-field
+                        type="text"
+                        label="City"
+                        model-value="Vancouver"
+                        variant="filled"
+                        id="city4"
+                      />
+                      <of-field
+                        type="text"
+                        label="State"
+                        model-value="BC"
+                        variant="filled"
+                        id="state4"
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div class="of-block">
+                  <div class="of-group of--elevated">
+                    <div class="of-group-label">Phone Numbers</div>
+                    <div class="of-group-row of--pad">
+                      <of-field
+                        type="text"
+                        frame="none"
+                        model-value="999-888-7777"
+                        variant="filled"
+                        density="3"
+                        id="ph13"
+                      />
+                      <label class="of-group-label" for="ph13">work</label>
+                    </div>
+                    <div class="of-group-row of--pad">
+                      <of-field
+                        type="text"
+                        frame="none"
+                        model-value="999-888-7778"
+                        variant="filled"
+                        density="3"
+                        id="ph23"
+                      />
+                      <label class="of-group-label" for="ph23">mobile</label>
+                    </div>
+                    <div class="of-group-row of--pad">
+                      <of-field
+                        type="text"
+                        frame="none"
+                        model-value="999-888-7789"
+                        variant="filled"
+                        density="3"
+                        id="ph34"
+                      />
+                      <label class="of-group-label" for="ph34">home</label>
                     </div>
                   </div>
                 </div>
@@ -483,6 +769,7 @@ export default defineComponent({
     const secondDialogActive = ref(false)
     const thirdDialogActive = ref(false)
     const fourthDialogActive = ref(false)
+    const fifthDialogActive = ref(false)
 
     const nestedDialogActive = ref(false)
 
@@ -498,6 +785,7 @@ export default defineComponent({
       secondDialogActive,
       thirdDialogActive,
       fourthDialogActive,
+      fifthDialogActive,
       nestedDialogActive,
       sampleCode,
       toggleDialog: () => {
@@ -511,6 +799,9 @@ export default defineComponent({
       },
       toggleFourthDialog: () => {
         fourthDialogActive.value = !fourthDialogActive.value
+      },
+      toggleFifthDialog: () => {
+        fifthDialogActive.value = !fifthDialogActive.value
       },
       toggleNestedDialog: () => {
         nestedDialogActive.value = !nestedDialogActive.value
