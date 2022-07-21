@@ -62,6 +62,7 @@ export const OfOverlay = defineComponent({
   inheritAttrs: false,
   props: {
     active: { type: Boolean, default: false },
+    focus: { type: Boolean, default: true },
     align: { type: String, default: 'center' },
     capture: { type: Boolean, default: true },
     class: String,
@@ -164,12 +165,12 @@ export const OfOverlay = defineComponent({
       if (activeOverlay) {
         nextTick(() => {
           reposition()
-          focus()
+          if (props.focus) focus()
         })
       }
     }
     watch(
-      () => [props.target, props.active, state.value],
+      () => [props.target, props.active, props.focus, state.value],
       ([src, active, ..._]) => {
         if (!active) removeFromStack(elt.value)
         if (typeof src === 'string') {

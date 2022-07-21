@@ -24,6 +24,7 @@ export const OfListItem = defineComponent({
   },
   emits: {
     click: null,
+    blur: null,
   },
   setup(props, ctx: SetupContext) {
     const navGroup = useNavGroup()
@@ -31,6 +32,7 @@ export const OfListItem = defineComponent({
     const expand = computed(() => props.expand)
     const isCurrent = ref(!!props.active)
     const isFocused = ref(false)
+    const attrs = ref()
     if (navGroup) {
       navGroup.register(
         reactive({
@@ -50,6 +52,7 @@ export const OfListItem = defineComponent({
       },
       onBlur() {
         isFocused.value = false
+        ctx.emit('blur')
       },
     }
     watch(
@@ -57,6 +60,18 @@ export const OfListItem = defineComponent({
       (active) => {
         isCurrent.value = !!active
       }
+    )
+
+    watch(
+      () => props.attrs,
+      () => {
+        attrs.value = props.attrs
+        if (attrs.value?.isFocused === true) {
+          isFocused.value = true
+          elt.value?.focus()
+        }
+      },
+      { deep: true }
     )
 
     const content = () => {
@@ -100,6 +115,7 @@ export const OfListItem = defineComponent({
                 class: {
                   'of-list-item': true,
                   'of--active': active,
+                  'of--hover': attrs.value?.isFocused === true,
                   'of--disabled': props.disabled,
                   'of--expandable': expand.value !== null,
                   'of--expanded': expand.value,
@@ -108,7 +124,7 @@ export const OfListItem = defineComponent({
                 },
                 href: link.href,
                 ref: elt,
-                tabIndex: active || props.attrs?.isFocused ? 0 : -1,
+                tabIndex: active || attrs.value?.isFocused ? 0 : -1,
                 onClick(evt: MouseEvent) {
                   if (evt.button != null && evt.button !== 0) return
                   activate(evt)

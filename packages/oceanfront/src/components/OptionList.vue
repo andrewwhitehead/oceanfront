@@ -1,5 +1,6 @@
 <template>
   <div
+    tabindex="-1"
     role="menu"
     class="of-menu options"
     :class="menuClass"
@@ -42,6 +43,7 @@
               :active="item.selected"
               :disabled="item.disabled"
               @click="() => item.disabled || click(item.value, item)"
+              @blur="onItemBlur"
               :attrs="item.attrs"
             >
               <of-icon v-if="item.icon" :name="item.icon" size="input" />
@@ -75,6 +77,7 @@ const OfOptionList = defineComponent({
     OfNavGroup,
   },
   props: {
+    focus: { type: Boolean, default: false },
     class: [Object, String],
     style: [Object, String],
     items: {
@@ -84,7 +87,8 @@ const OfOptionList = defineComponent({
     onClick: { type: Function, required: true },
     addSearch: { type: Boolean, default: false },
   },
-  setup(props) {
+  emits: ['blur'],
+  setup(props, ctx) {
     const isEmpty = computed(() => !theItems.value || !theItems.value.length)
     const theItems = ref(props.items as any[])
     const menuClass = computed(() => props.class)
@@ -136,13 +140,22 @@ const OfOptionList = defineComponent({
       searchText.value = ''
     }
 
+    watch(
+      () => props.focus,
+      (val) => {
+        if (val) focusFirstItem()
+      }
+    )
+
     const onKeyPress = (evt: KeyboardEvent) => {
       let consumed = false
 
-      if (showSearch.value && evt.key === 'Escape') {
-        if (searchText.value !== '') {
+      if (evt.key === 'Escape') {
+        if (showSearch.value && searchText.value !== '') {
           consumed = true
           searchText.value = ''
+        } else {
+          ctx.emit('blur')
         }
       } else if (
         (/(^Key([A-Z]$))/.test(evt.code) ||
@@ -167,6 +180,13 @@ const OfOptionList = defineComponent({
 
     const focusSearch = () => {
       searchField?.value?.$el.querySelector('input')?.focus()
+    }
+
+    const onItemBlur = () => {
+      theItems.value.forEach((item) => {
+        if (item.attrs?.hasOwnProperty('isFocused'))
+          item.attrs.isFocused = false
+      })
     }
 
     const click = (value: any, item: any): any => {
@@ -206,6 +226,8 @@ const OfOptionList = defineComponent({
       clearSearch,
       showSearch,
       onKeyPress,
+
+      onItemBlur,
     }
   },
 })

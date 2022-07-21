@@ -36,20 +36,18 @@
               <div class="overflow-separator" v-if="tab.overflowButton" />
               <div
                 @click="tab.disabled || selectTab(tab.key)"
-                @mouseover="tab.disabled || openSubMenu(tab.key, $event)"
+                @mouseover="tab.disabled || openSubMenu(tab.key, $event.target)"
                 @mouseleave="tab.disabled || subMenuLeave()"
-                @focus="resetFocus"
-                @blur="removeFocus"
+                @focus="onFocusTab(tab.key)"
+                @blur="onBlurTab"
                 @keydown="navigate($event)"
-                :tabindex="
-                  selectedTabKey === tab.key || (!selectedTabKey && idx == 0)
-                    ? '0'
-                    : '-1'
-                "
+                :ref="focusedTabKey === tab.key ? 'focusedTab' : undefined"
+                :tabindex="focusedTabKey === tab.key || idx == 0 ? '0' : '-1'"
                 :class="{
                   'is-active': selectedTabKey === tab.key,
                   'is-disabled': tab.disabled,
-                  'focus-visible': focusedTabKey === tab.key,
+                  'of--focused':
+                    focusedTabKey === tab.key || openedMenuTabKey === tab.key,
                   'of-tab-header-item': true,
                   'overflow-button': tab.overflowButton,
                   'of--rounded': rounded,
@@ -78,6 +76,7 @@
         </div>
         <of-overlay
           :active="subMenuOpened"
+          :focus="false"
           :capture="false"
           :shade="false"
           :target="subMenuOuter"
@@ -87,8 +86,10 @@
               @mouseenter="subMenuClearTimeout()"
               @mouseleave="subMenuLeave()"
               @click="selectSubMenuTab"
+              @blur="onBlurList"
               class="of--elevated-1"
               :items="subMenuTabsList"
+              :focus="optionListFocused"
             />
           </slot>
         </of-overlay>
@@ -566,7 +567,6 @@ export default defineComponent({
           closeOverflowPopup()
           repositionLine()
           repositionTabs()
-          resetFocus()
         })
       }
     }
@@ -606,11 +606,17 @@ export default defineComponent({
     })
 
     const subMenuOpened = ref(false)
+    const optionListFocused = ref(true)
     const subMenuOuter = ref()
     const subMenuTabsList: Ref<Tab[]> = ref([])
     const subMenuTimerId = ref()
 
-    const openSubMenu = (key: number, evt?: MouseEvent) => {
+    const openSubMenu = (
+      key: number,
+      elt: HTMLElement | EventTarget | null,
+      focused = true,
+      delay = 500
+    ) => {
       if (!showSubMenu.value) return false
 
       if (key !== -1 && variant.value !== 'osx') {
@@ -622,11 +628,13 @@ export default defineComponent({
           subMenuTimerId.value = window.setTimeout(
             () => {
               subMenuTabsList.value = tab.subMenuItems ?? []
-              subMenuOuter.value = evt?.target
+              subMenuOuter.value = elt
               subMenuOpened.value = true
+              optionListFocused.value = focused
             },
-            subMenuOpened.value ? 0 : 500
+            subMenuOpened.value ? 0 : delay
           )
+          return true
         } else {
           closeSubMenu()
         }
@@ -638,6 +646,7 @@ export default defineComponent({
     }
 
     const closeSubMenu = () => {
+      openedMenuTabKey.value = null
       subMenuOpened.value = false
     }
 
@@ -661,73 +670,95 @@ export default defineComponent({
       }
     }
 
+    const focusedTab = ref<HTMLElement | null>(null)
     const focusedTabKey = ref()
-    const resetFocus = () => {
-      focusedTabKey.value = selectedTabKey.value || 0
+    const openedMenuTabKey = ref()
+
+    const openFocusedSubMenu = () => {
+      openedMenuTabKey.value = focusedTabKey.value
+      return openSubMenu(focusedTabKey.value, focusedTab.value, false, 0)
     }
-    const removeFocus = () => {
+
+    const onBlurList = () => {
+      closeSubMenu()
+      focusTab()
+    }
+
+    const onFocusTab = (key: number) => {
+      focusedTabKey.value = key
+      focusTab()
+    }
+
+    const onBlurTab = () => {
       focusedTabKey.value = undefined
+      subMenuLeave()
     }
+
     const navigate = (evt: KeyboardEvent) => {
       let idx = items.value.items.findIndex(
         (item: { key: number }) => item.key === focusedTabKey.value
       )
 
-      switch (evt.code) {
+      switch (evt.key) {
         case 'ArrowRight':
-          idx = getNextTabIdx(idx)
-          break
         case 'ArrowLeft':
-          idx = getPrevTabIdx(idx)
+        case 'Tab':
+          if (idx + 1 !== items.value.items.length) {
+            evt.preventDefault()
+          }
+          idx = getFocusedTabIdx(idx, evt.key)
+          focusedTabKey.value = items.value.items[idx].key
+          focusTab()
+          nextTick(() => {
+            if (subMenuOpened.value) openFocusedSubMenu()
+          })
           break
-        case 'Space':
-          evt.stopPropagation()
+        case 'ArrowUp':
+        case 'ArrowDown':
+          optionListFocused.value = true
+          nextTick(() => {
+            subMenuClearTimeout()
+          })
+          break
+        case 'Escape':
+          closeSubMenu()
+          break
+        case ' ':
+        case 'Enter':
           evt.preventDefault()
-          selectTab(focusedTabKey.value)
+          const opened = openFocusedSubMenu()
+          if (opened === false) selectTab(focusedTabKey.value)
           break
       }
-
-      focusedTabKey.value = items.value.items[idx].key
     }
 
-    const getNextTabIdx = (idx: number) => {
+    const focusTab = () => {
+      nextTick(() => {
+        focusedTab.value?.focus()
+      })
+    }
+
+    const getFocusedTabIdx = (idx: number, eventKey: string) => {
       let result = false
       let count = 0
-      let nextIdx = Math.min(idx + 1, items.value.items.length - 1)
+      let focusedIdx =
+        eventKey == 'ArrowLeft'
+          ? Math.max(idx - 1, 0)
+          : Math.min(idx + 1, items.value.items.length - 1)
 
       while (!result) {
         if (
-          items.value.items[nextIdx].disabled == true &&
+          items.value.items[focusedIdx].disabled == true &&
           count < items.value.items.length
         ) {
-          nextIdx++
+          eventKey == 'ArrowRight' ? focusedIdx++ : focusedIdx--
         } else {
           result = true
         }
         count++
       }
 
-      return nextIdx
-    }
-
-    const getPrevTabIdx = (idx: number) => {
-      let result = false
-      let count = 0
-      let prevIdx = Math.max(idx - 1, 0)
-
-      while (!result) {
-        if (
-          items.value.items[prevIdx].disabled == true &&
-          count < items.value.items.length
-        ) {
-          prevIdx--
-        } else {
-          result = true
-        }
-        count++
-      }
-
-      return prevIdx
+      return focusedIdx
     }
 
     return {
@@ -764,10 +795,15 @@ export default defineComponent({
       subMenuLeave,
       subMenuClearTimeout,
 
+      onBlurList,
+      optionListFocused,
+
       navigate,
-      resetFocus,
-      removeFocus,
+      onFocusTab,
+      onBlurTab,
+      focusedTab,
       focusedTabKey,
+      openedMenuTabKey,
     }
   },
 })
