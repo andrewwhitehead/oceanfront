@@ -97,6 +97,7 @@
 
       <of-overlay
         :active="outsideTabsOpened"
+        :focus="false"
         :shade="false"
         :capture="false"
         :target="overflowButtonEl"
@@ -105,7 +106,9 @@
         <of-option-list
           class="of--elevated-1"
           :items="invisibleTabsList"
+          :focus="optionListFocused"
           @click="selectInvisibleTab"
+          @blur="onBlurList"
         />
       </of-overlay>
     </div>
@@ -275,6 +278,7 @@ export default defineComponent({
 
     const overflowButtonEnabled = computed(() => props.overflowButton || false)
     let showOverflowButton = ref(false)
+    const lastVisibleIdx = ref()
 
     const ofTabsNavigationHeaderShowNextNavigation = computed(() => {
       return (
@@ -459,6 +463,7 @@ export default defineComponent({
           if (selectedTab?.key === item['key']) {
             updateTabVisibility(index, true)
             selectedIndex = index
+            lastVisibleIdx.value = index
             //don't make sense to update overflow button (key == -1)
           } else if (item['key'] !== -1) {
             updateTabVisibility(index, false)
@@ -491,6 +496,7 @@ export default defineComponent({
           updateTabVisibility(index, false)
           break
         }
+        lastVisibleIdx.value = Math.max(lastVisibleIdx.value, index)
       }
 
       showOverflowButton.value = hasInvisibleTabs
@@ -606,7 +612,7 @@ export default defineComponent({
     })
 
     const subMenuOpened = ref(false)
-    const optionListFocused = ref(true)
+    const optionListFocused = ref(false)
     const subMenuOuter = ref()
     const subMenuTabsList: Ref<Tab[]> = ref([])
     const subMenuTimerId = ref()
@@ -648,6 +654,8 @@ export default defineComponent({
     const closeSubMenu = () => {
       openedMenuTabKey.value = null
       subMenuOpened.value = false
+      optionListFocused.value = false
+      hideOutsideTabs()
     }
 
     const subMenuLeave = () => {
@@ -695,6 +703,7 @@ export default defineComponent({
     }
 
     const navigate = (evt: KeyboardEvent) => {
+      let consumed = true
       let idx = items.value.items.findIndex(
         (item: { key: number }) => item.key === focusedTabKey.value
       )
@@ -703,11 +712,11 @@ export default defineComponent({
         case 'ArrowRight':
         case 'ArrowLeft':
         case 'Tab':
-          if (idx + 1 !== items.value.items.length) {
-            evt.preventDefault()
+          if (idx + 1 == items.value.items.length || idx == -1) {
+            consumed = false
           }
           idx = getFocusedTabIdx(idx, evt.key)
-          focusedTabKey.value = items.value.items[idx].key
+          focusedTabKey.value = idx == -1 ? idx : items.value.items[idx].key
           focusTab()
           nextTick(() => {
             if (subMenuOpened.value) openFocusedSubMenu()
@@ -725,10 +734,14 @@ export default defineComponent({
           break
         case ' ':
         case 'Enter':
-          evt.preventDefault()
           const opened = openFocusedSubMenu()
           if (opened === false) selectTab(focusedTabKey.value)
           break
+      }
+
+      if (consumed) {
+        evt.stopPropagation()
+        evt.preventDefault()
       }
     }
 
@@ -739,23 +752,31 @@ export default defineComponent({
     }
 
     const getFocusedTabIdx = (idx: number, eventKey: string) => {
-      let result = false
-      let count = 0
+      let result = idx == -1
       let focusedIdx =
         eventKey == 'ArrowLeft'
-          ? Math.max(idx - 1, 0)
+          ? idx == -1
+            ? lastVisibleIdx.value
+            : Math.max(idx - 1, 0)
+          : idx == -1
+          ? idx
           : Math.min(idx + 1, items.value.items.length - 1)
 
       while (!result) {
         if (
-          items.value.items[focusedIdx].disabled == true &&
-          count < items.value.items.length
+          focusedIdx < items.value.items.length &&
+          (items.value.items[focusedIdx].disabled == true ||
+            items.value.items[focusedIdx].visible == false)
         ) {
-          eventKey == 'ArrowRight' ? focusedIdx++ : focusedIdx--
+          if (items.value.items[focusedIdx].disabled == true) {
+            eventKey == 'ArrowLeft' ? focusedIdx-- : focusedIdx++
+          } else if (items.value.items[focusedIdx].visible == false) {
+            focusedIdx = -1
+            result = true
+          }
         } else {
           result = true
         }
-        count++
       }
 
       return focusedIdx
