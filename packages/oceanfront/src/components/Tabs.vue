@@ -89,7 +89,11 @@
               @click="selectSubMenuTab"
               class="of--elevated-1"
               :items="subMenuTabsList"
-            />
+            >
+              <template #option-icon="item"
+                ><slot name="submenu-option-icon" v-bind="item"
+              /></template>
+            </of-option-list>
           </slot>
         </of-overlay>
       </div>
