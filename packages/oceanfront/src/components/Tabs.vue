@@ -42,12 +42,18 @@
                 @blur="onBlurTab"
                 @keydown="navigate($event)"
                 :ref="focusedTabKey === tab.key ? 'focusedTab' : undefined"
-                :tabindex="focusedTabKey === tab.key || idx == 0 ? '0' : '-1'"
+                :tabindex="
+                  focusedTabKey === tab.key || idx == firstActiveTabIdx
+                    ? '0'
+                    : '-1'
+                "
                 :class="{
                   'is-active': selectedTabKey === tab.key,
                   'is-disabled': tab.disabled,
                   'of--focused':
-                    focusedTabKey === tab.key || openedMenuTabKey === tab.key,
+                    focusedTabKey === tab.key ||
+                    openedMenuTabKey === tab.key ||
+                    (tab.key == -1 && outsideTabsOpened),
                   'of-tab-header-item': true,
                   'overflow-button': tab.overflowButton,
                   'of--rounded': rounded,
@@ -75,7 +81,7 @@
           </div>
         </div>
         <of-overlay
-          :active="subMenuOpened"
+          :active="subMenuActive"
           :focus="false"
           :capture="false"
           :shade="false"
@@ -278,7 +284,6 @@ export default defineComponent({
 
     const overflowButtonEnabled = computed(() => props.overflowButton || false)
     let showOverflowButton = ref(false)
-    const lastVisibleIdx = ref()
 
     const ofTabsNavigationHeaderShowNextNavigation = computed(() => {
       return (
@@ -306,6 +311,9 @@ export default defineComponent({
 
     const itemMgr = useItems()
     const items: any = ref({})
+
+    const firstActiveTabIdx = ref()
+    const lastActiveTabIdx = ref()
 
     const fillItems = function () {
       const result = {
@@ -336,6 +344,10 @@ export default defineComponent({
               item.subMenuItems[subIndex].parentKey = item.key
             }
           }
+        }
+        if (item.disabled !== true) {
+          firstActiveTabIdx.value = firstActiveTabIdx.value ?? item.key
+          lastActiveTabIdx.value = item.key
         }
 
         result.items[index] = item as never
@@ -463,7 +475,6 @@ export default defineComponent({
           if (selectedTab?.key === item['key']) {
             updateTabVisibility(index, true)
             selectedIndex = index
-            lastVisibleIdx.value = index
             //don't make sense to update overflow button (key == -1)
           } else if (item['key'] !== -1) {
             updateTabVisibility(index, false)
@@ -496,7 +507,11 @@ export default defineComponent({
           updateTabVisibility(index, false)
           break
         }
-        lastVisibleIdx.value = Math.max(lastVisibleIdx.value, index)
+      }
+      for (const item of items.value.items) {
+        if (item.disabled !== true && item.visible == true) {
+          lastActiveTabIdx.value = item.key
+        }
       }
 
       showOverflowButton.value = hasInvisibleTabs
@@ -611,7 +626,8 @@ export default defineComponent({
       return props.submenu
     })
 
-    const subMenuOpened = ref(false)
+    const subMenuActive = ref(false)
+    const subMenuHidden = ref(false)
     const optionListFocused = ref(false)
     const subMenuOuter = ref()
     const subMenuTabsList: Ref<Tab[]> = ref([])
@@ -635,10 +651,10 @@ export default defineComponent({
             () => {
               subMenuTabsList.value = tab.subMenuItems ?? []
               subMenuOuter.value = elt
-              subMenuOpened.value = true
+              subMenuActive.value = true
               optionListFocused.value = focused
             },
-            subMenuOpened.value ? 0 : delay
+            subMenuActive.value ? 0 : delay
           )
           return true
         } else {
@@ -653,7 +669,7 @@ export default defineComponent({
 
     const closeSubMenu = () => {
       openedMenuTabKey.value = null
-      subMenuOpened.value = false
+      subMenuActive.value = false
       optionListFocused.value = false
       hideOutsideTabs()
     }
@@ -688,13 +704,15 @@ export default defineComponent({
     }
 
     const onBlurList = () => {
-      closeSubMenu()
       focusTab()
     }
 
     const onFocusTab = (key: number) => {
       focusedTabKey.value = key
       focusTab()
+      nextTick(() => {
+        if (!subMenuHidden.value) openFocusedSubMenu()
+      })
     }
 
     const onBlurTab = () => {
@@ -712,31 +730,43 @@ export default defineComponent({
         case 'ArrowRight':
         case 'ArrowLeft':
         case 'Tab':
-          if (idx + 1 == items.value.items.length || idx == -1) {
-            consumed = false
-          }
-          idx = getFocusedTabIdx(idx, evt.key)
-          focusedTabKey.value = idx == -1 ? idx : items.value.items[idx].key
+          focusedTabKey.value = getNextTabKey(idx, evt.key)
           focusTab()
           nextTick(() => {
-            if (subMenuOpened.value) openFocusedSubMenu()
+            if (!subMenuHidden.value) openFocusedSubMenu()
           })
           break
         case 'ArrowUp':
         case 'ArrowDown':
-          optionListFocused.value = true
-          nextTick(() => {
-            subMenuClearTimeout()
-          })
+          if (!subMenuActive.value && focusedTabKey.value !== -1) {
+            subMenuHidden.value = false
+            openFocusedSubMenu()
+          } else {
+            optionListFocused.value = true
+            nextTick(() => {
+              subMenuClearTimeout()
+            })
+          }
           break
         case 'Escape':
+          subMenuHidden.value = true
           closeSubMenu()
           break
         case ' ':
         case 'Enter':
-          const opened = openFocusedSubMenu()
-          if (opened === false) selectTab(focusedTabKey.value)
+          subMenuHidden.value = true
+          selectTab(focusedTabKey.value)
           break
+      }
+
+      if (
+        evt.key == 'Tab' &&
+        ((showOverflowButton.value && idx == -1) ||
+          (!showOverflowButton.value && idx == lastActiveTabIdx.value))
+      ) {
+        focusedTabKey.value = undefined
+        consumed = false
+        closeSubMenu()
       }
 
       if (consumed) {
@@ -751,35 +781,37 @@ export default defineComponent({
       })
     }
 
-    const getFocusedTabIdx = (idx: number, eventKey: string) => {
-      let result = idx == -1
-      let focusedIdx =
-        eventKey == 'ArrowLeft'
-          ? idx == -1
-            ? lastVisibleIdx.value
-            : Math.max(idx - 1, 0)
-          : idx == -1
-          ? idx
-          : Math.min(idx + 1, items.value.items.length - 1)
+    const getNextTabKey = (idx: number, eventKey: string) => {
+      const prev = eventKey == 'ArrowLeft'
+      const maxIdx = items.value.items.length - 1
+      if (idx == -1) {
+        return prev ? lastActiveTabIdx.value : idx
+      } else if (
+        !prev &&
+        showOverflowButton.value &&
+        idx == lastActiveTabIdx.value
+      ) {
+        return -1
+      }
+
+      let result = false
+      let focusedIdx = prev ? Math.max(idx - 1, 0) : Math.min(idx + 1, maxIdx)
 
       while (!result) {
-        if (
-          focusedIdx < items.value.items.length &&
-          (items.value.items[focusedIdx].disabled == true ||
-            items.value.items[focusedIdx].visible == false)
-        ) {
-          if (items.value.items[focusedIdx].disabled == true) {
-            eventKey == 'ArrowLeft' ? focusedIdx-- : focusedIdx++
-          } else if (items.value.items[focusedIdx].visible == false) {
-            focusedIdx = -1
+        const item = items.value.items[focusedIdx]
+        if (item.disabled == true || item.visible == false) {
+          if ((prev && focusedIdx == 0) || (!prev && focusedIdx == maxIdx)) {
+            focusedIdx = idx
             result = true
+          } else {
+            prev ? focusedIdx-- : focusedIdx++
           }
         } else {
           result = true
         }
       }
 
-      return focusedIdx
+      return items.value.items[focusedIdx].key
     }
 
     return {
@@ -808,7 +840,7 @@ export default defineComponent({
 
       showSubMenu,
       subMenuTabsList,
-      subMenuOpened,
+      subMenuActive,
       subMenuOuter,
       openSubMenu,
       closeSubMenu,
@@ -825,6 +857,7 @@ export default defineComponent({
       focusedTab,
       focusedTabKey,
       openedMenuTabKey,
+      firstActiveTabIdx,
     }
   },
 })
