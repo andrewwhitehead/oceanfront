@@ -60,8 +60,10 @@ export default defineComponent({
   setup(props, ctx: SetupContext) {
     const dialog = ref<any>()
     const dialogHeader: Ref<HTMLDivElement | undefined> = ref()
-
     const active = ref(props.modelValue)
+
+    const padding = 10
+    const bottomPadding = 85
 
     let currentZIndex = ref(100)
 
@@ -69,9 +71,6 @@ export default defineComponent({
     let position2 = ref(0)
     let position3 = ref(0)
     let position4 = ref(0)
-
-    let resizerStartX = ref()
-    let resizerStartY = ref()
 
     let startWidth = ref()
     let startHeight = ref()
@@ -83,27 +82,12 @@ export default defineComponent({
       }
     )
 
-    function countDialogSize() {
-      const dialogContent = dialog.value.querySelector('.of-dialog-content')
-      dialog.value.style.zIndex = '' + ++currentZIndex.value
-
-      startWidth.value = parseInt(
-        window.getComputedStyle(dialogContent).width,
-        10
-      )
-      startHeight.value = parseInt(
-        window.getComputedStyle(dialogContent).height,
-        10
-      )
-    }
-
     const resizeAction = (e: MouseEvent) => {
+      e.preventDefault()
+
       // @media (max-width: 800px)
       if (window.innerWidth > 800) {
-        countDialogSize()
-
-        resizerStartX.value = e.clientX
-        resizerStartY.value = e.clientY
+        // countDialogSize()
 
         document.documentElement.addEventListener('mousemove', doResize, false)
         document.documentElement.addEventListener('mouseup', stopResize, false)
@@ -111,15 +95,34 @@ export default defineComponent({
     }
 
     function doResize(e: MouseEvent) {
+      e.preventDefault()
+
       const dialogContent = dialog.value.querySelector('.of-dialog-content')
+      const startWidth = parseInt(
+        window.getComputedStyle(dialogContent).width,
+        10
+      )
+      const startHeight = parseInt(
+        window.getComputedStyle(dialogContent).height,
+        10
+      )
 
-      dialog.value.style.maxHeight = 'inherit'
-      dialog.value.style.maxWidth = 'inherit'
+      const resizerElement = dialog.value.querySelector('.dialog-resizer')
+      const resizer = resizerElement.getBoundingClientRect()
 
-      dialogContent.style.width =
-        startWidth.value + e.clientX - resizerStartX.value + 'px'
-      dialogContent.style.height =
-        startHeight.value + e.clientY - resizerStartY.value + 'px'
+      let newOffsetX =
+        startWidth + e.clientX - parseInt(resizer.x, 10) - resizer.width / 4
+      let newOffsetY =
+        startHeight + e.clientY - parseInt(resizer.y, 10) - resizer.height / 4
+
+      if (e.clientX < window.innerWidth - padding - resizer.width) {
+        dialog.value.style.maxWidth = 'inherit'
+        dialogContent.style.width = newOffsetX + 'px'
+      }
+      if (e.clientY < window.innerHeight - padding - resizer.height) {
+        dialog.value.style.maxHeight = 'inherit'
+        dialogContent.style.height = newOffsetY + 'px'
+      }
     }
 
     function stopResize() {
@@ -128,9 +131,21 @@ export default defineComponent({
     }
 
     const dragAndDropAction = (e: MouseEvent) => {
+      e.preventDefault()
+
       // @media (max-width: 800px)
       if (window.innerWidth > 800 && props.dragAndDrop) {
-        countDialogSize()
+        const dialogContent = dialog.value.querySelector('.of-dialog-content')
+        dialog.value.style.zIndex = '' + ++currentZIndex.value
+
+        startWidth.value = parseInt(
+          window.getComputedStyle(dialogContent).width,
+          10
+        )
+        startHeight.value = parseInt(
+          window.getComputedStyle(dialogContent).height,
+          10
+        )
 
         // get the mouse cursor position at startup
         position3.value = e.clientX
@@ -146,8 +161,6 @@ export default defineComponent({
       if (!dialog.value) {
         return
       }
-      const padding = 10
-      const bottomPadding = 75
 
       // calculate the new cursor position:
       position1.value = position3.value - e.clientX

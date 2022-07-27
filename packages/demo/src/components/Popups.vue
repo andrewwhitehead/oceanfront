@@ -18,7 +18,7 @@
     <of-button @click="toggleSecondDialog">
       Show dialog (with nested dialog and header and footer)
     </of-button>
-    <of-dialog v-model="secondDialogActive">
+    <of-dialog v-model="secondDialogActive" resize>
       <template #header>
         <div class="of-dialog-fixed-content">Header</div>
       </template>
