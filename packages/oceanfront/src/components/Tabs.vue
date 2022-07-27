@@ -36,7 +36,9 @@
               <div class="overflow-separator" v-if="tab.overflowButton" />
               <div
                 @click="tab.disabled || selectTab(tab.key)"
-                @mouseover="tab.disabled || openSubMenu(tab.key, $event.target)"
+                @mouseover="
+                  tab.disabled || onMouseoverTab(tab.key, $event.target)
+                "
                 @mouseleave="tab.disabled || subMenuLeave()"
                 @focus="onFocusTab(tab.key)"
                 @blur="onBlurTab"
@@ -636,7 +638,6 @@ export default defineComponent({
     const openSubMenu = (
       key: number,
       elt: HTMLElement | EventTarget | null,
-      focused = true,
       delay = 500
     ) => {
       if (!showSubMenu.value) return false
@@ -652,7 +653,7 @@ export default defineComponent({
               subMenuTabsList.value = tab.subMenuItems ?? []
               subMenuOuter.value = elt
               subMenuActive.value = true
-              optionListFocused.value = focused
+              openedMenuTabKey.value = key
             },
             subMenuActive.value ? 0 : delay
           )
@@ -672,6 +673,17 @@ export default defineComponent({
       subMenuActive.value = false
       optionListFocused.value = false
       hideOutsideTabs()
+    }
+
+    const onMouseoverTab = (
+      key: number,
+      elt: HTMLElement | EventTarget | null
+    ) => {
+      if (optionListFocused.value) {
+        subMenuHidden.value = true
+        focusTab()
+      }
+      openSubMenu(key, elt)
     }
 
     const subMenuLeave = () => {
@@ -698,13 +710,24 @@ export default defineComponent({
     const focusedTabKey = ref()
     const openedMenuTabKey = ref()
 
+    watch(
+      () => focusedTabKey.value,
+      (val) => {
+        if (typeof val == 'undefined') {
+          subMenuHidden.value = false
+        }
+      }
+    )
+
     const openFocusedSubMenu = () => {
-      openedMenuTabKey.value = focusedTabKey.value
-      return openSubMenu(focusedTabKey.value, focusedTab.value, false, 0)
+      optionListFocused.value = false
+      return openSubMenu(focusedTabKey.value, focusedTab.value, 0)
     }
 
     const onBlurList = () => {
-      focusTab()
+      if (optionListFocused.value) {
+        focusTab()
+      }
     }
 
     const onFocusTab = (key: number) => {
@@ -738,9 +761,15 @@ export default defineComponent({
           break
         case 'ArrowUp':
         case 'ArrowDown':
+          if (
+            openedMenuTabKey.value &&
+            openedMenuTabKey.value !== focusedTabKey.value
+          ) {
+            closeSubMenu()
+          }
           if (!subMenuActive.value && focusedTabKey.value !== -1) {
-            subMenuHidden.value = false
             openFocusedSubMenu()
+            subMenuHidden.value = false
           } else {
             optionListFocused.value = true
             nextTick(() => {
@@ -847,6 +876,7 @@ export default defineComponent({
       selectSubMenuTab,
       subMenuLeave,
       subMenuClearTimeout,
+      onMouseoverTab,
 
       onBlurList,
       optionListFocused,

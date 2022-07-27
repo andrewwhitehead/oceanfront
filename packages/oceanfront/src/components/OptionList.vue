@@ -44,6 +44,7 @@
               :disabled="item.disabled"
               @click="() => item.disabled || click(item.value, item)"
               @blur="onItemBlur"
+              @focus="onItemFocus"
               :attrs="item.attrs"
             >
               <of-icon v-if="item.icon" :name="item.icon" size="input" />
@@ -93,6 +94,7 @@ const OfOptionList = defineComponent({
     const theItems = ref(props.items as any[])
     const menuClass = computed(() => props.class)
     const menuStyle = computed(() => props.style)
+    const itemFocused: Ref<boolean> = ref(false)
 
     const searchField = ref<any>(null)
     const searchText: Ref<string> = ref('')
@@ -182,11 +184,24 @@ const OfOptionList = defineComponent({
       searchField?.value?.$el.querySelector('input')?.focus()
     }
 
+    const onItemFocus = () => {
+      itemFocused.value = true
+    }
+
     const onItemBlur = () => {
-      theItems.value.forEach((item) => {
-        if (item.attrs?.hasOwnProperty('isFocused'))
-          item.attrs.isFocused = false
+      nextTick(() => {
+        if (!itemFocused.value) blurList()
       })
+      itemFocused.value = false
+    }
+
+    const blurList = () => {
+      theItems.value.forEach((item) => {
+        if (item.attrs?.hasOwnProperty('isFocused')) {
+          item.attrs.isFocused = false
+        }
+      })
+      ctx.emit('blur')
     }
 
     const click = (value: any, item: any): any => {
@@ -228,6 +243,7 @@ const OfOptionList = defineComponent({
       onKeyPress,
 
       onItemBlur,
+      onItemFocus,
     }
   },
 })

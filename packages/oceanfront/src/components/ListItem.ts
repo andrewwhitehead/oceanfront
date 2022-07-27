@@ -25,6 +25,7 @@ export const OfListItem = defineComponent({
   emits: {
     click: null,
     blur: null,
+    focus: null,
   },
   setup(props, ctx: SetupContext) {
     const navGroup = useNavGroup()
@@ -49,6 +50,7 @@ export const OfListItem = defineComponent({
     const handlers = {
       onFocus() {
         isFocused.value = true
+        ctx.emit('focus')
       },
       onBlur() {
         isFocused.value = false
