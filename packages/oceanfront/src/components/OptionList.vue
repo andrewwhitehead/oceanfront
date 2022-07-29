@@ -111,9 +111,7 @@ const OfOptionList = defineComponent({
     })
 
     const scrollListTop = () => {
-      window.setTimeout(() => {
-        listOuter?.value?.scroll(0, 0)
-      }, 200)
+      listOuter?.value?.scroll(0, 0)
     }
 
     watch(
@@ -171,6 +169,7 @@ const OfOptionList = defineComponent({
         ['ArrowUp', 'ArrowDown'].includes(evt.key) &&
         !itemFocused.value
       ) {
+        consumed = true
         focusFirstItem(true)
       } else if (
         (evt.key === 'Backspace' ||
