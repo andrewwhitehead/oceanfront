@@ -20,6 +20,7 @@ export const OfColorField = defineComponent({
     const fieldCtx = makeFieldContext(props, ctx)
     const opened = ref(false)
     const focused = ref(false)
+    const saturationFocused = ref(false)
     const elt = ref<HTMLElement | undefined>()
     let defaultFieldId: string
     const inputId = computed(() => {
@@ -39,6 +40,9 @@ export const OfColorField = defineComponent({
     }
     const clickOpen = () => {
       if (fieldCtx.editable) opened.value = true
+    }
+    const togglePopup = () => {
+      opened.value = !opened.value
     }
     const initialValue = computed(() => {
       let initial = fieldCtx.initialValue
@@ -90,6 +94,15 @@ export const OfColorField = defineComponent({
     const onChange = (data: string): void => {
       if (stateValue.value && fieldCtx.onUpdate) fieldCtx.onUpdate(data)
     }
+
+    const onSaturationBlur = () => {
+      saturationFocused.value = false
+    }
+
+    const onSaturationFocus = () => {
+      saturationFocused.value = true
+    }
+
     const renderPopup = () => {
       const color = compColor.value
       const hsv = color.hsv
@@ -97,18 +110,25 @@ export const OfColorField = defineComponent({
         'div',
         {
           class: 'of-menu of-colorpicker-popup of--elevated-1',
-          tabindex: '0',
         },
         h('div', { class: 'color-picker' }, [
           h(Saturation, {
+            tabindex: saturationFocused.value ? '-1' : '0',
             saturation: hsv.s,
             hue: hsv.h,
             value: hsv.v,
+            focus: saturationFocused.value,
             onChange: (s: number, v: number) => setHsv({ ...hsv, s, v }),
+            onBlur: onSaturationBlur,
+            onFocus: onSaturationFocus,
+            onSelect: closePopup,
           }),
           h(Hue, {
+            tabindex: !saturationFocused.value ? '-1' : '0',
             hue: hsv.h,
             onChange: (h: number) => setHsv({ ...hsv, h }),
+            onBlur: focus,
+            onSelect: closePopup,
           }),
           h('div', {}, color.hsl),
           h('div', {}, color.rgb),
@@ -123,8 +143,15 @@ export const OfColorField = defineComponent({
         focused.value = true
       },
       onKeydown(evt: KeyboardEvent) {
-        if (evt.key == ' ' || evt.key == 'ArrowUp' || evt.key == 'ArrowDown') {
-          clickOpen()
+        let consumed = false
+        if ([' ', 'ArrowUp', 'ArrowDown'].includes(evt.key)) {
+          consumed = true
+          togglePopup()
+        } else if (evt.key == 'Tab' && opened.value) {
+          consumed = true
+          saturationFocused.value = true
+        }
+        if (consumed) {
           evt.preventDefault()
           evt.stopPropagation()
         }
