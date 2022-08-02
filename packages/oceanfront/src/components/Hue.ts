@@ -13,7 +13,7 @@ export default defineComponent({
       },
     },
   },
-  emits: ['update:hue', 'change'],
+  emits: ['update:hue', 'change', 'select'],
   setup(props, { emit }) {
     const bar = ref<HTMLElement | null>(null)
     const barHandle = ref<HTMLElement | null>(null)
@@ -38,6 +38,11 @@ export default defineComponent({
       return 0
     }
 
+    const emitChange = () => {
+      emit('update:hue', currentHue.value)
+      emit('change', currentHue.value)
+    }
+
     const updatePosition = () => {
       handleLeft.value = getBarLeftPosition()
       handleTop.value = 0
@@ -57,8 +62,7 @@ export default defineComponent({
             360
         )
 
-        emit('update:hue', currentHue.value)
-        emit('change', currentHue.value)
+        emitChange()
       }
     }
 
@@ -94,11 +98,35 @@ export default defineComponent({
       })
     })
 
+    const hooks = {
+      onKeydown(evt: KeyboardEvent) {
+        switch (evt.code) {
+          case 'ArrowRight':
+            currentHue.value = Math.min(++currentHue.value, 360)
+            break
+          case 'ArrowLeft':
+            currentHue.value = Math.max(--currentHue.value, 0)
+            break
+          case 'Enter':
+          case 'Escape':
+            emit('select')
+            break
+        }
+        if (evt.code !== 'Tab') {
+          evt.stopPropagation()
+          evt.preventDefault()
+        }
+        updatePosition()
+        emitChange()
+      },
+    }
+
     return () => {
       return h(
         'div',
         {
           class: 'hue transparent',
+          ...hooks,
         },
         h(
           'div',
