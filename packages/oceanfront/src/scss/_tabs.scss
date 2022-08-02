@@ -277,7 +277,7 @@
           @include apply-tab-state(mat, active);
         }
         &:hover,
-        &.focus-visible {
+        &.of--focused {
           @include apply-tab-bg(mat, hover);
           @include apply-tab-color(mat, hover);
           @include apply-tab-state(mat, hover);
@@ -303,7 +303,7 @@
       @include apply-tab-border(att);
       &:not(.is-disabled) {
         &:hover,
-        &.focus-visible {
+        &.of--focused {
           @include apply-tab-bg(att, hover);
           @include apply-tab-color(att, hover);
           @include apply-tab-state(att, hover);
@@ -392,13 +392,13 @@
 
         &:not(.is-disabled) {
           &:hover,
-          &.focus-visible {
+          &.of--focused {
             @include apply-tab-bg(osx, hover);
             @include apply-tab-color(osx, hover);
             @include apply-tab-state(osx, hover);
           }
           &:focus,
-          &.focus-visible {
+          &.of--focused {
             outline: none;
           }
           &.is-active {

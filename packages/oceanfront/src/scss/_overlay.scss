@@ -84,7 +84,8 @@
   align-items: center;
   pointer-events: none;
 
-  .of-dialog-header, .of-dialog-footer {
+  .of-dialog-header,
+  .of-dialog-footer {
     background-color: var(--of-color-surface);
     max-height: 2em;
     line-height: 2em;
@@ -188,7 +189,10 @@
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    
+    &:focus,
+    &:focus-visible {
+      outline: none;
+    }
     .search-row {
       background-color: var(--of-color-section-header2);
       padding: 1ex;
@@ -203,7 +207,7 @@
     .of-list-outer {
       overflow: hidden auto;
       height: 100%;
-      padding-top: 0;      
+      padding-top: 0;
       padding-bottom: 0;
       flex: 0 1 auto;
     }

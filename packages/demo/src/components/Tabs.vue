@@ -152,7 +152,7 @@
     </div>
     <div class="demo-fields of--elevated-1">
       <h2>OSX tabs</h2>
-      <of-tabs :items="testItems2" v-model="selected2" variant="osx" />
+      <of-tabs :items="testItems6" v-model="selected6" variant="osx" />
     </div>
   </div>
 </template>
@@ -246,11 +246,23 @@ export default defineComponent({
       },
     ]
 
+    const testItems6 = [
+      'Tab 1',
+      'Tab 2',
+      { text: 'Tab 3', icon: 'user' },
+      'Tab 4',
+      'Tab 5',
+      { text: 'Tab 6', disabled: true },
+      'Tab 7',
+      'Tab 8',
+    ]
+
     const selected1 = ref(0)
     const selected2 = ref(1)
     const selected3 = ref(0)
     const selected4 = ref(0)
     const selected5 = ref(0)
+    const selected6 = ref(1)
 
     const selectTab = function (tab: Tab) {
       console.log(tab)
@@ -279,6 +291,9 @@ export default defineComponent({
 
       testItems5,
       selected5,
+
+      testItems6,
+      selected6,
     }
   },
 })
