@@ -158,18 +158,19 @@ export default defineComponent({
 
     const hooks = {
       onKeydown(evt: KeyboardEvent) {
+        const step = evt.ctrlKey ? 0.1 : 0.005
         switch (evt.code) {
           case 'ArrowRight':
-            currentHsv.s = Math.min(currentHsv.s + 0.005, 1)
+            currentHsv.s = Math.min(currentHsv.s + step, 1)
             break
           case 'ArrowLeft':
-            currentHsv.s = Math.max(currentHsv.s - 0.005, 0)
+            currentHsv.s = Math.max(currentHsv.s - step, 0)
             break
           case 'ArrowUp':
-            currentHsv.v = Math.min(currentHsv.v + 0.005, 1)
+            currentHsv.v = Math.min(currentHsv.v + step, 1)
             break
           case 'ArrowDown':
-            currentHsv.v = Math.max(currentHsv.v - 0.005, 0)
+            currentHsv.v = Math.max(currentHsv.v - step, 0)
             break
           case 'Enter':
           case 'Escape':
