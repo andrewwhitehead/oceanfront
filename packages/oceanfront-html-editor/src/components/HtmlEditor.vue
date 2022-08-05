@@ -120,6 +120,7 @@ import {
   SetupContext,
   onMounted,
   nextTick,
+  ShallowRef,
 } from 'vue'
 import {
   useEditor,
@@ -142,6 +143,7 @@ import TableCell from '@tiptap/extension-table-cell'
 import TableHeader from '@tiptap/extension-table-header'
 import { FontSize } from '../extensions/font_size'
 import { FormRecord } from 'oceanfront'
+import { Editor } from '@tiptap/core'
 
 type ToolbarMenuItem = {
   name: string
@@ -497,7 +499,7 @@ export default defineComponent({
       onBlur: () => {
         focused.value = false
       },
-    })
+    }) as ShallowRef<Editor>
 
     const updateContent = (value: string, emitUpdate = false): void => {
       const isSame = editor.value.getHTML() === value
