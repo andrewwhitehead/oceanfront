@@ -43,7 +43,7 @@
                 @focus="onFocusTab(tab.key)"
                 @blur="onBlurTab"
                 @keydown="navigate($event)"
-                :ref="focusedTabKey === tab.key ? 'focusedTab' : undefined"
+                :ref="(el) => (tabsRefs[idx] = el)"
                 :tabindex="
                   focusedTabKey === tab.key || idx == firstActiveTabIdx
                     ? '0'
@@ -710,6 +710,7 @@ export default defineComponent({
       }
     }
 
+    const tabsRefs = ref<HTMLElement[]>([])
     const focusedTab = ref<HTMLElement | null>(null)
     const focusedTabKey = ref()
     const openedMenuTabKey = ref()
@@ -719,6 +720,8 @@ export default defineComponent({
       (val) => {
         if (typeof val == 'undefined') {
           subMenuHidden.value = false
+        } else {
+          focusedTab.value = tabsRefs.value[val]
         }
       }
     )
@@ -888,7 +891,7 @@ export default defineComponent({
       navigate,
       onFocusTab,
       onBlurTab,
-      focusedTab,
+      tabsRefs,
       focusedTabKey,
       openedMenuTabKey,
       firstActiveTabIdx,
