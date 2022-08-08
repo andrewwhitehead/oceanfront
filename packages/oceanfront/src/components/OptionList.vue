@@ -111,7 +111,7 @@ const OfOptionList = defineComponent({
     })
 
     const scrollListTop = () => {
-      listOuter?.value?.scroll(0, 0)
+      listOuter?.value?.scroll?.(0, 0)
     }
 
     watch(
