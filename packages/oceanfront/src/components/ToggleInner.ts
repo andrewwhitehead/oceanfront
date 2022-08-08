@@ -60,6 +60,8 @@ export const ToggleInner = defineComponent({
                 h('div', { class: 'of-switch-track' }),
                 h('div', { class: 'of-switch-thumb' }),
               ])
+            : ctx.slots.icon
+            ? ctx.slots.icon(props.checked)
             : h(OfIcon, {
                 class: 'of-toggle-icon',
                 name: icon.value,
