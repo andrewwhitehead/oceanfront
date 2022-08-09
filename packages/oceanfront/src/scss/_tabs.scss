@@ -24,7 +24,7 @@
     mat-bg,
     (transparent, 0%),
     (
-      hover: var(--of-color-surface) 100%,
+      hover: var(--of-primary-tint) 6%,
     )
   );
   @include define-color-opacity(
@@ -66,7 +66,7 @@
     osx-bg,
     (transparent, 0%),
     (
-      hover: var(--of-color-inverse-surface) 30%,
+      hover: var(--of-color-inverse-surface) 60%,
       active: var(--of-color-inverse-surface) 60%,
     )
   );
