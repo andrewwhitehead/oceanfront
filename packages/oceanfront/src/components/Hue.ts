@@ -100,12 +100,13 @@ export default defineComponent({
 
     const hooks = {
       onKeydown(evt: KeyboardEvent) {
+        const step = evt.ctrlKey ? 20 : 1
         switch (evt.code) {
           case 'ArrowRight':
-            currentHue.value = Math.min(++currentHue.value, 360)
+            currentHue.value = Math.min(currentHue.value + step, 360)
             break
           case 'ArrowLeft':
-            currentHue.value = Math.max(--currentHue.value, 0)
+            currentHue.value = Math.max(currentHue.value - step, 0)
             break
           case 'Enter':
           case 'Escape':
