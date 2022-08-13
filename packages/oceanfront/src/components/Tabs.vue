@@ -39,16 +39,12 @@
                 @mouseover="
                   tab.disabled || onMouseoverTab(tab.key, $event.target)
                 "
-                @mouseleave="tab.disabled || subMenuLeave()"
+                @mouseleave="tab.disabled || subMenuLeave(tab.key)"
                 @focus="onFocusTab(tab.key)"
-                @blur="onBlurTab"
+                @blur="onBlurTab(tab.key)"
                 @keydown="navigate($event)"
-                :ref="focusedTabKey === tab.key ? 'focusedTab' : undefined"
-                :tabindex="
-                  focusedTabKey === tab.key || idx == firstActiveTabIdx
-                    ? '0'
-                    : '-1'
-                "
+                :ref="(el) => (tabsRefs[idx] = el)"
+                tabindex="0"
                 :class="{
                   'is-active': selectedTabKey === tab.key,
                   'is-disabled': tab.disabled,
@@ -119,6 +115,8 @@
           class="of--elevated-1"
           :items="invisibleTabsList"
           :focus="optionListFocused"
+          @mouseenter="subMenuClearTimeout()"
+          @mouseleave="subMenuLeave(-1)"
           @click="selectInvisibleTab"
           @blur="onBlurList"
         />
@@ -527,9 +525,12 @@ export default defineComponent({
       })
     }
 
+    const overflowButtonEl = ref()
     const calcVisibleTabsWidth = function (): number {
       let width = 0
-
+      overflowButtonEl.value = tabs.value?.querySelector(
+        '.of-tab-header-item.overflow-button'
+      )
       const overflowButton = tabs.value.querySelector(
         '.of-tab-header-item.overflow-button'
       )
@@ -583,7 +584,6 @@ export default defineComponent({
       const selectedTab: Tab | undefined = getTab(key)
 
       if (selectedTab && selectedTab.overflowButton) {
-        closeSubMenu()
         switchOverflowPopupVisibility()
       } else if (selectedTab) {
         context.emit('update:modelValue', key)
@@ -615,11 +615,7 @@ export default defineComponent({
 
     const outsideTabsOpened = ref(false)
 
-    const overflowButtonEl = ref()
     const switchOverflowPopupVisibility = () => {
-      overflowButtonEl.value = tabs.value?.querySelector(
-        '.of-tab-header-item.overflow-button'
-      )
       outsideTabsOpened.value = !outsideTabsOpened.value
     }
 
@@ -644,9 +640,9 @@ export default defineComponent({
       elt: HTMLElement | EventTarget | null,
       delay = 500
     ) => {
-      if (!showSubMenu.value) return false
+      if (!showSubMenu.value || key == -1) return false
 
-      if (key !== -1 && variant.value !== 'osx') {
+      if (variant.value !== 'osx') {
         closeOverflowPopup()
         subMenuClearTimeout()
         const tab: Tab | undefined = getTab(key)
@@ -676,7 +672,7 @@ export default defineComponent({
       openedMenuTabKey.value = null
       subMenuActive.value = false
       optionListFocused.value = false
-      hideOutsideTabs()
+      closeOverflowPopup()
     }
 
     const onMouseoverTab = (
@@ -690,8 +686,8 @@ export default defineComponent({
       openSubMenu(key, elt)
     }
 
-    const subMenuLeave = () => {
-      if (!showSubMenu.value) return false
+    const subMenuLeave = (key: number | undefined = undefined) => {
+      if (!showSubMenu.value && key !== -1) return false
 
       subMenuClearTimeout()
       subMenuTimerId.value = window.setTimeout(() => {
@@ -710,6 +706,7 @@ export default defineComponent({
       }
     }
 
+    const tabsRefs = ref<HTMLElement[]>([])
     const focusedTab = ref<HTMLElement | null>(null)
     const focusedTabKey = ref()
     const openedMenuTabKey = ref()
@@ -719,6 +716,10 @@ export default defineComponent({
       (val) => {
         if (typeof val == 'undefined') {
           subMenuHidden.value = false
+        } else if (val == -1) {
+          focusedTab.value = overflowButtonEl.value
+        } else {
+          focusedTab.value = tabsRefs.value[val]
         }
       }
     )
@@ -742,9 +743,9 @@ export default defineComponent({
       })
     }
 
-    const onBlurTab = () => {
+    const onBlurTab = (key: number | undefined = undefined) => {
       focusedTabKey.value = undefined
-      subMenuLeave()
+      subMenuLeave(key)
     }
 
     const navigate = (evt: KeyboardEvent) => {
@@ -754,10 +755,9 @@ export default defineComponent({
       )
 
       switch (evt.key) {
-        case 'ArrowRight':
-        case 'ArrowLeft':
         case 'Tab':
-          focusedTabKey.value = getNextTabKey(idx, evt.key)
+          focusedTabKey.value = getNextTabKey(idx, evt.shiftKey)
+          if (evt.shiftKey && idx == 0) consumed = false
           focusTab()
           nextTick(() => {
             if (!subMenuHidden.value) openFocusedSubMenu()
@@ -794,6 +794,7 @@ export default defineComponent({
 
       if (
         evt.key == 'Tab' &&
+        !evt.shiftKey &&
         ((showOverflowButton.value && idx == -1) ||
           (!showOverflowButton.value && idx == lastActiveTabIdx.value))
       ) {
@@ -814,8 +815,7 @@ export default defineComponent({
       })
     }
 
-    const getNextTabKey = (idx: number, eventKey: string) => {
-      const prev = eventKey == 'ArrowLeft'
+    const getNextTabKey = (idx: number, prev: boolean) => {
       const maxIdx = items.value.items.length - 1
       if (idx == -1) {
         return prev ? lastActiveTabIdx.value : idx
@@ -888,10 +888,11 @@ export default defineComponent({
       navigate,
       onFocusTab,
       onBlurTab,
-      focusedTab,
+      tabsRefs,
       focusedTabKey,
       openedMenuTabKey,
       firstActiveTabIdx,
+      lastActiveTabIdx,
     }
   },
 })
