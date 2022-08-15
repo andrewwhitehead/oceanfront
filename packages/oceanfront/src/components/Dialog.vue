@@ -28,7 +28,7 @@
                 class="dialog-resizer"
                 @mousedown="resizeAction"
               >
-                <of-icon name="expand down" />
+                <of-icon name="popup resize" />
               </div>
               <slot name="footer" />
             </div>
@@ -57,7 +57,7 @@ export default defineComponent({
     transition: { type: String, default: 'slide-down' },
   },
   emits: ['update:modelValue'],
-  setup(props, ctx: SetupContext) {
+  setup: function (props, ctx: SetupContext) {
     const dialog = ref<any>()
     const dialogHeader: Ref<HTMLDivElement | undefined> = ref()
     const active = ref(props.modelValue)
@@ -66,11 +66,12 @@ export default defineComponent({
     const bottomPadding = 85
 
     let currentZIndex = ref(100)
-
-    let position1 = ref(0)
-    let position2 = ref(0)
-    let position3 = ref(0)
-    let position4 = ref(0)
+    let position = ref({
+      1: 0,
+      2: 0,
+      3: 0,
+      4: 0,
+    })
 
     let startWidth = ref()
     let startHeight = ref()
@@ -148,8 +149,8 @@ export default defineComponent({
         )
 
         // get the mouse cursor position at startup
-        position3.value = e.clientX
-        position4.value = e.clientY
+        position.value[3] = e.clientX
+        position.value[4] = e.clientY
 
         // call a function whenever the cursor moves
         document.addEventListener('mouseup', closeDragElement)
@@ -163,15 +164,15 @@ export default defineComponent({
       }
 
       // calculate the new cursor position:
-      position1.value = position3.value - e.clientX
-      position2.value = position4.value - e.clientY
-      position3.value = e.clientX
-      position4.value = e.clientY
+      position.value[1] = position.value[3] - e.clientX
+      position.value[2] = position.value[4] - e.clientY
+      position.value[3] = e.clientX
+      position.value[4] = e.clientY
 
       let offsetLeft = dialog.value.offsetLeft
       let offsetTop = dialog.value.offsetTop
-      let newOffsetLeft = offsetLeft - position1.value
-      let newOffsetTop = offsetTop - position2.value
+      let newOffsetLeft = offsetLeft - position.value[1]
+      let newOffsetTop = offsetTop - position.value[2]
 
       let rightLimit = window.innerWidth - startWidth.value - offsetLeft
       let bottomLimit = window.innerHeight - startHeight.value - offsetTop

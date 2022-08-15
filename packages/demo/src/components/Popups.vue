@@ -16,7 +16,7 @@
     <p></p>
 
     <of-button @click="toggleSecondDialog">
-      Show dialog (with nested dialog and header and footer)
+      Show dialog with header, footer and resize function
     </of-button>
     <of-dialog v-model="secondDialogActive" resize>
       <template #header>
@@ -446,7 +446,7 @@
     <p></p>
 
     <of-button @click="toggleFifthDialog">
-      Show dialog with resize possibility
+      Show dialog with scrolling & resize
     </of-button>
     <of-dialog v-model="fifthDialogActive" resize>
       <template #header>
