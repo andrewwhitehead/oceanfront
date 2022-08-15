@@ -84,15 +84,19 @@ export const OfToggleField = defineComponent({
 
     const slots = {
       interactiveContent: () => {
-        return h(ToggleInner, {
-          switch: inputType.value === 'switch',
-          checked: stateValue.value,
-          label: fieldCtx.inputLabel,
-          inputId: inputId.value,
-          align: props.align,
-          name: props.name,
-          ...hooks,
-        })
+        return h(
+          ToggleInner,
+          {
+            switch: inputType.value === 'switch',
+            checked: stateValue.value,
+            label: fieldCtx.inputLabel,
+            inputId: inputId.value,
+            align: props.align,
+            name: props.name,
+            ...hooks,
+          },
+          { icon: ctx.slots.icon }
+        )
       },
     }
 

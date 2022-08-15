@@ -33,6 +33,7 @@
         <span
           v-if="col.sortable !== false"
           :id="createColId(idx)"
+          :tabindex="col.sortable !== false ? '0' : undefined"
           @mouseenter="
             col.extra_sort_fields
               ? sortColEnter('#' + createColId(idx), col.extra_sort_fields)
@@ -40,6 +41,7 @@
           "
           @mouseleave="col.extra_sort_fields ? sortColLeave() : null"
           @click="onSort(col.value)"
+          @keydown.enter.prevent="onSort(col.value)"
         >
           {{ col.text }}
           <of-icon

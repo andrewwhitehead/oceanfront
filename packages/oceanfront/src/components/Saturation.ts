@@ -49,10 +49,16 @@ export default defineComponent({
         return value >= 0 && value <= 1
       },
     },
+    focus: {
+      type: Boolean,
+      default: true,
+    },
   },
-  emits: ['update:saturation', 'update:value', 'change'],
+  emits: ['update:saturation', 'update:value', 'change', 'select'],
   setup(props, { emit }) {
     const instance = getCurrentInstance()
+
+    const elt = ref<HTMLElement | undefined>()
 
     const cursorTop = ref(0)
     const cursorLeft = ref(0)
@@ -62,6 +68,12 @@ export default defineComponent({
       s: props.saturation,
       v: props.value,
     })
+
+    const emitChange = (s: number, v: number) => {
+      emit('update:saturation', s)
+      emit('update:value', v)
+      emit('change', s, v)
+    }
 
     const handleDrag = (event: MouseEvent) => {
       if (instance) {
@@ -83,9 +95,7 @@ export default defineComponent({
         currentHsv.s = saturation
         currentHsv.v = bright
 
-        emit('update:saturation', saturation)
-        emit('update:value', bright)
-        emit('change', saturation, bright)
+        emitChange(saturation, bright)
       }
     }
 
@@ -114,6 +124,15 @@ export default defineComponent({
     })
 
     watch(
+      () => props.focus,
+      (val) => {
+        nextTick(() => {
+          if (val) elt.value?.focus()
+        })
+      }
+    )
+
+    watch(
       () => props.hue,
       (hue: number) => {
         currentHsv.h = hue
@@ -137,12 +156,44 @@ export default defineComponent({
       }
     )
 
+    const hooks = {
+      onKeydown(evt: KeyboardEvent) {
+        const step = evt.ctrlKey ? 0.1 : 0.005
+        switch (evt.code) {
+          case 'ArrowRight':
+            currentHsv.s = Math.min(currentHsv.s + step, 1)
+            break
+          case 'ArrowLeft':
+            currentHsv.s = Math.max(currentHsv.s - step, 0)
+            break
+          case 'ArrowUp':
+            currentHsv.v = Math.min(currentHsv.v + step, 1)
+            break
+          case 'ArrowDown':
+            currentHsv.v = Math.max(currentHsv.v - step, 0)
+            break
+          case 'Enter':
+          case 'Escape':
+            emit('select')
+            break
+        }
+        if (evt.code !== 'Tab') {
+          evt.stopPropagation()
+          evt.preventDefault()
+        }
+        updateCursorPosition()
+        emitChange(currentHsv.s, currentHsv.v)
+      },
+    }
+
     return () => {
       return h(
         'div',
         {
+          ref: elt,
           class: 'saturation',
           style: { backgroundColor: background.value },
+          ...hooks,
         },
         [
           h('div', { class: 'saturation__white' }),

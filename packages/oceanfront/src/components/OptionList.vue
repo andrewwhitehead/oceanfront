@@ -1,5 +1,6 @@
 <template>
   <div
+    tabindex="-1"
     role="menu"
     class="of-menu options"
     :class="menuClass"
@@ -31,7 +32,7 @@
     <of-nav-group>
       <div v-if="isEmpty" style="padding: 0 0.5em">No items</div>
       <template v-if="!isEmpty">
-        <div class="of-list-outer">
+        <div class="of-list-outer" ref="listOuter">
           <template v-for="(item, idx) of theItems" :key="idx">
             <div class="of-list-header" v-if="item.special === 'header'">
               {{ item.text }}
@@ -42,11 +43,11 @@
               :active="item.selected"
               :disabled="item.disabled"
               @click="() => item.disabled || click(item.value, item)"
+              @blur="onItemBlur"
+              @focus="onItemFocus"
               :attrs="item.attrs"
             >
-              <slot name="option-icon" v-bind="item">
-                <of-icon v-if="item.icon" :name="item.icon" size="input" />
-              </slot>
+              <of-icon v-if="item.icon" :name="item.icon" size="input" />
               {{ item.text }}
             </of-list-item>
           </template>
@@ -77,6 +78,7 @@ const OfOptionList = defineComponent({
     OfNavGroup,
   },
   props: {
+    focus: { type: Boolean, default: false },
     class: [Object, String],
     style: [Object, String],
     items: {
@@ -86,11 +88,14 @@ const OfOptionList = defineComponent({
     onClick: { type: Function, required: true },
     addSearch: { type: Boolean, default: false },
   },
-  setup(props) {
+  emits: ['blur'],
+  setup(props, ctx) {
     const isEmpty = computed(() => !theItems.value || !theItems.value.length)
     const theItems = ref(props.items as any[])
     const menuClass = computed(() => props.class)
     const menuStyle = computed(() => props.style)
+    const itemFocused: Ref<boolean> = ref(false)
+    const listOuter = ref<any>(null)
 
     const searchField = ref<any>(null)
     const searchText: Ref<string> = ref('')
@@ -104,6 +109,10 @@ const OfOptionList = defineComponent({
     const search = throttle(300, (input: string) => {
       searchText.value = input.trim()
     })
+
+    const scrollListTop = () => {
+      listOuter?.value?.scroll?.(0, 0)
+    }
 
     watch(
       () => props.items,
@@ -132,28 +141,45 @@ const OfOptionList = defineComponent({
           return true
         }
       })
+      scrollListTop()
     })
 
     const clearSearch = () => {
       searchText.value = ''
     }
 
+    watch(
+      () => props.focus,
+      (val) => {
+        if (val) focusFirstItem()
+      }
+    )
+
     const onKeyPress = (evt: KeyboardEvent) => {
       let consumed = false
 
-      if (showSearch.value && evt.key === 'Escape') {
-        if (searchText.value !== '') {
+      if (evt.key === 'Escape') {
+        if (showSearch.value && searchText.value !== '') {
           consumed = true
           searchText.value = ''
+        } else {
+          ctx.emit('blur')
         }
       } else if (
-        (/(^Key([A-Z]$))/.test(evt.code) ||
+        ['ArrowUp', 'ArrowDown'].includes(evt.key) &&
+        !itemFocused.value
+      ) {
+        consumed = true
+        focusFirstItem(true)
+      } else if (
+        (evt.key === 'Backspace' ||
+          /(^Key([A-Z]$))/.test(evt.code) ||
           /(^Digit([0-9]$))/.test(evt.code)) &&
         !evt.altKey &&
         !evt.metaKey &&
         !evt.ctrlKey
       ) {
-        if (props.addSearch && !showSearch.value && props.items?.length > 0) {
+        if (props.addSearch && props.items?.length > 0) {
           showSearch.value = true
           nextTick(() => {
             focusSearch()
@@ -171,28 +197,59 @@ const OfOptionList = defineComponent({
       searchField?.value?.$el.querySelector('input')?.focus()
     }
 
+    const onItemFocus = () => {
+      itemFocused.value = true
+    }
+
+    const onItemBlur = () => {
+      nextTick(() => {
+        if (!itemFocused.value) blurList()
+      })
+      itemFocused.value = false
+    }
+
+    const blurList = () => {
+      theItems.value.forEach((item) => {
+        if (item.attrs?.hasOwnProperty('isFocused')) {
+          item.attrs.isFocused = false
+        }
+      })
+      ctx.emit('blur')
+    }
+
     const click = (value: any, item: any): any => {
       if (props.onClick) props.onClick(value, item)
       showSearch.value = false
       searchText.value = ''
     }
 
-    const focusFirstItem = () => {
-      //If there is selected item it is alredy focused
-      const selected = theItems.value.find(
+    const focusFirstItem = (ignoreSelected = false) => {
+      if (theItems.value.length == 0) return
+
+      const selected = theItems.value.findIndex(
         (item) => item.selected && item.selected === true
       )
-      if (selected) return true
 
-      theItems.value.some((item) => {
-        if (!item.special) {
-          item.attrs = { ...item.attrs, ...{ isFocused: true } }
-          return true
+      if (!ignoreSelected && selected !== -1) {
+        theItems.value[selected].attrs = {
+          ...theItems.value[selected].attrs,
+          ...{ isFocused: true },
         }
-      })
+      } else {
+        scrollListTop()
+
+        theItems.value.some((item) => {
+          if (!item.special) {
+            item.attrs = { ...item.attrs, ...{ isFocused: true } }
+            return true
+          }
+        })
+      }
     }
 
-    focusFirstItem()
+    nextTick(() => {
+      focusFirstItem()
+    })
 
     return {
       isEmpty,
@@ -200,6 +257,7 @@ const OfOptionList = defineComponent({
       menuClass,
       menuStyle,
       click,
+      listOuter,
 
       searchField,
       searchText,
@@ -208,6 +266,9 @@ const OfOptionList = defineComponent({
       clearSearch,
       showSearch,
       onKeyPress,
+
+      onItemBlur,
+      onItemFocus,
     }
   },
 })

@@ -138,6 +138,7 @@ export function defineFieldType<T extends Component>(f: T): T {
 export const BaseFieldProps = {
   align: String,
   density: { type: [String, Number], default: undefined },
+  relativeDensity: { type: [String, Number], default: undefined },
   disabled: Boolean,
   fixed: Boolean,
   format: [String, Object] as PropType<FieldFormatProp>,
@@ -213,13 +214,18 @@ export const makeFieldContext = (
   ctx: SetupContext
 ): FieldContext => {
   const themeOptions = useThemeOptions()
+  const parseDensity = (density: string) => {
+    const d = parseInt(density, 10)
+    if (isNaN(d)) return undefined
+    return d
+  }
   const density = computed(() => {
     let d = props.density
+    let rd = props.relativeDensity
     if (d === 'default') {
       d = undefined
     } else if (typeof d === 'string') {
-      d = parseInt(d, 10)
-      if (isNaN(d)) d = undefined
+      d = parseDensity(d)
     }
     if (typeof d !== 'number') {
       d = themeOptions.defaultDensity
@@ -227,6 +233,13 @@ export const makeFieldContext = (
     if (typeof d !== 'number') {
       d = 2
     }
+    if (typeof rd === 'string') {
+      rd = parseDensity(rd)
+    }
+    if (typeof rd !== 'number') {
+      rd = 0
+    }
+    d += rd
     return Math.max(0, Math.min(3, d || 0))
   })
   const recordMgr = useRecords()

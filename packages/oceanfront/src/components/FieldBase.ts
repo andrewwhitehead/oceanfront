@@ -181,15 +181,22 @@ export const OfFieldBase = defineComponent({
           fieldRender.blank &&
           !(showFocused || overlayActive || mode.value === 'fixed')
         const metaLabel = props.name ? metadata.value?.label : undefined
-        const labelText = fieldRender.label ?? props.label ?? metaLabel
+        let labelText = fieldRender.label ?? props.label ?? metaLabel
 
         const asterisk: VNode | null = required.value
           ? h(OfIcon, { name: 'required', class: 'of--icon-required' })
           : null
 
+        let asteriskLabel = false
+
+        if (labelPosition.value == 'none' && required.value) {
+          asteriskLabel = true
+          labelText = ' '
+        }
+
         const label = ctx.slots.label
           ? ctx.slots.label()
-          : labelPosition.value !== 'none' &&
+          : (labelPosition.value !== 'none' || required.value) &&
             labelPosition.value !== 'input' &&
             labelText
           ? h(
@@ -221,7 +228,8 @@ export const OfFieldBase = defineComponent({
           },
           'of--cursor-' + (fieldRender.cursor || 'default'),
           'of--density-' + density.value,
-          'of--label-' + (label ? labelPosition.value : 'none'),
+          'of--label-' +
+            (asteriskLabel ? 'right' : label ? labelPosition.value : 'none'),
           'of--mode-' + mode.value,
           'of--variant-' + variant.value,
           'of--tint-' + tint.value,
@@ -265,10 +273,9 @@ export const OfFieldBase = defineComponent({
           )
         }
         const children = [
-          label &&
+          (label || required.value) &&
           labelPosition.value !== 'frame' &&
-          labelPosition.value !== 'input' &&
-          labelPosition.value !== 'none'
+          labelPosition.value !== 'input'
             ? h('div', { class: 'of-field-main-label' }, label)
             : undefined,
           h(
