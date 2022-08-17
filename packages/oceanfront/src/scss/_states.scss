@@ -18,6 +18,7 @@
     }*/
   --border-color-badge: #{$border};
   --border-color-field: #{$border};
+
   /*&.rbullet::after {
 		border-color: @border;		
 	}*/
@@ -39,11 +40,9 @@
 }
 
 @mixin state-mixin-grad($color, $bg, $border) {
-  @include state-mixin(
-    $color,
+  @include state-mixin($color,
     linear-gradient(to bottom, lighten($bg, 2%) 15%, darken($bg, 2%) 85%),
-    $border
-  );
+    $border );
 }
 
 /*.state-field {
@@ -77,44 +76,65 @@
 .state-success {
   @include state-mixin-grad(#595, rgba(255, 255, 255, 0.8), #6b6);
 }
+
 .state-final {
   @include state-mixin-grad(#f6fff6, #7d8, #6b6);
 }
+
 .state-info {
   @include state-mixin-grad(#469, #cfeaff, darken(#cfeaff, 16%));
 }
+
 .state-draft {
   @include state-mixin-grad(#b84, rgba(255, 255, 255, 0.8), #c96);
 }
+
 .state-pending {
   @include state-mixin-grad(#57a, rgba(255, 255, 255, 0.8), #8ad);
 }
+
 .state-deferred {
   @include state-mixin-grad(#969, rgba(255, 255, 255, 0.8), #c8b);
 }
+
 .state-special {
   @include state-mixin-grad(#fff6ff, #a7a, darken(#a7a, 12%));
 }
+
 .state-error {
   @include state-mixin-grad(#a55, #fff, #a55);
 }
+
 .state-alert {
   @include state-mixin-grad(#666, #fc6, #c92);
 }
+
 .state-warning {
   @include state-mixin-grad(#b65, rgba(255, 240, 160, 0.6), #b75);
 }
+
 .state-danger {
   @include state-mixin-grad(#f6f6ff, rgba(221, 32, 19, 0.5), #a55);
 }
+
 .state-closed {
   @include state-mixin-grad(#fff, rgba(140, 140, 140, 0.5), #999);
 }
+
 .state-dead {
   @include state-mixin-grad(#666, rgba(190, 190, 190, 0.5), #aaa);
 }
+
 .state-invert {
   @include state-mixin-grad(#fff, #888, #777);
+}
+
+
+.state-primary {
+  @include state-mixin(var(--of-color-primary),
+    "",
+    var(--of-color-primary));
+
 }
 
 .of--elevated,
@@ -123,13 +143,13 @@
 .of--elevated-3,
 .of--elevated-4,
 .of--elevated-5 {
-    --of-elevation-box-shadow: none;
+  --of-elevation-box-shadow: none;
   box-shadow: var(--of-elevation-box-shadow);
-  --of-elevation-box-shadow-1: 0 1px 3px rgba(0,0,0,0.25), 0 1px 2px rgba(0,0,0,0.5);
-  --of-elevation-box-shadow-2: 0 3px 6px rgba(0,0,0,0.32), 0 3px 6px rgba(0,0,0,0.5);
-  --of-elevation-box-shadow-3: 0 10px 20px rgba(0,0,0,0.38), 0 6px 6px rgba(0,0,0,0.46);
-  --of-elevation-box-shadow-4: 0 14px 28px rgba(0,0,0,0.5), 0 10px 10px rgba(0,0,0,0.44);
-  --of-elevation-box-shadow-5: 0 19px 38px rgba(0,0,0,0.6), 0 15px 12px rgba(0,0,0,0.44);
+  --of-elevation-box-shadow-1: 0 1px 3px rgba(0, 0, 0, 0.25), 0 1px 2px rgba(0, 0, 0, 0.5);
+  --of-elevation-box-shadow-2: 0 3px 6px rgba(0, 0, 0, 0.32), 0 3px 6px rgba(0, 0, 0, 0.5);
+  --of-elevation-box-shadow-3: 0 10px 20px rgba(0, 0, 0, 0.38), 0 6px 6px rgba(0, 0, 0, 0.46);
+  --of-elevation-box-shadow-4: 0 14px 28px rgba(0, 0, 0, 0.5), 0 10px 10px rgba(0, 0, 0, 0.44);
+  --of-elevation-box-shadow-5: 0 19px 38px rgba(0, 0, 0, 0.6), 0 15px 12px rgba(0, 0, 0, 0.44);
 }
 
 .of--elevated-1 {
@@ -139,12 +159,15 @@
 .of--elevated-2 {
   --of-elevation-box-shadow: var(--of-elevation-box-shadow-2);
 }
+
 .of--elevated-3 {
   --of-elevation-box-shadow: var(--of-elevation-box-shadow-3);
 }
+
 .of--elevated-4 {
   --of-elevation-box-shadow: var(--of-elevation-box-shadow-4);
 }
+
 .of--elevated-5 {
   --of-elevation-box-shadow: var(--of-elevation-box-shadow-5);
 }

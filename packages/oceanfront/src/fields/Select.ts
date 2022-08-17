@@ -1,8 +1,10 @@
-import { useConfig } from '../lib/config'
 import { computed, defineComponent, h, ref, watch } from 'vue'
 import { OfFieldBase } from '../components/FieldBase'
 import { OfIcon } from '../components/Icon'
 import OfOptionList from '../components/OptionList.vue'
+import OfBadge from '../components/Badge.vue'
+import { useConfig } from '../lib/config'
+
 import {
   BaseFieldProps,
   fieldRender,
@@ -16,7 +18,10 @@ type ActiveItem = { text?: string; [key: string]: any }
 
 export const OfSelectField = defineComponent({
   name: 'OfSelectField',
-  props: BaseFieldProps,
+  props: {
+    ...BaseFieldProps,
+    multi: Boolean,
+  },
   setup(props, ctx) {
     const config = useConfig()
     const itemMgr = useItems(config)
@@ -78,9 +83,9 @@ export const OfSelectField = defineComponent({
       }
       return result
     })
-    const activeItem = computed(() => {
+
+    const itemForValue = (value: any) => {
       const resolved = items.value
-      const value = inputValue.value
       let cmpVal
       let found: { idx?: number; item?: ActiveItem } = {}
       let idx = 0
@@ -106,18 +111,23 @@ export const OfSelectField = defineComponent({
         idx++
       }
       return found
-    })
+    }
+
+    const isSelected = (item: any): boolean => {
+      if (!props.multi) return inputValue.value === item
+      const values = Array.isArray(inputValue.value) ? inputValue.value : []
+      return !!~values.indexOf(item)
+    }
+
     const formatItems = computed(() => {
-      const active = activeItem.value
       const resolved = items.value
       const rows = []
-      let idx = 0
       for (const item of resolved.items) {
         if (typeof item === 'string') {
           rows.push({
             disabled: false,
             text: item,
-            selected: active.idx === idx,
+            selected: isSelected(item),
             value: item,
           })
         } else if (typeof item === 'object') {
@@ -126,12 +136,11 @@ export const OfSelectField = defineComponent({
             text: item[resolved.textKey],
             selectedText: item[resolved.selectedTextKey],
             value: item[resolved.valueKey],
-            selected: active.idx === idx,
+            selected: isSelected(item[resolved.valueKey]),
             special: item[resolved.specialKey],
             icon: item[resolved.iconKey] ?? '',
           })
         }
-        idx++
       }
       return rows
     })
@@ -159,11 +168,71 @@ export const OfSelectField = defineComponent({
       const curelt = elt.value
       if (curelt) curelt.focus()
     }
-    const setValue = (val: any) => {
-      inputValue.value = val
-      fieldCtx.onUpdate?.(val)
-      closePopup(true)
+
+    const toggleValue = (val: any): any => {
+      if (!props.multi) return val
+      if (!Array.isArray(inputValue.value)) {
+        return [val]
+      }
+      let found = false
+      const filtered = inputValue.value.filter((item) => {
+        if (item === val) {
+          found = true
+          return false
+        }
+        return true
+      })
+      if (!found) {
+        filtered.push(val)
+      }
+      return filtered
     }
+    const setValue = (
+      val: any,
+      _item?: any,
+      ev?: MouseEvent | KeyboardEvent
+    ) => {
+      ev?.stopPropagation()
+      ev?.preventDefault()
+      const newValue = toggleValue(val)
+      inputValue.value = newValue
+      fieldCtx.onUpdate?.(newValue)
+      if (!props.multi || !ev?.shiftKey) {
+        closePopup(true)
+      }
+    }
+
+    const selectedItemText = () => {
+      const activeItem = itemForValue(inputValue.value)
+      return activeItem.item?.selectedText || activeItem.item?.text || ''
+    }
+
+    const itemText = (value: any) => {
+      const item = itemForValue(value)
+      return item.item?.selectedText || item.item?.text || ''
+    }
+
+    const renderBadges = () => {
+      const values = Array.isArray(inputValue.value) ? inputValue.value : []
+      return values.map((val) =>
+        h(
+          OfBadge,
+          { status: 'primary', style: 'margin-bottom:0', compact: true },
+          () => [
+            itemText(val),
+            h(OfIcon, {
+              name: 'cancel',
+              size: 14,
+              onClick: (e: Event) => {
+                e.stopPropagation()
+                setValue(val)
+              },
+            }),
+          ]
+        )
+      )
+    }
+
     const hooks = {
       onBlur(_evt: FocusEvent) {
         focused.value = false
@@ -191,10 +260,7 @@ export const OfSelectField = defineComponent({
           })
       },
       interactiveContent: () => {
-        const label =
-          activeItem.value.item?.selectedText ||
-          activeItem.value.item?.text ||
-          ''
+        const labels = props.multi ? renderBadges() : selectedItemText()
 
         return [
           h(
@@ -209,7 +275,7 @@ export const OfSelectField = defineComponent({
               tabindex: 0,
               ...hooks,
             },
-            [label]
+            labels
           ),
         ]
       },
@@ -217,7 +283,10 @@ export const OfSelectField = defineComponent({
 
     const fRender = fieldRender({
       blank: computed(() => {
-        if (!activeItem.value.item) return true
+        if (props.multi)
+          return !Array.isArray(inputValue.value) || !inputValue.value.length
+        const activeItem = itemForValue(inputValue.value)
+        if (!activeItem.item) return true
         const val = inputValue.value
         return val === undefined || val === null || val === ''
       }),

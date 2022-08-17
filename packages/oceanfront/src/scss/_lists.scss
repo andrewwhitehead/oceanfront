@@ -2,12 +2,15 @@
   overflow: hidden;
   max-height: 100%;
   padding-left: 1em;
+
   &.v-enter-active {
     transition: all 200ms ease;
   }
+
   &.v-leave-active {
     transition: all 200ms ease;
   }
+
   &.v-enter-from,
   &.v-leave-to {
     max-height: 0;
@@ -15,31 +18,22 @@
 }
 
 .of-list-item {
-  @include define-color-opacity(
-    item-bg,
+  @include define-color-opacity(item-bg,
     (transparent, 0%),
-    (
-      active: var(--of-container-tint) 100%,
+    (active: var(--of-container-tint) 100%,
       hover: var(--of-color-on-surface) 16%,
       exp: var(--of-color-on-surface-variant) 12%,
-    )
-  );
-  @include define-color-opacity(
-    item-text,
+    ));
+  @include define-color-opacity(item-text,
     (var(--of-on-container-tint), 100%),
-    (
-      hover: var(--of-color-on-surface) 100%,
+    (hover: var(--of-color-on-surface) 100%,
       disabled: var(--of-color-on-surface) 38%,
       exp: var(--of-color-on-surface-variant) 100%,
-    )
-  );
-  @include define-color-opacity(
-    item-border,
+    ));
+  @include define-color-opacity(item-border,
     (transparent, 0%),
-    (
-      focus: var(--of-primary-tint) 50%,
-    )
-  );
+    (focus: var(--of-primary-tint) 50%,
+    ));
 
   --border-color: transparent;
   --border-opacity: 100%;
@@ -54,6 +48,7 @@
   padding: 2px 4px;
   text-decoration: none;
   transition: color 200ms;
+
   &.of--disabled {
     cursor: default;
   }
@@ -74,6 +69,7 @@
         background-color: var(--bg-color);
         opacity: var(--bg-opacity);
       }
+
       &.of--layer-brd {
         border-color: var(--border-color);
         opacity: var(--border-opacity);
@@ -82,6 +78,7 @@
 
     color: var(--text-color);
     opacity: var(--text-opacity);
+
     & .of-list-item-content {
       display: flex;
       flex: auto;
@@ -96,6 +93,7 @@
     --text-color: #{use-color(item-text, disabled)};
     --text-opacity: #{use-opacity(item-text, disabled)};
   }
+
   &.of--active:not(.of--disabled):not(.of--expandable) {
     font-weight: 500;
     --bg-color: #{use-color(item-bg, active)};
@@ -103,16 +101,19 @@
     --text-color: #{use-color(item-text, active)};
     --text-opacity: #{use-opacity(item-text, active)};
   }
+
   &:not(.of--disabled):not(.of--active):not(.of--expandable):hover {
     --bg-color: #{use-color(item-bg, hover)};
     --bg-opacity: #{use-opacity(item-bg, hover)};
     --text-color: #{use-color(item-text, hover)};
     --text-opacity: #{use-opacity(item-text, hover)};
   }
+
   &:not(.of--disabled).of--focused {
     --border-color: #{use-color(item-border, focus)};
     --border-opacity: #{use-opacity(item-border, focus)};
   }
+
   &.of--expandable {
     font-weight: 800;
     --bg-color: #{use-color(item-bg, exp)};
@@ -125,23 +126,18 @@
 .of-list-outer {
   padding-bottom: 0.25em;
   padding-top: 0.25em;
+  user-select: none;
 }
 
 .of-list-header {
-  @include define-color-opacity(
-    item-bg,
+  @include define-color-opacity(item-bg,
     (transparent, 0%),
-    (
-      header: var(--of-color-surface-variant) 100%,
-    )
-  );
-  @include define-color-opacity(
-    item-text,
+    (header: var(--of-color-surface-variant) 100%,
+    ));
+  @include define-color-opacity(item-text,
     (var(--of-on-container-tint), 100%),
-    (
-      header: var(--of-color-on-surface-variant) 100%,
-    )
-  );
+    (header: var(--of-color-on-surface-variant) 100%,
+    ));
 
   z-index: 2;
   cursor: default;

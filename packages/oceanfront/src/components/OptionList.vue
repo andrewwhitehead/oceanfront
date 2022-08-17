@@ -48,7 +48,9 @@
               v-if="!item.special"
               :active="item.selected"
               :disabled="item.disabled"
-              @click="() => item.disabled || click(item.value, item)"
+              @click="
+                (event) => item.disabled || click(item.value, item, event)
+              "
               @blur="onItemBlur"
               @focus="onItemFocus"
               :attrs="item.attrs"
@@ -229,8 +231,8 @@ const OfOptionList = defineComponent({
       ctx.emit('blur')
     }
 
-    const click = (value: any, item: any): any => {
-      if (props.onClick) props.onClick(value, item)
+    const click = (value: any, item: any, event: Event): any => {
+      if (props.onClick) props.onClick(value, item, event)
       showSearch.value = false
       searchText.value = ''
     }
