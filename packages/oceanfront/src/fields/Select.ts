@@ -220,14 +220,16 @@ export const OfSelectField = defineComponent({
           { status: 'primary', style: 'margin-bottom:0', compact: true },
           () => [
             itemText(val),
-            h(OfIcon, {
-              name: 'cancel',
-              size: 14,
-              onClick: (e: Event) => {
-                e.stopPropagation()
-                setValue(val)
-              },
-            }),
+            fieldCtx.editable
+              ? h(OfIcon, {
+                  name: 'cancel',
+                  size: 14,
+                  onClick: (e: Event) => {
+                    e.stopPropagation()
+                    setValue(val)
+                  },
+                })
+              : undefined,
           ]
         )
       )
