@@ -19,6 +19,13 @@
           label-position="input"
           v-model="customProps.multi"
         />
+        <of-field
+          v-if="customProps.multi"
+          type="toggle"
+          label="Add/Remove buttons"
+          label-position="input"
+          v-model="customProps.addRemove"
+        />
       </template>
     </of-demo-field>
   </div>
@@ -431,7 +438,7 @@ export default defineComponent({
       }
       tzOpts.items.push({ text, value })
     }
-    const customProps = reactive({ multi: false })
+    const customProps = reactive({ multi: false, addRemove: false })
     watch(
       () => customProps.multi,
       (multi) => {

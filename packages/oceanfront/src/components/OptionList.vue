@@ -135,28 +135,37 @@ const OfOptionList = defineComponent({
       }
     )
 
-    watch(searchText, () => {
-      if (searchText.value.trim() === '') theItems.value = props.items
-      theItems.value = props.items.filter((item) => {
-        if (item.special) return true
-        if (item.value !== undefined) {
-          const optionText: string = item.text
-          return optionText
-            .toLowerCase()
-            .includes(searchText.value.trim().toLowerCase())
-        }
-      })
-      //Remove empty special items
-      theItems.value = theItems.value.filter((item, index) => {
-        if (item.special) {
-          const nextItem = theItems.value[index + 1] ?? null
-          return nextItem && !nextItem.special
-        } else {
-          return true
-        }
-      })
-      scrollListTop()
-    })
+    let prevSearchText: string | null = null
+    watch(
+      () => [searchText.value, props.items],
+      () => {
+        const showAll = searchText.value.trim() === ''
+        theItems.value = props.items.filter((item) => {
+          if (item.special) return true
+          if (item.value !== undefined) {
+            const optionText: string = item.text
+            return (
+              showAll ||
+              optionText
+                .toLowerCase()
+                .includes(searchText.value.trim().toLowerCase())
+            )
+          }
+        })
+        //Remove empty special items
+        theItems.value = theItems.value.filter((item, index) => {
+          if (item.special) {
+            const nextItem = theItems.value[index + 1] ?? null
+            return nextItem && !nextItem.special
+          } else {
+            return true
+          }
+        })
+        if (searchText.value !== prevSearchText) scrollListTop()
+        prevSearchText = searchText.value
+      },
+      { immediate: true }
+    )
 
     const clearSearch = () => {
       searchText.value = ''

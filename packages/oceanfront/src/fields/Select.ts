@@ -3,6 +3,7 @@ import { OfFieldBase } from '../components/FieldBase'
 import { OfIcon } from '../components/Icon'
 import OfOptionList from '../components/OptionList.vue'
 import OfBadge from '../components/Badge.vue'
+import { OfButton } from '../components/Button'
 import { useConfig } from '../lib/config'
 
 import {
@@ -21,6 +22,7 @@ export const OfSelectField = defineComponent({
   props: {
     ...BaseFieldProps,
     multi: Boolean,
+    addRemove: Boolean,
   },
   setup(props, ctx) {
     const config = useConfig()
@@ -37,6 +39,8 @@ export const OfSelectField = defineComponent({
     const inputValue = ref()
     const pendingValue = ref() // store selected but unconfirmed value
     const stateValue = ref()
+    const removing = ref(false)
+
     watch(
       () => fieldCtx.value,
       (val) => {
@@ -145,6 +149,15 @@ export const OfSelectField = defineComponent({
       return rows
     })
 
+    const filteredItems = computed(() => {
+      if (!props.multi || !props.addRemove) return formatItems.value
+      const values = Array.isArray(inputValue.value) ? inputValue.value : []
+      const removingItems = removing.value
+      return formatItems.value.filter((item) => {
+        return item.special || removingItems == !!~values.indexOf(item.value)
+      })
+    })
+
     let closing: number | null = null
     const clickOpen = (_evt?: MouseEvent) => {
       if (opened.value) {
@@ -162,6 +175,7 @@ export const OfSelectField = defineComponent({
           closing = null
         }, 150)
         if (refocus) focus()
+        removing.value = false
       }
     }
     const focus = () => {
@@ -235,6 +249,41 @@ export const OfSelectField = defineComponent({
       )
     }
 
+    const toggleMode = () => {
+      removing.value = !removing.value
+    }
+
+    const addRemoveButtons = () => {
+      if (!props.addRemove) return undefined
+      return h(
+        'div',
+        {
+          style:
+            'padding: 4px; display: flex; flex-direction: column; align-items: center',
+        },
+        h('div', { class: 'of-buttonset' }, [
+          h(
+            OfButton,
+            {
+              variant: 'outlined',
+              active: !removing.value,
+              onClick: toggleMode,
+            },
+            'Add Items'
+          ),
+          h(
+            OfButton,
+            {
+              variant: 'outlined',
+              active: removing.value,
+              onClick: toggleMode,
+            },
+            'Remove Items'
+          ),
+        ])
+      )
+    }
+
     const hooks = {
       onBlur(_evt: FocusEvent) {
         focused.value = false
@@ -303,12 +352,16 @@ export const OfSelectField = defineComponent({
       popup: {
         content: () =>
           opened.value
-            ? h(OfOptionList, {
-                items: formatItems.value,
-                class: 'of--elevated-1',
-                onClick: setValue,
-                addSearch: true,
-              })
+            ? h(
+                OfOptionList,
+                {
+                  items: filteredItems.value,
+                  class: 'of--elevated-1',
+                  onClick: setValue,
+                  addSearch: true,
+                },
+                { header: () => addRemoveButtons() }
+              )
             : undefined,
         visible: opened,
         onBlur: closePopup,

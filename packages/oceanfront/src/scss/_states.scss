@@ -131,9 +131,9 @@
 
 
 .state-primary {
-  @include state-mixin(var(--of-color-primary),
+  @include state-mixin(var(--of-primary-tint),
     "",
-    var(--of-color-primary));
+    var(--of-primary-tint));
 
 }
 
