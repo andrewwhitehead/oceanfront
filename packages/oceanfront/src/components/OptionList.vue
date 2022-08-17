@@ -7,6 +7,12 @@
     :style="menuStyle"
     @keydown="onKeyPress"
   >
+    <slot
+      name="header"
+      :addSearch="addSearch"
+      :showSearch="showSearch"
+      :searchText="searchText"
+    ></slot>
     <div class="search-row" v-if="showSearch && addSearch">
       <of-field
         type="text"
@@ -54,6 +60,12 @@
         </div>
       </template>
     </of-nav-group>
+    <slot
+      name="footer"
+      :addSearch="addSearch"
+      :showSearch="showSearch"
+      :searchText="searchText"
+    ></slot>
   </div>
 </template>
 
