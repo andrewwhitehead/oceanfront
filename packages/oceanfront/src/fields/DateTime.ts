@@ -192,7 +192,7 @@ const defineField = (type: InputType, name: string, cls: string) =>
                   'of--align-' + (props.align || 'start'),
                 ],
                 id: inputId.value,
-                tabindex: 0,
+                tabindex: fieldCtx.mode === 'fixed' ? -1 : 0,
                 ref: elt,
                 ...hooks,
               },
