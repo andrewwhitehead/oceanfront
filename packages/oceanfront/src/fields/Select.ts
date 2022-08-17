@@ -14,6 +14,7 @@ import {
   provideFieldRender,
 } from '../lib/fields'
 import { useItems } from '../lib/items'
+import { useLanguage } from 'src/lib/language'
 
 type ActiveItem = { text?: string; [key: string]: any }
 
@@ -25,6 +26,7 @@ export const OfSelectField = defineComponent({
     addRemove: Boolean,
   },
   setup(props, ctx) {
+    const lang = useLanguage()
     const config = useConfig()
     const itemMgr = useItems(config)
     const fieldCtx = makeFieldContext(props, ctx)
@@ -269,7 +271,7 @@ export const OfSelectField = defineComponent({
               active: !removing.value,
               onClick: toggleMode,
             },
-            'Add Items'
+            () => lang.value.selectFieldAddItems
           ),
           h(
             OfButton,
@@ -278,7 +280,7 @@ export const OfSelectField = defineComponent({
               active: removing.value,
               onClick: toggleMode,
             },
-            'Remove Items'
+            () => lang.value.selectFieldRemoveItems
           ),
         ])
       )
