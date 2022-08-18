@@ -1,8 +1,11 @@
-import { useConfig } from '../lib/config'
 import { computed, defineComponent, h, ref, watch } from 'vue'
 import { OfFieldBase } from '../components/FieldBase'
 import { OfIcon } from '../components/Icon'
 import OfOptionList from '../components/OptionList.vue'
+import OfBadge from '../components/Badge.vue'
+import { OfButton } from '../components/Button'
+import { useConfig } from '../lib/config'
+
 import {
   BaseFieldProps,
   fieldRender,
@@ -11,13 +14,19 @@ import {
   provideFieldRender,
 } from '../lib/fields'
 import { useItems } from '../lib/items'
+import { useLanguage } from 'src/lib/language'
 
 type ActiveItem = { text?: string; [key: string]: any }
 
 export const OfSelectField = defineComponent({
   name: 'OfSelectField',
-  props: BaseFieldProps,
+  props: {
+    ...BaseFieldProps,
+    multi: Boolean,
+    addRemove: Boolean,
+  },
   setup(props, ctx) {
+    const lang = useLanguage()
     const config = useConfig()
     const itemMgr = useItems(config)
     const fieldCtx = makeFieldContext(props, ctx)
@@ -32,6 +41,8 @@ export const OfSelectField = defineComponent({
     const inputValue = ref()
     const pendingValue = ref() // store selected but unconfirmed value
     const stateValue = ref()
+    const removing = ref(false)
+
     watch(
       () => fieldCtx.value,
       (val) => {
@@ -78,9 +89,9 @@ export const OfSelectField = defineComponent({
       }
       return result
     })
-    const activeItem = computed(() => {
+
+    const itemForValue = (value: any) => {
       const resolved = items.value
-      const value = inputValue.value
       let cmpVal
       let found: { idx?: number; item?: ActiveItem } = {}
       let idx = 0
@@ -106,18 +117,23 @@ export const OfSelectField = defineComponent({
         idx++
       }
       return found
-    })
+    }
+
+    const isSelected = (item: any): boolean => {
+      if (!props.multi) return inputValue.value === item
+      const values = Array.isArray(inputValue.value) ? inputValue.value : []
+      return !!~values.indexOf(item)
+    }
+
     const formatItems = computed(() => {
-      const active = activeItem.value
       const resolved = items.value
       const rows = []
-      let idx = 0
       for (const item of resolved.items) {
         if (typeof item === 'string') {
           rows.push({
             disabled: false,
             text: item,
-            selected: active.idx === idx,
+            selected: isSelected(item),
             value: item,
           })
         } else if (typeof item === 'object') {
@@ -126,14 +142,22 @@ export const OfSelectField = defineComponent({
             text: item[resolved.textKey],
             selectedText: item[resolved.selectedTextKey],
             value: item[resolved.valueKey],
-            selected: active.idx === idx,
+            selected: isSelected(item[resolved.valueKey]),
             special: item[resolved.specialKey],
             icon: item[resolved.iconKey] ?? '',
           })
         }
-        idx++
       }
       return rows
+    })
+
+    const filteredItems = computed(() => {
+      if (!props.multi || !props.addRemove) return formatItems.value
+      const values = Array.isArray(inputValue.value) ? inputValue.value : []
+      const removingItems = removing.value
+      return formatItems.value.filter((item) => {
+        return item.special || removingItems == !!~values.indexOf(item.value)
+      })
     })
 
     let closing: number | null = null
@@ -153,17 +177,115 @@ export const OfSelectField = defineComponent({
           closing = null
         }, 150)
         if (refocus) focus()
+        removing.value = false
       }
     }
     const focus = () => {
       const curelt = elt.value
       if (curelt) curelt.focus()
     }
-    const setValue = (val: any) => {
-      inputValue.value = val
-      fieldCtx.onUpdate?.(val)
-      closePopup(true)
+
+    const toggleValue = (val: any): any => {
+      if (!props.multi) return val
+      if (!Array.isArray(inputValue.value)) {
+        return [val]
+      }
+      let found = false
+      const filtered = inputValue.value.filter((item) => {
+        if (item === val) {
+          found = true
+          return false
+        }
+        return true
+      })
+      if (!found) {
+        filtered.push(val)
+      }
+      return filtered
     }
+    const setValue = (
+      val: any,
+      _item?: any,
+      ev?: MouseEvent | KeyboardEvent
+    ) => {
+      ev?.stopPropagation()
+      ev?.preventDefault()
+      const newValue = toggleValue(val)
+      inputValue.value = newValue
+      fieldCtx.onUpdate?.(newValue)
+      if (!props.multi || !ev?.shiftKey) {
+        closePopup(true)
+      }
+    }
+
+    const selectedItemText = () => {
+      const activeItem = itemForValue(inputValue.value)
+      return activeItem.item?.selectedText || activeItem.item?.text || ''
+    }
+
+    const itemText = (value: any) => {
+      const item = itemForValue(value)
+      return item.item?.selectedText || item.item?.text || ''
+    }
+
+    const renderBadges = () => {
+      const values = Array.isArray(inputValue.value) ? inputValue.value : []
+      return values.map((val) =>
+        h(
+          OfBadge,
+          { status: 'primary', style: 'margin-bottom:0', compact: true },
+          () => [
+            itemText(val),
+            fieldCtx.editable
+              ? h(OfIcon, {
+                  name: 'cancel',
+                  size: 14,
+                  onClick: (e: Event) => {
+                    e.stopPropagation()
+                    setValue(val)
+                  },
+                })
+              : undefined,
+          ]
+        )
+      )
+    }
+
+    const toggleMode = () => {
+      removing.value = !removing.value
+    }
+
+    const addRemoveButtons = () => {
+      if (!props.addRemove) return undefined
+      return h(
+        'div',
+        {
+          style:
+            'padding: 4px; display: flex; flex-direction: column; align-items: center',
+        },
+        h('div', { class: 'of-buttonset' }, [
+          h(
+            OfButton,
+            {
+              variant: 'outlined',
+              active: !removing.value,
+              onClick: toggleMode,
+            },
+            () => lang.value.selectFieldAddItems
+          ),
+          h(
+            OfButton,
+            {
+              variant: 'outlined',
+              active: removing.value,
+              onClick: toggleMode,
+            },
+            () => lang.value.selectFieldRemoveItems
+          ),
+        ])
+      )
+    }
+
     const hooks = {
       onBlur(_evt: FocusEvent) {
         focused.value = false
@@ -191,10 +313,7 @@ export const OfSelectField = defineComponent({
           })
       },
       interactiveContent: () => {
-        const label =
-          activeItem.value.item?.selectedText ||
-          activeItem.value.item?.text ||
-          ''
+        const labels = props.multi ? renderBadges() : selectedItemText()
 
         return [
           h(
@@ -209,7 +328,7 @@ export const OfSelectField = defineComponent({
               tabindex: 0,
               ...hooks,
             },
-            [label]
+            labels
           ),
         ]
       },
@@ -217,7 +336,10 @@ export const OfSelectField = defineComponent({
 
     const fRender = fieldRender({
       blank: computed(() => {
-        if (!activeItem.value.item) return true
+        if (props.multi)
+          return !Array.isArray(inputValue.value) || !inputValue.value.length
+        const activeItem = itemForValue(inputValue.value)
+        if (!activeItem.item) return true
         const val = inputValue.value
         return val === undefined || val === null || val === ''
       }),
@@ -232,12 +354,16 @@ export const OfSelectField = defineComponent({
       popup: {
         content: () =>
           opened.value
-            ? h(OfOptionList, {
-                items: formatItems.value,
-                class: 'of--elevated-1',
-                onClick: setValue,
-                addSearch: true,
-              })
+            ? h(
+                OfOptionList,
+                {
+                  items: filteredItems.value,
+                  class: 'of--elevated-1',
+                  onClick: setValue,
+                  addSearch: true,
+                },
+                { header: () => addRemoveButtons() }
+              )
             : undefined,
         visible: opened,
         onBlur: closePopup,

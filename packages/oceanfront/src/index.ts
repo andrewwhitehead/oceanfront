@@ -163,6 +163,7 @@ export {
 
 export { Hue, Saturation }
 export { FocusGroup, provideFocusGroup, useFocusGroup } from './lib/focus'
+export { provideLanguage, useLanguage } from './lib/language'
 export {
   FormatState,
   registerFieldType,

@@ -20,6 +20,9 @@ type Status =
   | 'closed'
   | 'dead'
   | 'invert'
+  | 'primary'
+  | 'secondar'
+  | 'tertiary'
 
 type Size = 'normal' | 'small' | 'large'
 
