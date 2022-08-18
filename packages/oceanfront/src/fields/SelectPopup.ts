@@ -1,7 +1,8 @@
+import { useConfig } from '../lib/config'
 import { computed, defineComponent, h, PropType, ref } from 'vue'
 import { OfButton } from '../components/Button'
 import OfOptionList from '../components/OptionList.vue'
-import { ItemList } from '../lib/items'
+import { ItemList, transformItemsList, useItems } from '../lib/items'
 import { useLanguage } from '../lib/language'
 
 export const OfSelectPopup = defineComponent({
@@ -9,7 +10,7 @@ export const OfSelectPopup = defineComponent({
   props: {
     name: String,
     items: {
-      type: Object as PropType<ItemList>,
+      type: [String, Array, Object] as PropType<string | any[] | ItemList>,
       required: true,
     },
     multi: Boolean,
@@ -21,6 +22,8 @@ export const OfSelectPopup = defineComponent({
   emits: ['updateValue'],
   setup(props, ctx) {
     const lang = useLanguage()
+    const config = useConfig()
+    const itemMgr = useItems(config)
 
     const removing = ref(false)
 
@@ -84,8 +87,9 @@ export const OfSelectPopup = defineComponent({
       )
     }
 
+    const items = computed(() => transformItemsList(itemMgr, props.items))
     const formatItems = computed(() => {
-      const resolved = props.items
+      const resolved = items.value
       const rows = []
       for (const item of resolved.items) {
         if (typeof item === 'string') {
