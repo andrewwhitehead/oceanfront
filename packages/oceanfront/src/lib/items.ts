@@ -1,5 +1,6 @@
 import { markRaw } from 'vue'
 import { Config, ConfigManager } from './config'
+import { FormRecord } from './records'
 import { readonlyUnref } from './util'
 
 export interface ItemList {
@@ -9,6 +10,7 @@ export interface ItemList {
   specialKey?: string
   textKey?: string
   valueKey?: string
+  selectedTextKey?: string
   count?: number
   // details?: (key: any) => VNode
   error?: string // maybe multiple messages, maybe hint as well
@@ -17,6 +19,33 @@ export interface ItemList {
   items: any[]
   loading?: boolean | string // string for placeholder message
   lookup?: (key: any) => any
+}
+
+export const transformItemsList = (
+  mgr: ItemsState,
+  source?: string | any[] | ItemList,
+  name?: string,
+  record?: FormRecord
+): ItemList => {
+  const result: ItemList = {
+    disabledKey: 'disabled',
+    items: [],
+    specialKey: 'special',
+    textKey: 'text',
+    selectedTextKey: 'selectedText',
+    valueKey: 'value',
+    iconKey: 'icon',
+  }
+  let items
+  if (name && record) {
+    items = record.metadata[name]?.items
+  }
+  if (!items) items = source
+  const list = mgr.getItemList(items)
+  if (list) {
+    Object.assign(result, list)
+  }
+  return result
 }
 
 export function makeItemList(items?: any[] | ItemList): ItemList {

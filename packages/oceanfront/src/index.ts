@@ -137,6 +137,7 @@ export const Oceanfront: Plugin = {
 }
 
 export { OfFieldBase } from './components/FieldBase'
+export { OfSelectPopup } from './fields/SelectPopup'
 
 export { extendConfig, useConfig, Config, ConfigFunction } from './lib/config'
 export { addDays, addMonths } from './lib/datetime'
