@@ -198,7 +198,8 @@ export const OfFieldBase = defineComponent({
           ? ctx.slots.label()
           : (labelPosition.value !== 'none' || required.value) &&
             labelPosition.value !== 'input' &&
-            labelText
+            labelText &&
+            mode.value !== 'fixed'
           ? h(
               'label',
               {
