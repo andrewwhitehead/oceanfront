@@ -75,6 +75,7 @@ export const OfButton = defineComponent({
       closeMenu()
     }
     const onBlurList = () => {
+      closeMenu()
       focus()
     }
     const toggleMenu = (_evt?: MouseEvent) => {
