@@ -9,15 +9,30 @@
           :items="tzOpts"
           label="Select timezone"
           v-model="tzValue"
-          v-bind="props"
+          v-bind="{ ...props, ...customProps }"
         ></of-select-field>
+      </template>
+      <template #options>
+        <of-field
+          type="toggle"
+          label="Multi select"
+          label-position="input"
+          v-model="customProps.multi"
+        />
+        <of-field
+          v-if="customProps.multi"
+          type="toggle"
+          label="Add/Remove buttons"
+          label-position="input"
+          v-model="customProps.addRemove"
+        />
       </template>
     </of-demo-field>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue'
+import { defineComponent, reactive, Ref, ref, watch } from 'vue'
 
 export default defineComponent({
   setup() {
@@ -411,7 +426,7 @@ export default defineComponent({
     ]
     timezones.sort()
     const tzOpts = { items: [] as Record<string, any>[] }
-    const tzValue = ref('America/Vancouver')
+    const tzValue: Ref<string | string[]> = ref('America/Vancouver')
     let tzGrp = null
     for (const value of timezones) {
       const gPos = value.indexOf('/')
@@ -423,7 +438,16 @@ export default defineComponent({
       }
       tzOpts.items.push({ text, value })
     }
-    return { sampleCode, testItems, tzOpts, tzValue }
+    const customProps = reactive({ multi: false, addRemove: false })
+    watch(
+      () => customProps.multi,
+      (multi) => {
+        tzValue.value = multi
+          ? [tzValue.value as string]
+          : tzValue.value[0] ?? ''
+      }
+    )
+    return { sampleCode, testItems, tzOpts, tzValue, customProps }
   },
 })
 </script>

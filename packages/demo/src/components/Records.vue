@@ -18,12 +18,20 @@
             <div class="column">
               <of-select-field
                 label="Select"
-                :items="[
-                  { value: 'optionA', text: 'A' },
-                  { value: 'optionB', text: 'B' },
-                ]"
+                :items="items"
                 :record="testRecord"
                 name="one"
+              ></of-select-field>
+            </div>
+          </div>
+          <div class="row form-row">
+            <div class="column">
+              <of-select-field
+                label="Multi Select"
+                multi
+                :items="items"
+                :record="testRecord"
+                name="nine"
               ></of-select-field>
             </div>
           </div>
@@ -129,7 +137,13 @@ const testRecord = makeRecord({
   six: '2021-02-15',
   seven: '12:00:00',
   eight: 'https://1crm.com/',
+  nine: ['optionB', 'optionA'],
 })
+
+const items = [
+  { value: 'optionA', text: 'A' },
+  { value: 'optionB', text: 'B' },
+]
 
 export default defineComponent({
   setup() {
@@ -151,6 +165,7 @@ export default defineComponent({
       sampleBinding,
       testRecord,
       textValue,
+      items,
     }
   },
 })
