@@ -1,6 +1,6 @@
-import { computed, defineComponent, h, VNode } from 'vue'
+import { PropType, computed, defineComponent, h, VNode } from 'vue'
 import { OfIcon } from './Icon'
-
+import { FieldMode } from '../lib/fields'
 export const ToggleInner = defineComponent({
   props: {
     switch: Boolean,
@@ -9,6 +9,7 @@ export const ToggleInner = defineComponent({
     inputId: String,
     align: String,
     name: String,
+    mode: String as PropType<FieldMode>,
   },
   emits: ['focus', 'blur', 'inputMounted'],
   setup(props, ctx) {
@@ -50,6 +51,7 @@ export const ToggleInner = defineComponent({
             checked: props.checked,
             id: props.inputId,
             // disabled: disabled.value,
+            tabindex: props.mode === 'fixed' ? -1 : 0,
             name: props.name,
             type: 'checkbox',
             value: '1',

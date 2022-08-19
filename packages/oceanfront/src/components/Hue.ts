@@ -100,7 +100,7 @@ export default defineComponent({
 
     const hooks = {
       onKeydown(evt: KeyboardEvent) {
-        const step = evt.ctrlKey ? 20 : 1
+        const step = evt.ctrlKey || evt.metaKey ? 20 : 1
         switch (evt.code) {
           case 'ArrowRight':
             currentHue.value = Math.min(currentHue.value + step, 360)

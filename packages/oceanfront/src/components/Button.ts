@@ -1,4 +1,4 @@
-import { defineComponent, computed, h, ref } from 'vue'
+import { defineComponent, computed, nextTick, h, ref } from 'vue'
 import { OfIcon } from './Icon'
 import { OfOverlay } from './Overlay'
 import OfOptionList from './OptionList.vue'
@@ -39,6 +39,13 @@ export const OfButton = defineComponent({
     const focused = ref(false)
     let menuTimerId: number | undefined
 
+    const menuButton = ref<HTMLElement | null>(null)
+    const focus = () => {
+      nextTick(() => {
+        menuButton.value?.focus()
+      })
+    }
+
     const density = computed(() => {
       let d = props.density
       if (d === 'default') {
@@ -66,6 +73,10 @@ export const OfButton = defineComponent({
     const onClickItem = (val: any) => {
       if (typeof val === 'function') val.call(this)
       closeMenu()
+    }
+    const onBlurList = () => {
+      closeMenu()
+      focus()
     }
     const toggleMenu = (_evt?: MouseEvent) => {
       menuShown.value = !menuShown.value
@@ -177,6 +188,7 @@ export const OfButton = defineComponent({
               class: 'of-button-main',
               disabled,
               id: buttonId,
+              ref: split && items ? undefined : menuButton,
               onClick,
               name: props.name,
               type: props.type ?? 'button',
@@ -192,6 +204,7 @@ export const OfButton = defineComponent({
                   class: 'of-button-split',
                   disabled,
                   id: splitId,
+                  ref: menuButton,
                   onClick: toggleMenu,
                   ...menuMouseEvts,
                   ...focusEvts,
@@ -216,6 +229,7 @@ export const OfButton = defineComponent({
                     class: 'of--elevated-1',
                     items,
                     onClick: onClickItem,
+                    onBlur: onBlurList,
                     ...menuMouseEvts,
                   })
               )

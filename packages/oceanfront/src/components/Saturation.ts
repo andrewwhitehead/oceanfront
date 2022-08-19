@@ -158,7 +158,7 @@ export default defineComponent({
 
     const hooks = {
       onKeydown(evt: KeyboardEvent) {
-        const step = evt.ctrlKey ? 0.1 : 0.005
+        const step = evt.ctrlKey || evt.metaKey ? 0.1 : 0.005
         switch (evt.code) {
           case 'ArrowRight':
             currentHsv.s = Math.min(currentHsv.s + step, 1)

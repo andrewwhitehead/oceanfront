@@ -223,7 +223,7 @@ export const OfSelectField = defineComponent({
               ],
               id: inputId.value,
               ref: elt,
-              tabindex: 0,
+              tabindex: fieldCtx.mode === 'fixed' ? -1 : 0,
               ...hooks,
             },
             labels
