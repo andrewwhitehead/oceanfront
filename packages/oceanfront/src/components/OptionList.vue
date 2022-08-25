@@ -36,7 +36,7 @@
       </of-field>
     </div>
     <of-nav-group>
-      <div v-if="isEmpty" style="padding: 0 0.5em">No items</div>
+      <div v-if="isEmpty" style="padding: 0 0.5em">{{ lang.listNoItems }}</div>
       <template v-if="!isEmpty">
         <div class="of-list-outer" ref="listOuter">
           <template v-for="(item, idx) of theItems" :key="idx">
@@ -84,6 +84,7 @@ import {
 import { OfNavGroup } from '../components/NavGroup'
 import { OfListItem } from '../components/ListItem'
 import { throttle } from '../lib/util'
+import { useLanguage } from 'src/lib/language'
 
 const OfOptionList = defineComponent({
   name: 'OfOptionList',
@@ -110,6 +111,7 @@ const OfOptionList = defineComponent({
     const menuStyle = computed(() => props.style)
     const itemFocused: Ref<boolean> = ref(false)
     const listOuter = ref<any>(null)
+    const lang = useLanguage()
 
     const searchField = ref<any>(null)
     const searchText: Ref<string> = ref('')
@@ -275,6 +277,7 @@ const OfOptionList = defineComponent({
     })
 
     return {
+      lang,
       isEmpty,
       theItems,
       menuClass,
