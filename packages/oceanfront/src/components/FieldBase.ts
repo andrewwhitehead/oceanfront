@@ -183,9 +183,10 @@ export const OfFieldBase = defineComponent({
         const metaLabel = props.name ? metadata.value?.label : undefined
         let labelText = fieldRender.label ?? props.label ?? metaLabel
 
-        const asterisk: VNode | null = required.value
-          ? h(OfIcon, { name: 'required', class: 'of--icon-required' })
-          : null
+        const asterisk: VNode | null =
+          required.value && mode.value !== 'fixed'
+            ? h(OfIcon, { name: 'required', class: 'of--icon-required' })
+            : null
 
         let asteriskLabel = false
 
@@ -198,8 +199,7 @@ export const OfFieldBase = defineComponent({
           ? ctx.slots.label()
           : (labelPosition.value !== 'none' || required.value) &&
             labelPosition.value !== 'input' &&
-            labelText &&
-            mode.value !== 'fixed'
+            labelText
           ? h(
               'label',
               {
