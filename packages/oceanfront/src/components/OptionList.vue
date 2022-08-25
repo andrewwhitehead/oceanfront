@@ -88,7 +88,7 @@ import {
 import { OfNavGroup } from '../components/NavGroup'
 import { OfListItem } from '../components/ListItem'
 import { throttle } from '../lib/util'
-import { useLanguage } from 'src/lib/language'
+import { useLanguage } from '../lib/language'
 
 const OfOptionList = defineComponent({
   name: 'OfOptionList',
