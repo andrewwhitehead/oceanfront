@@ -36,7 +36,11 @@
       </of-field>
     </div>
     <of-nav-group>
-      <div v-if="isEmpty" style="padding: 0 0.5em">{{ lang.listNoItems }}</div>
+      <div v-if="isEmpty" style="padding: 0 0.5em">
+        <slot name="empty">
+          {{ lang.listNoItems }}
+        </slot>
+      </div>
       <template v-if="!isEmpty">
         <div class="of-list-outer" ref="listOuter">
           <template v-for="(item, idx) of theItems" :key="idx">
