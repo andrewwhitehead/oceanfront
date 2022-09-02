@@ -12,8 +12,8 @@
           <of-button
             v-if="showGoToFirst"
             icon="page first"
-            :variant="variant"
-            :density="density"
+            :variant="variantVal"
+            :density="densityVal"
             @click="goToFirst()"
           ></of-button>
           <of-button
@@ -21,8 +21,8 @@
             :key="item"
             :active="page === item"
             :ref="page === item ? 'activeButton' : null"
-            :variant="variant"
-            :density="density"
+            :variant="variantVal"
+            :density="densityVal"
             @click="onSelectPage(item)"
           >
             {{ item }}
@@ -30,8 +30,8 @@
           <of-button
             v-if="showGoToLast"
             icon="page last"
-            :variant="variant"
-            :density="density"
+            :variant="variantVal"
+            :density="densityVal"
             @click="goToLast()"
           >
           </of-button>
@@ -39,8 +39,8 @@
             v-if="showCustomOffsetPopup"
             :id="outerId + '-expand'"
             icon="bullet down"
-            :variant="variant"
-            :density="density"
+            :variant="variantVal"
+            :density="densityVal"
             @click="openOffsetPopup"
           >
           </of-button>
@@ -135,8 +135,8 @@ export default defineComponent({
       }
       return id
     })
-    const variant = computed(() => props.variant || 'filled')
-    const density = computed(() => props.density || 'default')
+    const variantVal = computed(() => props.variant || 'filled')
+    const densityVal = computed(() => props.density || 'default')
 
     const getStartPageNum = function (): number {
       if (props.totalPages <= totalVisible.value) {
@@ -212,7 +212,7 @@ export default defineComponent({
 
     const focusActiveButton = () => {
       nextTick(() => {
-        const elt = activeButton.value.$el.querySelector(
+        const elt = activeButton.value?.$el.querySelector(
           'button'
         ) as HTMLElement | null
         if (elt) elt.focus()
@@ -309,8 +309,8 @@ export default defineComponent({
     }
 
     return {
-      variant,
-      density,
+      variantVal,
+      densityVal,
       page,
       pages,
       outerId,
