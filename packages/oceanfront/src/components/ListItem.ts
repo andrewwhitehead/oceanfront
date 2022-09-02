@@ -23,6 +23,7 @@ export const OfListItem = defineComponent({
     attrs: { type: Object },
   },
   emits: {
+    mousedown: null,
     click: null,
     blur: null,
     focus: null,
@@ -55,6 +56,9 @@ export const OfListItem = defineComponent({
       onBlur() {
         isFocused.value = false
         ctx.emit('blur')
+      },
+      onmousedown() {
+        ctx.emit('mousedown')
       },
     }
     watch(
