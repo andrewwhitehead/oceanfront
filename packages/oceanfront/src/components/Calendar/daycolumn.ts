@@ -83,6 +83,8 @@ export default defineComponent({
     'selection:change',
     'selection:end',
     'selection:cancel',
+    'focus:day',
+    'blur:day',
   ],
   data() {
     const selecting = false
@@ -224,7 +226,14 @@ export default defineComponent({
         'div',
         {
           class: 'of-calendar-category-title',
+          tabindex: '0',
           onClick: (event: any) => this.$emit(eventName, event, slotArgs),
+          onKeypress: (event: KeyboardEvent) => {
+            if (['Enter', 'Space'].includes(event.code)) {
+              event.preventDefault()
+              this.$emit(eventName, event, slotArgs)
+            }
+          },
         },
         this.renderSlot(slotName, slotArgs, () => cat.category)
       )
@@ -260,17 +269,33 @@ export default defineComponent({
               width: '' + ((e.daysSpan || 1) * 100 - 2) + '%',
               top: '' + e.top * eventHeight + 'px',
             },
+            tabindex: '0',
             onClick: (event: any) => {
               this.$emit('click:event', event, {
                 ...e.event,
                 color: finalColor,
               })
             },
+            onKeypress: (event: KeyboardEvent) => {
+              if (['Enter', 'Space'].includes(event.code)) {
+                event.preventDefault()
+                this.$emit('click:event', event, {
+                  ...e.event,
+                  color: finalColor,
+                })
+              }
+            },
             onMouseenter: (event: any) => {
               this.$emit('enter:event', event, e.event)
             },
             onMouseleave: (event: any) => {
               this.$emit('leave:event', event, e.event)
+            },
+            onFocus: () => {
+              this.$emit('focus:day')
+            },
+            onBlur: () => {
+              this.$emit('blur:day')
             },
           },
           slot ? slot({ event: e.event }) : h('strong', e.event.name)
@@ -390,6 +415,18 @@ export default defineComponent({
             this.$emit('leave:event', event, e)
           }
         },
+        onKeypress: (event: KeyboardEvent) => {
+          if (['Enter', 'Space'].includes(event.code)) {
+            event.preventDefault()
+            this.$emit('click:event', event, e)
+          }
+        },
+        onFocus: () => {
+          this.$emit('focus:day')
+        },
+        onBlur: () => {
+          this.$emit('blur:day')
+        },
       }
     },
     dayRowEvent(cat: categoryItem) {
@@ -418,6 +455,7 @@ export default defineComponent({
               height: e.height + '%',
               'min-height': e.height + '%',
             },
+            tabindex: '0',
             ...this.dayRowEventHandlers(finalEvent),
           },
           this.renderSlot(

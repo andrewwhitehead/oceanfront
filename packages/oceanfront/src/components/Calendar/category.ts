@@ -15,8 +15,15 @@ export default defineComponent({
         return h(
           'div',
           {
+            tabindex: '0',
             onClick: (event: any) => {
               this.$emit('click:day', event, this.$props.day)
+            },
+            onKeypress: (event: KeyboardEvent) => {
+              if (['Enter', 'Space'].includes(event.code)) {
+                event.preventDefault()
+                this.$emit('click:day', event, this.$props.day)
+              }
             },
           },
           this.renderDayNumber(this.$props.day, true)
