@@ -36,6 +36,8 @@ export default defineComponent({
     'click:day',
     'click:more',
     'click:week',
+    'focus:day',
+    'blur:day',
   ],
   computed: {
     eventsLimitNumber(): number {
@@ -77,8 +79,15 @@ export default defineComponent({
         'div',
         {
           class: 'day-title',
+          tabindex: slot ? '0' : undefined,
           onClick: (event: any) => {
             this.$emit('click:day', event, day)
+          },
+          onKeypress: (event: KeyboardEvent) => {
+            if (['Enter', 'Space'].includes(event.code)) {
+              event.preventDefault()
+              this.$emit('click:day', event, day)
+            }
           },
         },
         content
@@ -91,8 +100,15 @@ export default defineComponent({
         'div',
         {
           class: 'of-calendar-more',
+          tabindex: '0',
           onClick: (event: any) => {
             this.$emit('click:more', event, day)
+          },
+          onKeypress: (event: KeyboardEvent) => {
+            if (['Enter', 'Space'].includes(event.code)) {
+              event.preventDefault()
+              this.$emit('click:day', event, day)
+            }
           },
           style: {
             top: '' + top + 'px',
@@ -113,6 +129,7 @@ export default defineComponent({
             'background-color': finalColor,
             top: `${top}px`,
           },
+          tabindex: '0',
           onClick: (event: any) => {
             this.$emit('click:event', event, { ...e, color: finalColor })
           },
@@ -121,6 +138,18 @@ export default defineComponent({
           },
           onMouseleave: (event: any) => {
             this.$emit('leave:event', event, e)
+          },
+          onKeypress: (event: KeyboardEvent) => {
+            if (['Enter', 'Space'].includes(event.code)) {
+              event.preventDefault()
+              this.$emit('click:event', event, { ...e, color: finalColor })
+            }
+          },
+          onFocus: () => {
+            this.$emit('focus:day')
+          },
+          onBlur: () => {
+            this.$emit('blur:day')
           },
         },
         this.renderSlot('allday-event-content', { event: e }, () =>
@@ -174,8 +203,15 @@ export default defineComponent({
           'div',
           {
             class: 'of-calendar-gutter of-week-number',
+            tabindex: '0',
             onClick: (event: any) => {
               this.$emit('click:week', event, wn, firstDay)
+            },
+            onKeypress: (event: KeyboardEvent) => {
+              if (['Enter', 'Space'].includes(event.code)) {
+                event.preventDefault()
+                this.$emit('click:week', event, wn, firstDay)
+              }
             },
           },
           wnSlot ? wnSlot(wn) : wn

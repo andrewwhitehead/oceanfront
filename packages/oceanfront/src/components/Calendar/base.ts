@@ -26,19 +26,26 @@ export default defineComponent({
     },
     renderDayNumber(date?: Date, weekday?: boolean) {
       const dayFmt = this.formatMgr.getTextFormatter('date', dayFormat)
-      return h('div', { class: 'of-calendar-day-title' }, [
-        weekday ? this.renderWeekDay(date) : null,
-        h(
-          'div',
-          {
-            class: {
-              'day-number': true,
-              today: date && sameDate(date, new Date()),
+      return h(
+        'div',
+        {
+          class: 'of-calendar-day-title',
+          tabindex: weekday ? undefined : '0',
+        },
+        [
+          weekday ? this.renderWeekDay(date) : null,
+          h(
+            'div',
+            {
+              class: {
+                'day-number': true,
+                today: date && sameDate(date, new Date()),
+              },
             },
-          },
-          dayFmt?.format(date).textValue
-        ),
-      ])
+            dayFmt?.format(date).textValue
+          ),
+        ]
+      )
     },
   },
 })

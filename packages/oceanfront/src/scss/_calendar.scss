@@ -203,6 +203,11 @@ div.of-date-picker-cur-year {
     display: flex;
     justify-content: center;
     padding-bottom: 2px;
+    &:focus,
+    &:focus-visible {
+      outline: solid 1px var(--calendar-grid-color);
+      outline-offset: -2px;
+    }
   }
   border-right: solid 1px var(--calendar-grid-color);
   &:first-child {
@@ -224,10 +229,14 @@ div.of-date-picker-cur-year {
   width: 100%;
   font-size: 75%;
   font-weight: bold;
-  padding-right: 4px;
   cursor: pointer;
   height: var(--of-event-height, auto);
   position: absolute;
+  &:focus,
+  &:focus-visible {
+    outline: solid 1px var(--calendar-grid-color);
+    outline-offset: -2px;
+  }
 }
 
 .of-calendar-event {
@@ -245,6 +254,11 @@ div.of-date-picker-cur-year {
   padding-right: 2px;
   &.conflict {
     border-left: solid 2px var(--of-calendar-conflict-color, red);
+  }
+  &:focus,
+  &:focus-visible {
+    outline: solid 1px var(--calendar-grid-color);
+    outline-offset: 0;
   }
   &:hover {
     min-height: var(--of-event-height, 20px);
@@ -298,6 +312,14 @@ div.of-date-picker-cur-year {
   background-color: var(--calendar-day-color);
   border-left: solid 1px var(--calendar-grid-color);
   border-right: solid 1px var(--calendar-grid-color);
+  > div,
+  &.of-week-number {
+    &:focus,
+    &:focus-visible {
+      outline: 1px solid var(--calendar-grid-color);
+      outline-offset: -2px;
+    }
+  }
   &.of-week-number {
     cursor: pointer;
     display: flex;
@@ -308,6 +330,11 @@ div.of-date-picker-cur-year {
 
 .of-calendar-category-title {
   cursor: pointer;
+  &:focus,
+  &:focus-visible {
+    outline: 1px solid var(--calendar-grid-color);
+    outline-offset: -2px;
+  }
 }
 
 .of-calendar-day,
@@ -346,6 +373,14 @@ div.of-date-picker-cur-year {
     &.today {
       background-color: var(--calendar-today-background);
       color: var(--calendar-today-color);
+    }
+  }
+  &:focus,
+  &:focus-visible {
+    outline: none;
+    .day-number {
+      outline: 2px solid var(--calendar-grid-color);
+      outline-offset: -2px;
     }
   }
 }

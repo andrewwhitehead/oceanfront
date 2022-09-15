@@ -7,6 +7,7 @@
       :target="detailsTarget"
       :capture="false"
       :shade="false"
+      :focus="false"
       @blur="hidePopup"
     >
       <div
@@ -71,6 +72,7 @@
       @click:more="dayClicked"
       @click:category="categoryClicked"
       @click:week="weekClicked"
+      @blur:day="hidePopup"
       :type="values.type"
       :day="values.day"
       num-days="3"
