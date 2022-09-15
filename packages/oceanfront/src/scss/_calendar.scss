@@ -46,6 +46,11 @@
       opacity: 0.4;
       cursor: default;
     }
+
+    &:focus,
+    &:focus-visible {
+      outline: 1px solid var(--of-primary-tint);
+    }
   }
 }
 
@@ -58,6 +63,11 @@
 
 div.of-date-picker-cur-year {
   cursor: pointer;
+
+  &:focus,
+  &:focus-visible {
+    outline: 1px solid var(--of-primary-tint);
+  }
 }
 
 .of-date-picker-cur-year {
@@ -75,6 +85,11 @@ div.of-date-picker-cur-year {
   }
   &.prev {
     justify-content: flex-start;
+  }
+
+  &:focus,
+  &:focus-visible {
+    outline: 1px solid var(--of-primary-tint);
   }
 }
 
@@ -95,6 +110,11 @@ div.of-date-picker-cur-year {
     & .of-datepicker-selectors {
       grid-template-columns: auto auto;
     }
+  }
+
+  &:focus,
+  &:focus-visible {
+    outline: none;
   }
 }
 
@@ -117,6 +137,11 @@ div.of-date-picker-cur-year {
 
 .time-picker-arrow {
   cursor: pointer;
+
+  &:focus,
+  &:focus-visible {
+    outline: 1px solid var(--of-primary-tint);
+  }
 }
 
 .of-date-picker-buttons {
@@ -331,4 +356,9 @@ div.of-date-picker-cur-year {
     background: cornflowerblue;
     opacity: 0.3;
   }
+}
+
+.of-icon-clear-calendar:focus,
+.of-icon-clear-calendar:focus-visible {
+  outline: 1px solid var(--of-primary-tint);
 }

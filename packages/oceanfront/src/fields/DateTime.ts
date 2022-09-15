@@ -116,6 +116,24 @@ const defineField = (type: InputType, name: string, cls: string) =>
         if (refocus) focus()
       }
 
+      const onCancel = (e: MouseEvent | TouchEvent | KeyboardEvent) => {
+        let cancel = false
+        if (e.type == 'keydown') {
+          const keyboardEvent = e as KeyboardEvent
+          if (keyboardEvent.key == ' ' || keyboardEvent.key == 'Enter')
+            cancel = true
+        } else {
+          cancel = true
+        }
+
+        if (cancel) {
+          e.stopPropagation()
+          e.preventDefault()
+          fieldCtx.onUpdate?.('')
+          focus()
+        }
+      }
+
       watch(
         () => fieldCtx.value,
         (val) => {
@@ -221,11 +239,10 @@ const defineField = (type: InputType, name: string, cls: string) =>
                 ? h(OfIcon, {
                     name: 'cancel circle',
                     size: 'input',
-                    onClick: (e: MouseEvent | TouchEvent) => {
-                      e.stopPropagation()
-                      e.preventDefault()
-                      fieldCtx.onUpdate?.('')
-                    },
+                    tabindex: '0',
+                    class: 'of-icon-clear-calendar',
+                    onClick: onCancel,
+                    onKeydown: onCancel,
                   })
                 : null,
             ]

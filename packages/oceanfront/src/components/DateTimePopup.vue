@@ -13,13 +13,22 @@
     </div>
     <div class="of-datepicker-selectors" @selectstart.prevent="">
       <div class="of-datepicker-grid" v-if="withDate">
-        <div class="of-datepicker-nav-button prev" :onclick="prevMonth">
+        <div
+          class="of-datepicker-nav-button prev"
+          tabindex="0"
+          @click="prevMonth"
+          @keydown.enter.prevent="prevMonth"
+          @keydown.space.prevent="prevMonth"
+        >
           <of-icon name="arrow left" />
         </div>
         <div
           v-if="!editingYear"
           class="of-date-picker-cur-year"
-          :onclick="() => editYear(true)"
+          tabindex="0"
+          @click="() => editYear(true)"
+          @keydown.enter.prevent="() => editYear(true)"
+          @keydown.space.prevent="() => editYear(true)"
         >
           {{ monthYear }}
         </div>
@@ -34,7 +43,13 @@
           :onkeydown="yearInputHandler"
           :value="selMonthStart.getFullYear()"
         />
-        <div class="of-datepicker-nav-button next" :onclick="nextMonth">
+        <div
+          class="of-datepicker-nav-button next"
+          tabindex="0"
+          @click="nextMonth"
+          @keydown.enter.prevent="nextMonth"
+          @keydown.space.prevent="nextMonth"
+        >
           <of-icon name="arrow right" />
         </div>
 
@@ -42,12 +57,14 @@
           v-for="cell in cells"
           :key="cell.date.toString()"
           class="picker-date"
-          :class="{
-            'other-month': cell.otherMonth,
-            'selected-date': checkSelected?.(cell) || false,
-            today: cell.today,
-          }"
-          :onclick="cell.otherMonth ? null : () => selectDate(cell.date)"
+          tabindex="0"
+          @click="cell.otherMonth ? null : selectDate(cell.date)"
+          @keydown.enter.prevent="
+            cell.otherMonth ? null : selectDate(cell.date, true)
+          "
+          @keydown.space.prevent="
+            cell.otherMonth ? null : selectDate(cell.date, true)
+          "
         >
           {{ cell.date.getDate() }}
         </div>
@@ -64,18 +81,31 @@
           @mousedown="timeClickHandler('h', 1)"
           @mouseup="timeClickHandler()"
           @mouseleave="timeClickHandler()"
+          @keydown.enter.prevent="() => timeClickHandler('h', 1)"
+          @keyup.enter.prevent="() => timeClickHandler()"
+          @keydown.space.prevent="() => timeClickHandler('h', 1)"
+          @keyup.space.prevent="() => timeClickHandler()"
+          @blur="timeClickHandler()"
+          ref="hourUp"
           name="bullet up"
           size="lg"
           class="time-picker-arrow"
+          tabindex="0"
         />
         <div />
         <of-icon
           @mousedown="timeClickHandler('m', 1)"
           @mouseup="timeClickHandler()"
           @mouseleave="timeClickHandler()"
+          @keydown.enter.prevent="() => timeClickHandler('m', 1)"
+          @keyup.enter.prevent="() => timeClickHandler()"
+          @keydown.space.prevent="() => timeClickHandler('m', 1)"
+          @keyup.space.prevent="() => timeClickHandler()"
+          @blur="timeClickHandler()"
           name="bullet up"
           size="lg"
           class="time-picker-arrow"
+          tabindex="0"
         />
         <div />
 
@@ -90,18 +120,30 @@
           @mousedown="timeClickHandler('h', -1)"
           @mouseup="timeClickHandler()"
           @mouseleave="timeClickHandler()"
+          @keydown.enter.prevent="() => timeClickHandler('h', -1)"
+          @keyup.enter.prevent="() => timeClickHandler()"
+          @keydown.space.prevent="() => timeClickHandler('h', -1)"
+          @keyup.space.prevent="() => timeClickHandler()"
+          @blur="timeClickHandler()"
           name="bullet down"
           size="lg"
           class="time-picker-arrow"
+          tabindex="0"
         />
         <div />
         <of-icon
           @mousedown="timeClickHandler('m', -1)"
           @mouseup="timeClickHandler()"
           @mouseleave="timeClickHandler()"
+          @keydown.enter.prevent="() => timeClickHandler('m', -1)"
+          @keyup.enter.prevent="() => timeClickHandler()"
+          @keydown.space.prevent="() => timeClickHandler('m', -1)"
+          @keyup.space.prevent="() => timeClickHandler()"
+          @blur="timeClickHandler()"
           name="bullet down"
           size="lg"
           class="time-picker-arrow"
+          tabindex="0"
         />
         <div />
 
@@ -157,6 +199,7 @@ export default defineComponent({
     const selMonthStart = ref(props.monthStart || selDate.value)
     const editingYear = ref(false)
     const OfButton = resolveComponent('OfButton')
+    const hourUp = ref<any>(null)
 
     const formatMgr = useFormats()
     const titleFormat = formatMgr.getTextFormatter('datetime', {
@@ -173,15 +216,17 @@ export default defineComponent({
       nativeOptions: { month: 'short', year: 'numeric' },
     })
 
-    const selectDate = (selected: Date) => {
+    const selectDate = (selected: Date, focusTime = false) => {
       const date = new Date(selDate.value.valueOf())
       date.setFullYear(
         selected.getFullYear(),
         selected.getMonth(),
         selected.getDate()
       )
-      if (props.withTime) selDate.value = date
-      else props.accept?.(date)
+      if (props.withTime) {
+        selDate.value = date
+        if (focusTime) hourUp?.value?.$el?.focus()
+      } else props.accept?.(date)
     }
 
     const focusYearInput = (vn: VNode) => {
@@ -254,6 +299,7 @@ export default defineComponent({
 
     return {
       OfButton,
+      hourUp,
 
       selMonthStart,
       useButtons: props.withTime,
