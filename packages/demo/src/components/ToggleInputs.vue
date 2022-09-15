@@ -13,7 +13,6 @@
             ...props,
             inputType: customProps.switch ? 'switch' : null,
             inputLabel: checkedValue ? 'On' : 'Off',
-            labelPosition: 'top',
           }"
         />
       </template>
