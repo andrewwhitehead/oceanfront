@@ -14,7 +14,7 @@
   min-width: 2ex;
   min-height: 2ex;
   line-height: $line-height-badge;
-  padding: var(--badge-v-pad) var(--badge-h-pad) !important;
+  padding: var(--badge-v-pad) var(--badge-h-pad);
   vertical-align: $vertical-align-badge;
   text-align: center;
   & .of-icon {
@@ -26,7 +26,7 @@
     border-radius: 500rem;
   }
   &.of--icon {
-    padding: var(--badge-v-pad) var(--badge-v-pad) !important;
+    padding: var(--badge-v-pad) var(--badge-v-pad);
     & .of-icon {
       margin: auto;
     }
