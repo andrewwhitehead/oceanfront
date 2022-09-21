@@ -12,6 +12,7 @@
     </div>
     <div class="of-datepicker-selectors" @selectstart.prevent="">
       <div
+        ref="dateSelector"
         class="of-datepicker-grid"
         v-if="withDate"
         tabindex="0"
@@ -182,6 +183,7 @@ export default defineComponent({
     const editingYear = ref(false)
     const OfButton = resolveComponent('OfButton')
     const timeSelector = ref<any>(null)
+    const dateSelector = ref<any>(null)
 
     const formatMgr = useFormats()
     const titleFormat = formatMgr.getTextFormatter('datetime', {
@@ -246,9 +248,7 @@ export default defineComponent({
         selMonthStart.value = date
         focusedDate.value = date
         editingYear.value = false
-        if (theNode) {
-          theNode.el?.focus()
-        }
+        dateSelector?.value?.focus()
       }
     }
 
@@ -364,6 +364,7 @@ export default defineComponent({
     return {
       OfButton,
       timeSelector,
+      dateSelector,
 
       selMonthStart,
       useButtons: props.withTime,
