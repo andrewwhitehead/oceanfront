@@ -3,7 +3,7 @@
   --calendar-grid-color: var(--of-color-outline);
   --calendar-day-color: var(--of-color-surface);
   --calendar-day-text-color: var(--of-color-on-surface);
-  --calendar-today-background: var(--of-primary-tint);
+  --calendar-today-background: var(--of-color-outline);
   --calendar-today-color: var(--of-color-inverse-on-surface);
   --calendar-weekday-color: var(--of-color-on-surface);
 
@@ -32,14 +32,17 @@
       background-color: transparent;
     }
 
-    &.today {
+    &.today:not(.selected-date) {
+      border-color: var(--of-color-on-background);
+      background-color: var(--of-primary-tint);
       border-color: var(--of-primary-tint);
+      color: var(--of-on-primary-tint);
+      opacity: 0.5;
     }
 
     &.selected-date {
-      border-color: var(--of-color-on-background);
-      background-color: var(--of-primary-tint);
-      color: var(--of-on-primary-tint);
+      background-color: var(--of-container-tint);
+      border-color: var(--of-primary-tint);
     }
 
     &.other-month {
@@ -47,10 +50,14 @@
       cursor: default;
     }
 
-    &:focus,
-    &:focus-visible {
+    &.focused-date {
       outline: 1px solid var(--of-primary-tint);
     }
+  }
+
+  &:focus,
+  &:focus-visible {
+    outline: none;
   }
 }
 
@@ -58,7 +65,7 @@
   background-color: var(--of-container-tint);
   color: var(--of-on-container-tint);
   font-size: 110%;
-  padding-left: 8px;
+  padding: 0 7px;
 }
 
 div.of-date-picker-cur-year {
@@ -86,11 +93,6 @@ div.of-date-picker-cur-year {
   &.prev {
     justify-content: flex-start;
   }
-
-  &:focus,
-  &:focus-visible {
-    outline: 1px solid var(--of-primary-tint);
-  }
 }
 
 .of-datepicker-popup {
@@ -110,11 +112,22 @@ div.of-date-picker-cur-year {
     & .of-datepicker-selectors {
       grid-template-columns: auto auto;
     }
+    .of-time-selector {
+      &:focus,
+      &:focus-visible {
+        outline: 1px solid var(--of-primary-tint);
+        outline-offset: -2px;
+      }
+    }
   }
 
-  &:focus,
-  &:focus-visible {
-    outline: none;
+  &.with-time:not(.with-date) {
+    .of-time-selector {
+      &:focus,
+      &:focus-visible {
+        outline: none;
+      }
+    }
   }
 }
 
@@ -137,11 +150,6 @@ div.of-date-picker-cur-year {
 
 .time-picker-arrow {
   cursor: pointer;
-
-  &:focus,
-  &:focus-visible {
-    outline: 1px solid var(--of-primary-tint);
-  }
 }
 
 .of-date-picker-buttons {

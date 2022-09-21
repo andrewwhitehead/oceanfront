@@ -34,6 +34,10 @@ export const firstMonday = (d?: Date): Date => {
   return addDays(d, 1 - wd)
 }
 
+export const lastMonthDay = (d: Date): Date => {
+  return new Date(d.getFullYear(), d.getMonth() + 1, 0)
+}
+
 const monthDaysRolling = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334]
 const monthDaysRollingLeap = [
   0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335,

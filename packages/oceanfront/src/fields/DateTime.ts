@@ -185,12 +185,10 @@ const defineField = (type: InputType, name: string, cls: string) =>
           focused.value = true
         },
         onKeydown(evt: KeyboardEvent) {
-          if (
-            evt.key == ' ' ||
-            evt.key == 'ArrowUp' ||
-            evt.key == 'ArrowDown'
-          ) {
-            clickOpen()
+          if ([' ', 'Enter'].includes(evt.key)) {
+            if (fieldCtx.editable) {
+              clickOpen()
+            }
             evt.preventDefault()
             evt.stopPropagation()
           }

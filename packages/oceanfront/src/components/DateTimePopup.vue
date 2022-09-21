@@ -4,22 +4,20 @@
     role="menu"
     class="of-menu of-datepicker-popup of--elevated-1"
     :class="{ 'with-time': withTime, 'with-date': withDate }"
-    tabindex="0"
-    :onVnodeMounted="mounted"
-    :onVnodeUnmounted="unmounted"
+    @vnodeMounted="mounted"
+    @vnodeUnmounted="unmounted"
   >
     <div class="of-date-picker-title" v-if="withDate && !withoutTitle">
       {{ title }}
     </div>
     <div class="of-datepicker-selectors" @selectstart.prevent="">
-      <div class="of-datepicker-grid" v-if="withDate">
-        <div
-          class="of-datepicker-nav-button prev"
-          tabindex="0"
-          @click="prevMonth"
-          @keydown.enter.prevent="prevMonth"
-          @keydown.space.prevent="prevMonth"
-        >
+      <div
+        class="of-datepicker-grid"
+        v-if="withDate"
+        tabindex="0"
+        @keydown="onDateKeydown"
+      >
+        <div class="of-datepicker-nav-button prev" @click="prevMonth">
           <of-icon name="arrow left" />
         </div>
         <div
@@ -27,8 +25,8 @@
           class="of-date-picker-cur-year"
           tabindex="0"
           @click="() => editYear(true)"
-          @keydown.enter.prevent="() => editYear(true)"
-          @keydown.space.prevent="() => editYear(true)"
+          @keydown.enter.prevent.stop="() => editYear(true)"
+          @keydown.space.prevent.stop="() => editYear(true)"
         >
           {{ monthYear }}
         </div>
@@ -43,13 +41,7 @@
           :onkeydown="yearInputHandler"
           :value="selMonthStart.getFullYear()"
         />
-        <div
-          class="of-datepicker-nav-button next"
-          tabindex="0"
-          @click="nextMonth"
-          @keydown.enter.prevent="nextMonth"
-          @keydown.space.prevent="nextMonth"
-        >
+        <div class="of-datepicker-nav-button next" @click="nextMonth">
           <of-icon name="arrow right" />
         </div>
 
@@ -57,19 +49,26 @@
           v-for="cell in cells"
           :key="cell.date.toString()"
           class="picker-date"
-          tabindex="0"
+          :class="{
+            'selected-date': selDate.toDateString() == cell.date.toDateString(),
+            'focused-date':
+              focusedDate?.toDateString() == cell.date.toDateString(),
+            today: cell.today,
+            'other-month': cell.otherMonth,
+          }"
           @click="cell.otherMonth ? null : selectDate(cell.date)"
-          @keydown.enter.prevent="
-            cell.otherMonth ? null : selectDate(cell.date, true)
-          "
-          @keydown.space.prevent="
-            cell.otherMonth ? null : selectDate(cell.date, true)
-          "
         >
           {{ cell.date.getDate() }}
         </div>
       </div>
-      <div class="of-time-selector" v-if="withTime">
+      <div
+        class="of-time-selector"
+        v-if="withTime"
+        tabindex="0"
+        ref="timeSelector"
+        @keydown="onTimeKeydown"
+        @keyup="onTimeKeyup"
+      >
         <div />
         <div />
         <div />
@@ -81,31 +80,20 @@
           @mousedown="timeClickHandler('h', 1)"
           @mouseup="timeClickHandler()"
           @mouseleave="timeClickHandler()"
-          @keydown.enter.prevent="() => timeClickHandler('h', 1)"
-          @keyup.enter.prevent="() => timeClickHandler()"
-          @keydown.space.prevent="() => timeClickHandler('h', 1)"
-          @keyup.space.prevent="() => timeClickHandler()"
           @blur="timeClickHandler()"
-          ref="hourUp"
           name="bullet up"
           size="lg"
           class="time-picker-arrow"
-          tabindex="0"
         />
         <div />
         <of-icon
           @mousedown="timeClickHandler('m', 1)"
           @mouseup="timeClickHandler()"
           @mouseleave="timeClickHandler()"
-          @keydown.enter.prevent="() => timeClickHandler('m', 1)"
-          @keyup.enter.prevent="() => timeClickHandler()"
-          @keydown.space.prevent="() => timeClickHandler('m', 1)"
-          @keyup.space.prevent="() => timeClickHandler()"
           @blur="timeClickHandler()"
           name="bullet up"
           size="lg"
           class="time-picker-arrow"
-          tabindex="0"
         />
         <div />
 
@@ -120,30 +108,20 @@
           @mousedown="timeClickHandler('h', -1)"
           @mouseup="timeClickHandler()"
           @mouseleave="timeClickHandler()"
-          @keydown.enter.prevent="() => timeClickHandler('h', -1)"
-          @keyup.enter.prevent="() => timeClickHandler()"
-          @keydown.space.prevent="() => timeClickHandler('h', -1)"
-          @keyup.space.prevent="() => timeClickHandler()"
           @blur="timeClickHandler()"
           name="bullet down"
           size="lg"
           class="time-picker-arrow"
-          tabindex="0"
         />
         <div />
         <of-icon
           @mousedown="timeClickHandler('m', -1)"
           @mouseup="timeClickHandler()"
           @mouseleave="timeClickHandler()"
-          @keydown.enter.prevent="() => timeClickHandler('m', -1)"
-          @keyup.enter.prevent="() => timeClickHandler()"
-          @keydown.space.prevent="() => timeClickHandler('m', -1)"
-          @keyup.space.prevent="() => timeClickHandler()"
           @blur="timeClickHandler()"
           name="bullet down"
           size="lg"
           class="time-picker-arrow"
-          tabindex="0"
         />
         <div />
 
@@ -168,7 +146,10 @@ import {
   MonthGridCell,
   nextMonth as _nextMonth,
   prevMonth as _prevMonth,
+  addDays,
+  addMonths,
   sameDate,
+  lastMonthDay,
 } from '../lib/datetime'
 import { useFormats } from '../lib/formats'
 import {
@@ -196,10 +177,11 @@ export default defineComponent({
   setup(props, _ctx: SetupContext) {
     let theNode: VNode | null
     const selDate = ref(props.date ?? new Date())
+    const focusedDate = ref(props.date ?? new Date())
     const selMonthStart = ref(props.monthStart || selDate.value)
     const editingYear = ref(false)
     const OfButton = resolveComponent('OfButton')
-    const hourUp = ref<any>(null)
+    const timeSelector = ref<any>(null)
 
     const formatMgr = useFormats()
     const titleFormat = formatMgr.getTextFormatter('datetime', {
@@ -225,7 +207,7 @@ export default defineComponent({
       )
       if (props.withTime) {
         selDate.value = date
-        if (focusTime) hourUp?.value?.$el?.focus()
+        if (focusTime) timeSelector?.value?.focus()
       } else props.accept?.(date)
     }
 
@@ -255,15 +237,97 @@ export default defineComponent({
         if (theNode) theNode.el?.focus()
       }
       if (e.key == 'Enter') {
+        e.stopPropagation()
         const el = e.target as HTMLInputElement
         const maybeYear = parseInt(el.value)
         if (isNaN(maybeYear) || maybeYear < 1) return
         const date = new Date(selMonthStart.value.valueOf())
         date.setFullYear(maybeYear)
         selMonthStart.value = date
+        focusedDate.value = date
         editingYear.value = false
-        if (theNode) theNode.el?.focus()
+        if (theNode) {
+          theNode.el?.focus()
+        }
       }
+    }
+
+    const onDateKeydown = (event: KeyboardEvent) => {
+      let consumed = false
+      if (event.code == 'Enter') {
+        consumed = true
+        selectDate(focusedDate.value, true)
+      } else if (['ArrowUp', 'ArrowDown'].includes(event.code)) {
+        consumed = true
+        const arrowUp = event.code == 'ArrowUp'
+        const date = focusedDate.value.getDate()
+        if (event.shiftKey) {
+          // + - 1 month
+          arrowUp ? nextMonth() : prevMonth()
+          focusedDate.value = addMonths(focusedDate.value, arrowUp ? 1 : -1)
+          const lastDate = lastMonthDay(focusedDate.value).getDate()
+          if (date > lastDate) {
+            focusedDate.value.setDate(lastDate)
+          } else {
+            focusedDate.value.setDate(date)
+          }
+        } else if (event.altKey || event.metaKey) {
+          // + - 1 week
+          const month = focusedDate.value.getMonth()
+          focusedDate.value = addDays(focusedDate.value, arrowUp ? 7 : -7)
+          if (focusedDate.value.getMonth() !== month) {
+            arrowUp ? nextMonth() : prevMonth()
+          }
+        } else {
+          // + - 1 day
+          if (date === 1 && !arrowUp) {
+            prevMonth()
+          }
+          if (date === lastMonthDay(focusedDate.value).getDate() && arrowUp) {
+            nextMonth()
+          }
+          focusedDate.value = addDays(focusedDate.value, arrowUp ? 1 : -1)
+        }
+      }
+      if (consumed) {
+        event.preventDefault()
+        event.stopPropagation()
+      }
+    }
+
+    const onTimeKeydown = (event: KeyboardEvent) => {
+      let consumed = false
+      if (event.code == 'Enter') {
+        consumed = true
+        props.accept?.(selDate.value)
+      } else if (['ArrowUp', 'ArrowDown'].includes(event.code)) {
+        consumed = true
+        const arrowUp = event.code == 'ArrowUp'
+
+        if (event.shiftKey) {
+          // + - 1 min
+          timeClickHandler('m', arrowUp ? 1 : -1)
+        } else if (event.altKey || event.metaKey) {
+          // + - 12 h
+          const h = selDate.value.getHours()
+          if (h <= 12 && arrowUp) {
+            updateTime('h', 12)
+          } else if (h > 12 && !arrowUp) {
+            updateTime('h', -12)
+          }
+        } else {
+          // + - 1 h
+          timeClickHandler('h', arrowUp ? 1 : -1)
+        }
+      }
+      if (consumed) {
+        event.preventDefault()
+        event.stopPropagation()
+      }
+    }
+
+    const onTimeKeyup = (_event: KeyboardEvent) => {
+      timeClickHandler()
     }
 
     const updateTime = (which: 'h' | 'm', delta: number) => {
@@ -299,7 +363,7 @@ export default defineComponent({
 
     return {
       OfButton,
-      hourUp,
+      timeSelector,
 
       selMonthStart,
       useButtons: props.withTime,
@@ -315,6 +379,9 @@ export default defineComponent({
       updateTime,
       onAccept: () => props.accept?.(selDate.value),
       onCancel: () => props.accept?.(),
+      onDateKeydown,
+      onTimeKeydown,
+      onTimeKeyup,
 
       title: computed(() => titleFormat?.format(selDate.value).textValue),
       monthYear: computed(
@@ -322,6 +389,8 @@ export default defineComponent({
       ),
       hours: computed(() => expand(selDate.value.getHours(), 2)),
       minutes: computed(() => expand(selDate.value.getMinutes(), 2)),
+      selDate,
+      focusedDate,
       editingYear,
 
       cells: computed(() => {
