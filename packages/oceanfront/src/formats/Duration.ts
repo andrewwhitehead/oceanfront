@@ -16,8 +16,19 @@ export class DurationFormatter implements TextFormatter {
   parseInput(input: string): { input: string; value: number } {
     let value = 0
     if (typeof input === 'string' && input.length !== 0) {
-      let hr = parseInt(input.split('h ')[0], 10)
-      let min = parseInt(input.split('h ')[1]?.split('m')[0], 10)
+      const durationString = input.split(' ')
+      let hrString: string | string[] = durationString[0]
+      let minString: string | string[] =
+        durationString.length == 2 ? durationString[1] : durationString[0]
+
+      hrString = hrString.split('h')
+      hrString = hrString.length === 2 ? hrString[0] : ''
+      minString = minString.split('m')
+      minString = minString.length === 2 ? minString[0] : ''
+
+      let hr = parseInt(hrString, 10)
+      let min = parseInt(minString, 10)
+
       if (isNaN(hr)) hr = 0
       if (isNaN(min)) min = 0
       value = hr * 60 + min
