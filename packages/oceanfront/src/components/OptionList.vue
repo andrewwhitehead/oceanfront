@@ -58,7 +58,9 @@
               @focus="onItemFocus"
               :attrs="item.attrs"
             >
-              <of-icon v-if="item.icon" :name="item.icon" size="input" />
+              <slot name="option-icon" v-bind="item">
+                <of-icon v-if="item.icon" :name="item.icon" size="input" />
+              </slot>
               {{ item.text }}
             </of-list-item>
           </template>
