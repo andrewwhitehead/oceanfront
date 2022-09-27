@@ -1,8 +1,24 @@
-import { computed, defineComponent, h, ref, watch } from 'vue'
+import {
+  computed,
+  defineComponent,
+  h,
+  ref,
+  resolveComponent,
+  VNode,
+  watch,
+} from 'vue'
 import { OfFieldBase } from '../components/FieldBase'
 import Hue from '../components/Hue'
 import Saturation from '../components/Saturation'
-import { hsvToHsl, hsvToRgb, loadColor, rgbToHex, rgbToHsv } from '../lib/color'
+import {
+  hexToRgb,
+  hslToRgb,
+  hsvToHsl,
+  hsvToRgb,
+  loadColor,
+  rgbToHex,
+  rgbToHsv,
+} from '../lib/color'
 import {
   BaseFieldProps,
   fieldRender,
@@ -49,8 +65,19 @@ export const OfColorField = defineComponent({
       if (initial === undefined) initial = props.defaultValue
       return initial ?? null
     })
+
+    const types = ['hex', 'hsl', 'rgb']
+    const colorMode = computed(() => {
+      let mode = props.context
+      if (!mode || !types.includes(mode)) mode = 'hex'
+
+      return mode
+    })
+
+    const popupMode = ref(colorMode.value)
     const stateValue = ref()
-    const compColor = computed(() => {
+
+    const compColor: any = computed(() => {
       const hsv = stateValue.value || { h: 0, s: 0, v: 0 }
       const rgb = hsvToRgb(hsv)
       const hsl = hsvToHsl(hsv)
@@ -68,6 +95,12 @@ export const OfColorField = defineComponent({
         hex: rgbToHex(rgb),
       }
     })
+
+    const hsv = computed(() => stateValue.value || { h: 0, s: 0, v: 0 })
+    const rgb = computed(() => hsvToRgb(hsv.value))
+    const hsl = computed(() => hsvToHsl(hsv.value))
+    const hex = computed(() => rgbToHex(hsvToRgb(hsv.value)))
+
     watch(
       () => fieldCtx.value,
       (val) => {
@@ -87,6 +120,19 @@ export const OfColorField = defineComponent({
         immediate: true,
       }
     )
+
+    watch(
+      () => props.context,
+      (val) => {
+        if (val) {
+          popupMode.value = val
+        }
+      },
+      {
+        immediate: true,
+      }
+    )
+
     const setHsv = (color: { h: number; s: number; v: number; a?: number }) => {
       stateValue.value = color
       onChange(compColor.value.hex)
@@ -103,9 +149,111 @@ export const OfColorField = defineComponent({
       saturationFocused.value = true
     }
 
+    const nextMode = (currentMode: string) => {
+      types.forEach((type, index: number) => {
+        if (type == currentMode) {
+          popupMode.value = types[index + 1] ? types[index + 1] : 'hex'
+        }
+      })
+    }
+
     const renderPopup = () => {
       const color = compColor.value
       const hsv = color.hsv
+      const colorsInput = () => {
+        const prepareChildren = (labels: any) => {
+          const color: any = { ...rgb.value, ...hsl.value }
+          const children: VNode[] = []
+
+          labels.forEach((label: string) => {
+            const modelValue =
+              parseFloat(color[label]) < 1
+                ? Math.round(color[label] * 100)
+                : color[label]
+
+            const child = h(resolveComponent('OfField'), {
+              label: label,
+              type: 'number',
+              maxlength: 3,
+              modelValue: modelValue,
+              'onUpdate:modelValue': (val: any) => {
+                choseColor(val, label)
+              },
+            })
+
+            const arrows = h(
+              'div',
+              {
+                class: 'color-picker-icon',
+              },
+              prepareArrows(label)
+            )
+
+            children.push(child)
+            children.push(arrows)
+          })
+
+          return children
+        }
+
+        const prepareArrows = (label: any) => {
+          const upIcon = h(resolveComponent('OfIcon'), {
+            name: 'bullet up',
+            onClick: () => {
+              choseColor(null, label)
+            },
+          })
+
+          const downIcon = h(resolveComponent('OfIcon'), {
+            name: 'bullet down',
+            onClick: () => {
+              choseColor(null, label, 'down')
+            },
+          })
+
+          return [upIcon, downIcon]
+        }
+
+        const hexInput = h(resolveComponent('OfField'), {
+          label: 'hex',
+          class: 'color-picker-input',
+          type: 'text',
+          maxlength: 7,
+          modelValue: hex.value,
+          'onUpdate:modelValue': choseColor,
+        })
+
+        const hslLabels: string[] = ['h', 's', 'l']
+        const rgbLabels: string[] = ['r', 'g', 'b']
+
+        const hslInputs = h(
+          'div',
+          { class: 'color-picker-input' },
+          prepareChildren(hslLabels)
+        )
+        const rgbInputs = h(
+          'div',
+          { class: 'color-picker-input' },
+          prepareChildren(rgbLabels)
+        )
+
+        const choseColorInputs: any = {
+          hex: hexInput,
+          hsl: hslInputs,
+          rgb: rgbInputs,
+        }
+
+        return [choseColorInputs[popupMode.value]]
+      }
+
+      const switcher = h(resolveComponent('OfIcon'), {
+        name: 'page next',
+        class: 'switcher',
+        onClick: () => {
+          nextMode(popupMode.value)
+        },
+      })
+
       return h(
         'div',
         {
@@ -130,8 +278,8 @@ export const OfColorField = defineComponent({
             onBlur: focus,
             onSelect: closePopup,
           }),
-          h('div', {}, color.hsl),
-          h('div', {}, color.rgb),
+          switcher,
+          colorsInput(),
         ])
       )
     }
@@ -157,7 +305,40 @@ export const OfColorField = defineComponent({
         }
       },
     }
+    const choseColor = (val: any, label: any, directional = 'up') => {
+      const hslNew: any = { ...hsl.value }
+      let rgbNew: any = { ...rgb.value }
 
+      switch (popupMode.value) {
+        case 'hex':
+          rgbNew = hexToRgb(val)
+          break
+        case 'hsl':
+          let increment: number
+          label == 'h' ? (increment = 1) : (increment = 0.01)
+
+          if (val) {
+            hslNew[label] = val * increment
+          } else {
+            if (directional == 'up') {
+              hslNew[label] = hslNew[label] + increment
+            } else {
+              hslNew[label] = hslNew[label] - increment
+            }
+          }
+          rgbNew = hslToRgb(hslNew)
+          break
+        default:
+          val
+            ? (rgbNew[label] = val)
+            : directional == 'up'
+            ? rgbNew[label]++
+            : rgbNew[label]--
+          break
+      }
+
+      setHsv(rgbToHsv(rgbNew))
+    }
     const slots = {
       interactiveContent: () =>
         h(
@@ -202,9 +383,8 @@ export const OfColorField = defineComponent({
       value: stateValue,
     })
     provideFieldRender(fRender)
-    const render = () => {
+    return () => {
       return h(OfFieldBase, props, { ...slots, ...ctx.slots })
     }
-    return render
   },
 })
