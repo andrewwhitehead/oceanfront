@@ -379,7 +379,7 @@
   display: flex;
   width: 0; // allow element to resize smaller in firefox when nowrap is used
 
-  > *:not(.of--unpadded) {
+  > *:not(.of--unpadded):not([class*='of--density-']) {
     padding: var(--field-v-pad) var(--field-h-pad);
   }
 }
@@ -690,8 +690,8 @@
     vertical-align: top;
 
     svg {
-      fill: #C10015;
-      font-size: .6em;
+      fill: #c10015;
+      font-size: 0.6em;
       height: 1em;
       width: 0.8em;
     }

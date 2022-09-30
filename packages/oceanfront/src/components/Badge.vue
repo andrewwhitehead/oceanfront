@@ -3,6 +3,7 @@
 </template>
 
 <script lang="ts">
+import { useThemeOptions } from 'src'
 import { computed, defineComponent, PropType } from 'vue'
 
 type Status =
@@ -44,18 +45,38 @@ export default defineComponent({
     size: String as PropType<Size>,
     circular: Boolean,
     icon: Boolean,
-    compact: Boolean,
+    density: [String, Number],
   },
   setup(props) {
-    const badgeClass = computed(() => {
-      return {
-        ['state-' + props.status]: !!props.status,
-        'of--circular': props.circular,
-        'of--icon': props.icon,
-        'of--compact': props.compact,
-        ...sizeClass(props.size),
+    const themeOptions = useThemeOptions()
+    const density = computed(() => {
+      let d = props.density
+      if (d === 'default') {
+        d = undefined
+      } else if (typeof d === 'string') {
+        d = parseInt(d, 10)
+        if (isNaN(d)) d = undefined
       }
+      if (typeof d !== 'number') {
+        d = themeOptions.defaultDensity
+      }
+      if (typeof d !== 'number') {
+        d = 2
+      }
+      return Math.max(0, Math.min(3, d || 0))
     })
+    const badgeClass = computed(() => {
+      return [
+        'of--density-' + density.value,
+        {
+          ['state-' + props.status]: !!props.status,
+          'of--circular': props.circular,
+          'of--icon': props.icon,
+          ...sizeClass(props.size),
+        },
+      ]
+    })
+
     return {
       badgeClass,
     }

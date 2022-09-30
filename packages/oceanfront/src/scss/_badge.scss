@@ -1,36 +1,47 @@
 .of-badge {
+  --badge-v-pad: 0.5em;
+  --badge-h-pad: 0.5em;
   background: $bg-badge;
-  display: inline-block; 
+  display: inline-block;
   border-width: $border-width-badge;
   border-style: solid;
-  border-color: var(--border-color-badge); 
+  border-color: var(--border-color-badge);
   color: var(--color-badge);
   border-radius: $border-radius-badge;
-  margin: 0 .25em .5em 0.25em;
+  margin: 0 0.25em 0.5em 0.25em;
   font-weight: $font-weight-badge;
   font-size: $font-size-badge;
   min-width: 2ex;
   min-height: 2ex;
   line-height: $line-height-badge;
-  padding: $pad-v-badge $pad-h-badge;
+  padding: var(--badge-v-pad) var(--badge-h-pad);
   vertical-align: $vertical-align-badge;
   text-align: center;
   & .of-icon {
     width: auto;
-    margin: 0 .25em 0 0.25em;
+    margin: 0 0.25em 0 0.25em;
     vertical-align: middle;
-  }
-  &.of--compact {
-    padding: $pad-v-compact-badge $pad-h-badge;
   }
   &.of--circular {
     border-radius: 500rem;
   }
   &.of--icon {
-    padding: $pad-v-badge $pad-v-badge;
+    padding: var(--badge-v-pad) var(--badge-v-pad);
     & .of-icon {
-      margin: auto;    
+      margin: auto;
     }
+  }
+  &.of--density-0 {
+    --badge-v-pad: 1em;
+  }
+  &.of--density-1 {
+    --badge-v-pad: 0.75em;
+  }
+  &.of--density-2 {
+    --badge-v-pad: 0.5em;
+  }
+  &.of--density-3 {
+    --badge-v-pad: 0.14em;
   }
 }
 

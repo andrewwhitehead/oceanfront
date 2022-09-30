@@ -1,9 +1,7 @@
 @function use-var($cat, $var, $state: false) {
   @if $state {
     @return var(--of-#{$cat}-#{$var}-#{$state}, var(--of-#{$cat}-#{$var}));
-  }
-
-  @else {
+  } @else {
     @return var(--of-#{$cat}-#{$var});
   }
 }
@@ -17,37 +15,36 @@
 }
 
 @mixin define-vars($cat, $default, $spec: ()) {
-
-  @each $attr,
-  $val in $default {
+  @each $attr, $val in $default {
     --of-#{$cat}-#{$attr}: #{$val};
   }
 
-  @each $state,
-  $vals in $spec {
-
-    @each $attr,
-    $val in $vals {
+  @each $state, $vals in $spec {
+    @each $attr, $val in $vals {
       --of-#{$cat}-#{$attr}-#{$state}: #{$val};
     }
   }
 }
 
 @mixin define-color-opacity($cat, $default, $spec: ()) {
-  $default: (color: #{nth($default, 1)},
+  $default: (
+    color: #{nth($default, 1)},
     opacity: #{nth($default, 2)},
   );
   $new_spec: ();
 
-  @each $state,
-  $vals in $spec {
+  @each $state, $vals in $spec {
     $_color: nth($vals, 1);
     $_opa: nth($vals, 2);
-    $new_spec: map-merge($new_spec,
-      ($state: (color: #{$_color},
+    $new_spec: map-merge(
+      $new_spec,
+      (
+        $state: (
+          color: #{$_color},
           opacity: #{$_opa},
         ),
-      ));
+      )
+    );
   }
 
   @include define-vars($cat, $default, $new_spec);
@@ -79,9 +76,6 @@ $line-height-badge: var(--line-height-badge, 1);
 $line-height-input: var(--line-height-input, 1.25); // 20/16
 $line-height-form-label: var(--line-height-form-label, 1.7);
 $line-height-menu-option: var(--line-height-menu-option, 1.35);
-$pad-h-badge: var(--pad-h-badge, 0.5em);
-$pad-v-badge: var(--pad-v-badge, 0.5em);
-$pad-v-compact-badge: var(--pad-v-compact-badge, 0.14em);
 $pad-h-compact-input: var(--pad-h-compact-input, 0.4em);
 $pad-h-input: var(--pad-h-input, 0.4em);
 $pad-v-compact-input: var(--pad-v-compact-input, 0.25em);
