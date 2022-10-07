@@ -804,7 +804,6 @@ export default defineComponent({
       }
 
       if (consumed) {
-        evt.stopPropagation()
         evt.preventDefault()
       }
     }
