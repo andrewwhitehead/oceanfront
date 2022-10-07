@@ -6,6 +6,7 @@ dist
 # local env files
 .env.local
 .env.*.local
+.turbo-cookie
 
 # Log files
 npm-debug.log*

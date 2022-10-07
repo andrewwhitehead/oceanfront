@@ -5,13 +5,13 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "turbo run build",
-    "build-dev": "turbo run build-dev",
+    "build": "turbo run build --no-daemon",
+    "build-dev": "turbo run build-dev --no-daemon",
     "clean": "turbo run clean && rm -rf node_modules",
-    "coverage": "turbo run coverage",
-    "demo": "turbo run demo",
-    "lint": "turbo run lint",
-    "test": "turbo run test"
+    "coverage": "turbo run coverage --no-daemon",
+    "demo": "turbo run demo --no-daemon",
+    "lint": "turbo run lint --no-daemon",
+    "test": "turbo run test --no-daemon"
   },
   "devDependencies": {
     "turbo": "^1.1.2"
