@@ -9,7 +9,18 @@
           type="color"
           label="Color Field"
           v-model="colorValue"
-          v-bind="props"
+          v-bind="{
+            ...props,
+            ...customProps,
+          }"
+        />
+      </template>
+      <template #options>
+        <of-field
+          type="select"
+          label="Color Mode"
+          :items="colorModeOptions"
+          v-model="customProps.context"
         />
       </template>
     </of-demo-field>
@@ -19,6 +30,10 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue'
 
+const customProps = ref({ context: 'hex' })
+const colorModeOptions = ['hex', 'hsl', 'rgb']
+const colorValue = ref('hsl(240, 33%, 72%)')
+
 export default defineComponent({
   setup() {
     const sampleCode = `
@@ -26,8 +41,8 @@ export default defineComponent({
   label="Color"
   v-model="colorValue"
 />`
-    const colorValue = ref('hsl(240, 33%, 72%)')
-    return { sampleCode, colorValue }
+
+    return { sampleCode, colorValue, customProps, colorModeOptions }
   },
 })
 </script>

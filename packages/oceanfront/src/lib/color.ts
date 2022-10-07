@@ -1,7 +1,7 @@
 export const hexToRgb = function (
   color: string
 ): { r: number; g: number; b: number; a?: number } | null {
-  if (!color || typeof color !== 'string') {
+  if (!color) {
     throw new TypeError('Invalid color value')
   }
   color = color.toLowerCase().replace(/\s/g, '')
@@ -163,6 +163,32 @@ export const hsvToRgb = function (color: {
   ret.g = Math.round(ret.g * 255)
   ret.b = Math.round(ret.b * 255)
   ret.a = color.a
+  return ret
+}
+
+export const hslToRgb = function (color: {
+  h: number
+  s: number
+  l: number
+  a?: number
+}): {
+  r: number
+  g: number
+  b: number
+  a?: number
+} {
+  const ret = { r: 0, g: 0, b: 0, a: color.a }
+
+  const k = (n: number) => (n + color.h / 30) % 12
+  const a = color.s * Math.min(color.l, 1 - color.l)
+  const f = (n: number) =>
+    color.l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)))
+
+  ret.r = 255 * f(0)
+  ret.g = 255 * f(8)
+  ret.b = 255 * f(4)
+  ret.a = color.a
+
   return ret
 }
 
