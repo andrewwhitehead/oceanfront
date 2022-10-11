@@ -26,6 +26,12 @@
     margin: 0;
     text-align: left;
   }
+  .row-selector.of-toggle-field {
+    --field-v-pad-base: 0;
+    .of-field-inner {
+      width: fit-content;
+    }
+  }
 
   .of-data-table-header,
   .of-data-table-row,
