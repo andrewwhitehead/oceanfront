@@ -9,11 +9,13 @@
             split
             :items="selectRowsItems"
           >
-            <of-toggle
+            <of-field
               type="toggle"
               variant="basic"
-              :checked="headerRowsSelectorChecked"
-              @update:checked="onUpdateHeaderRowsSelector"
+              class="row-selector"
+              v-model="headerRowsSelectorChecked"
+              :locked="selectLocked"
+              @update:model-value="onUpdateHeaderRowsSelector"
             />
           </of-button>
         </slot>
@@ -65,11 +67,13 @@
     >
       <div v-if="rowsSelector">
         <slot name="rows-selector" :record="rowsRecord" :item="row">
-          <of-toggle
+          <of-field
             type="toggle"
+            variant="basic"
+            class="row-selector"
+            :locked="selectLocked"
             :record="rowsRecord"
             :name="row.id"
-            variant="basic"
           />
         </slot>
         <slot name="first-cell" :record="rowsRecord" :item="row" />
@@ -168,10 +172,14 @@ export default defineComponent({
     page: [String, Number],
     rowsSelector: Boolean,
     resetSelection: Boolean,
+    selectAll: Boolean,
     density: [String, Number],
   },
   emits: {
     'rows-selected': null,
+    'rows-select-all': null,
+    'rows-select-page': null,
+    'rows-deselect-all': null,
     'rows-sorted': null,
   },
   setup(props, ctx: SetupContext) {
@@ -188,6 +196,7 @@ export default defineComponent({
     const sortPopupOpened = ref(false)
     const sortPopupTarget = ref('')
     const selectedColFields: Ref<Object[]> = ref([])
+    const selectLocked = ref(false)
 
     const createColId = (idx: number) => outerId.value + '-header-' + idx
 
@@ -331,12 +340,13 @@ export default defineComponent({
     const rowsSelector = computed(() =>
       showSelector(props.rowsSelector, rows.value)
     )
-
+    const selectAll = computed(() => props.selectAll)
     const rowsRecord: ComputedRef<FormRecord> = computed(() => {
-      let ids: any = { all: false }
+      let ids: any = { all: selectAll.value }
+
       if (rowsSelector.value) {
         for (const row of rows.value) {
-          ids[row.id] = false
+          ids[row.id] = row.selected
         }
       }
       return makeRecord(ids)
@@ -345,6 +355,11 @@ export default defineComponent({
       () => rowsRecord.value.value,
       (val) => {
         ctx.emit('rows-selected', val)
+        headerRowsSelectorChecked.value = true
+        for (const [id, checked] of Object.entries(val)) {
+          if (id !== RowsSelectorValues.All && !checked)
+            headerRowsSelectorChecked.value = false
+        }
       },
       { deep: true }
     )
@@ -361,12 +376,17 @@ export default defineComponent({
 
       if (val === RowsSelectorValues.All) {
         rowsRecord.value.value[RowsSelectorValues.All] = true
-        rowsRecord.value.locked = true
+        selectLocked.value = true
+        ctx.emit('rows-select-all')
       } else {
         rowsRecord.value.value[RowsSelectorValues.All] = false
-        rowsRecord.value.locked = false
+        selectLocked.value = false
+        if (val == RowsSelectorValues.DeselectAll) {
+          ctx.emit('rows-deselect-all')
+        } else if (val == RowsSelectorValues.Page) {
+          ctx.emit('rows-select-page')
+        }
       }
-
       for (const row of rows.value) {
         rowsRecord.value.value[row.id] = checked
       }
@@ -459,6 +479,7 @@ export default defineComponent({
       sortPopupTarget,
       sortPopupOpened,
       selectedColFields,
+      selectLocked,
       createColId,
       sortColEnter,
       sortColLeave,
