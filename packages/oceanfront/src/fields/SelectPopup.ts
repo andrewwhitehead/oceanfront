@@ -15,6 +15,10 @@ export const OfSelectPopup = defineComponent({
     },
     multi: Boolean,
     addRemove: Boolean,
+    addSearch: {
+      type: Boolean,
+      default: true,
+    },
     closePopup: Function,
     value: [String, Array],
     class: [String, Array, Object],
@@ -146,7 +150,7 @@ export const OfSelectPopup = defineComponent({
           items: filteredItems.value,
           class: props.class,
           onClick: setValue,
-          addSearch: true,
+          addSearch: props.addSearch,
         },
         { header: () => addRemoveButtons() }
       )
