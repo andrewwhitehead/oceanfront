@@ -9,4 +9,5 @@ export interface Tab {
   disabled?: boolean
   subMenuItems?: Array<Tab> | undefined
   parentKey?: number | undefined
+  ariaLabel?: string | undefined
 }

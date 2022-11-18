@@ -31,7 +31,7 @@
               size="input"
             />
           </div>
-          <div class="of-tabs-header" ref="ofTabsHeader">
+          <div class="of-tabs-header" ref="ofTabsHeader" role="tablist">
             <template :key="tab.key" v-for="(tab, idx) in tabsList">
               <div class="overflow-separator" v-if="tab.overflowButton" />
               <div
@@ -57,6 +57,10 @@
                   'of--rounded': rounded,
                   'of--with-border': withBorder,
                 }"
+                role="tab"
+                :aria-label="tab.ariaLabel"
+                :aria-haspopup="showSubMenu"
+                :aria-selected="selectedTabKey === tab.key"
               >
                 <div class="of--layer of--layer-bg" />
                 <div class="of--layer of--layer-brd" />
@@ -186,6 +190,7 @@ const formatItems = (
       icon: item[params.iconKey] ? item[params.iconKey] : '',
       overflowButton: false,
       text: item[params.textKey],
+      ariaLabel: item.ariaLabel || item[params.textKey],
       key: parseInt(item['key']),
       value: parseInt(item['key']),
       selected: false,
