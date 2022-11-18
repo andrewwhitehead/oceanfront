@@ -72,7 +72,8 @@
             variant="basic"
             class="row-selector"
             :locked="selectLocked"
-            :record="rowsRecord"
+            :record="selectLocked ? undefined : rowsRecord"
+            :model-value="selectLocked ? true : rowsRecord.value[row.id]"
             :name="row.id"
           />
         </slot>
@@ -342,11 +343,15 @@ export default defineComponent({
     )
     const selectAll = computed(() => props.selectAll)
     const rowsRecord: ComputedRef<FormRecord> = computed(() => {
-      let ids: any = { all: selectAll.value }
+      let ids: any = {}
 
-      if (rowsSelector.value) {
-        for (const row of rows.value) {
-          ids[row.id] = row.selected
+      if (selectAll.value) {
+        ids = { all: true }
+      } else {
+        if (rowsSelector.value) {
+          for (const row of rows.value) {
+            ids[row.id] = row.selected || false
+          }
         }
       }
       return makeRecord(ids)
@@ -375,20 +380,21 @@ export default defineComponent({
       headerRowsSelectorChecked.value = checked
 
       if (val === RowsSelectorValues.All) {
+        rowsRecord.value.value = []
         rowsRecord.value.value[RowsSelectorValues.All] = true
         selectLocked.value = true
         ctx.emit('rows-select-all')
       } else {
-        rowsRecord.value.value[RowsSelectorValues.All] = false
+        delete rowsRecord.value.value[RowsSelectorValues.All]
         selectLocked.value = false
         if (val == RowsSelectorValues.DeselectAll) {
           ctx.emit('rows-deselect-all')
         } else if (val == RowsSelectorValues.Page) {
           ctx.emit('rows-select-page')
         }
-      }
-      for (const row of rows.value) {
-        rowsRecord.value.value[row.id] = checked
+        for (const row of rows.value) {
+          rowsRecord.value.value[row.id] = checked
+        }
       }
     }
     const headerRowsSelectorChecked = ref(false)
