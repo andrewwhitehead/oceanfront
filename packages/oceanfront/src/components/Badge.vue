@@ -3,7 +3,7 @@
 </template>
 
 <script lang="ts">
-import { useThemeOptions } from 'src'
+import { useThemeOptions } from '../lib/theme'
 import { computed, defineComponent, PropType } from 'vue'
 
 type Status =
