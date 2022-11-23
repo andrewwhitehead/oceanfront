@@ -240,7 +240,6 @@ export const OfTextField = defineComponent({
       },
       onFocus(_evt: FocusEvent) {
         focused.value = true
-        if (!itemsOpened.value) openItemsPopup()
       },
       onChange(evt: Event) {
         const target = evt.target as
@@ -304,8 +303,16 @@ export const OfTextField = defineComponent({
           openItemsPopup()
           evt.preventDefault()
           evt.stopPropagation()
-        } else if (evt.key == 'Tab') {
+        } else if (evt.key == 'Tab' || evt.key === 'Escape') {
           closeItemsPopup()
+        } else if (
+          (/(^Key([A-Z]$))/.test(evt.code) ||
+            /(^Digit([0-9]$))/.test(evt.code)) &&
+          !evt.altKey &&
+          !evt.metaKey &&
+          !evt.ctrlKey
+        ) {
+          if (!itemsOpened.value) openItemsPopup()
         } else {
           const fmt = formatter.value
           if (fmt?.handleKeyDown) {
