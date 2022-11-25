@@ -14,6 +14,7 @@
               variant="basic"
               class="row-selector"
               v-model="headerRowsSelectorChecked"
+              :mode="selectLocked ? 'disabled' : 'editable'"
               :locked="selectLocked"
               @update:model-value="onUpdateHeaderRowsSelector"
             />
@@ -72,6 +73,7 @@
             variant="basic"
             class="row-selector"
             :locked="selectLocked"
+            :mode="selectLocked ? 'disabled' : 'editable'"
             :record="selectLocked ? undefined : rowsRecord"
             :model-value="selectLocked ? true : rowsRecord.value[row.id]"
             :name="row.id"
