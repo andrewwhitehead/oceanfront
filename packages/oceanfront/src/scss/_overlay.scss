@@ -15,7 +15,8 @@
   left: 0;
   bottom: 0;
   padding: var(--overlay-pad, 0px);
-  margin: 0 var(--overlay-dyn-margin-right, 0px) 0 var(--overlay-dyn-margin-left, 0px);
+  margin: 0 var(--overlay-dyn-margin-right, 0px) 0
+    var(--overlay-dyn-margin-left, 0px);
   pointer-events: none;
   right: 0;
   z-index: 200;
@@ -35,7 +36,7 @@
   }
 }
 
-.of-overlay>* {
+.of-overlay > * {
   pointer-events: auto;
 }
 
@@ -97,14 +98,15 @@
   align-items: center;
   pointer-events: none;
 
-  .of-dialog-header, .of-dialog-footer {
+  .of-dialog-header,
+  .of-dialog-footer {
     max-height: 2em;
     line-height: 2em;
     width: 100%;
     text-align: center;
 
     .of-dialog-fixed-content {
-      background: rgba(1, 1, 1, .05);
+      background: rgba(1, 1, 1, 0.05);
       color: var(--of-color-on-primary-container);
     }
 
@@ -112,6 +114,11 @@
       height: 0;
     }
 
+    .dialog-close {
+      float: right;
+      padding: 0.2em;
+      cursor: pointer;
+    }
     .dialog-resizer {
       display: block;
       float: right;
@@ -232,7 +239,7 @@
   width: 300px;
 }
 
-.of--overlay>.of-sidebar {
+.of--overlay > .of-sidebar {
   border-radius: 0 5px 5px 0;
 }
 
