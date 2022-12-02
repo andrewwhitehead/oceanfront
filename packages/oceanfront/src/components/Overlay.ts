@@ -260,6 +260,9 @@ export const OfOverlay = defineComponent({
                           class: {
                             'of-overlay-capture': props.active && props.capture,
                           },
+                          style: {
+                            'z-index': overlayZIndex,
+                          },
                           onClick: handlers.onClick,
                           ref: clickCapture,
                         })
