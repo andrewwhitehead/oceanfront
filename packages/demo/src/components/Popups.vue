@@ -728,6 +728,24 @@
         <div class="of-dialog-fixed-content">Footer</div>
       </template>
     </of-dialog>
+
+    <p></p>
+
+    <of-button @click="toggleSixthDialog"
+      >Show dialog with close button</of-button
+    >
+    <of-dialog
+      v-model="sixthDialogActive"
+      :hide-on-blur="false"
+      :show-close-button="true"
+    >
+      <template #default>
+        <div class="container">
+          <h4>Simple Dialog</h4>
+          <of-select-field :items="['one', 'two']" label="Test select" />
+        </div>
+      </template>
+    </of-dialog>
   </div>
 </template>
 
@@ -770,6 +788,7 @@ export default defineComponent({
     const thirdDialogActive = ref(false)
     const fourthDialogActive = ref(false)
     const fifthDialogActive = ref(false)
+    const sixthDialogActive = ref(false)
 
     const nestedDialogActive = ref(false)
 
@@ -786,6 +805,7 @@ export default defineComponent({
       thirdDialogActive,
       fourthDialogActive,
       fifthDialogActive,
+      sixthDialogActive,
       nestedDialogActive,
       sampleCode,
       toggleDialog: () => {
@@ -805,6 +825,9 @@ export default defineComponent({
       },
       toggleNestedDialog: () => {
         nestedDialogActive.value = !nestedDialogActive.value
+      },
+      toggleSixthDialog: () => {
+        sixthDialogActive.value = !sixthDialogActive.value
       },
     }
   },

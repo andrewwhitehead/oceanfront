@@ -1,5 +1,5 @@
 <template>
-  <of-overlay :active="active" @blur="hide">
+  <of-overlay :active="active" @blur="hideOnBlur ? hide() : undefined">
     <template #default="{ active: dialogActive }">
       <transition :name="transition">
         <div class="of-dialog-outer">
@@ -17,6 +17,14 @@
               :class="{ 'drag-and-drop': dragAndDrop }"
               v-on="{ mousedown: dragAndDrop ? dragAndDropAction : null }"
             >
+              <div
+                v-if="showCloseButton"
+                class="dialog-close"
+                tabindex="0"
+                @click="hide()"
+              >
+                <of-icon name="cancel" />
+              </div>
               <slot name="header" />
             </div>
             <div class="of-dialog-content">
@@ -55,6 +63,8 @@ export default defineComponent({
     resize: { type: Boolean, default: false },
     dragAndDrop: { type: Boolean, default: true },
     transition: { type: String, default: 'slide-down' },
+    hideOnBlur: { type: Boolean, default: true },
+    showCloseButton: { type: Boolean, default: false },
   },
   emits: ['update:modelValue'],
   setup: function (props, ctx: SetupContext) {
