@@ -75,12 +75,13 @@ export class NumberFormatter implements TextFormatter {
   }
 
   // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-  parseInput(input: string, selStart?: number) {
+  parseInput(input: string, selStart?: number, formattted = true) {
     const seps = this.getSeparators()
+    const sepDecimal = formattted ? seps.decimal : '.'
 
     if (typeof selStart !== 'number') selStart = 0
     // find first decimal, in case there's more than one
-    let decPos: number | null = input.indexOf(seps.decimal)
+    let decPos: number | null = input.indexOf(sepDecimal)
     if (decPos < 0) {
       if (
         seps.decimal !== '.' &&
@@ -175,7 +176,7 @@ export class NumberFormatter implements TextFormatter {
       value = this.loadValue(value)
       if (value != null) {
         const selStart = 1
-        const unformat = this.parseInput(value.toString(), selStart)
+        const unformat = this.parseInput(value.toString(), selStart, false)
         textValue = this.applyOptions(value, selStart, unformat)
       }
     } catch (e: any) {
