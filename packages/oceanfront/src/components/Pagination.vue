@@ -4,6 +4,7 @@
       <div class="of-pagination-header">
         <span
           class="of-buttonset"
+          :aria-label="ariaLabels?.pagination ?? 'Pagination'"
           :class="{
             'of-buttonset--rounded': rounded,
             'of--elevated': variant == 'elevated',
@@ -12,6 +13,7 @@
           <of-button
             v-if="showGoToFirst"
             icon="page first"
+            :aria-label="ariaLabels?.first ?? 'Go To First'"
             :variant="variantVal"
             :density="densityVal"
             @click="goToFirst()"
@@ -30,6 +32,7 @@
           <of-button
             v-if="showGoToLast"
             icon="page last"
+            :aria-label="ariaLabels?.last ?? 'Go To Last'"
             :variant="variantVal"
             :density="densityVal"
             @click="goToLast()"
@@ -41,6 +44,7 @@
             icon="bullet down"
             :variant="variantVal"
             :density="densityVal"
+            :aria-label="ariaLabels?.expand ?? 'Expand'"
             @click="openOffsetPopup"
           >
           </of-button>
@@ -117,6 +121,7 @@ export default defineComponent({
     startRecord: Number,
     perPage: Number,
     rounded: Boolean,
+    ariaLabels: Object,
   },
   emits: ['update:modelValue', 'select-page', 'update-offset'],
   setup(props, context: SetupContext) {
