@@ -82,7 +82,7 @@ export default defineComponent({
 `
     const dateFormat = ref('')
     const dateFormatOptions = [
-      { text: '(locale short)', value: '' },
+      { text: 'default', value: '' },
       { text: 'Y-m-d', value: 'Y-m-d' },
       { text: 'm-d-Y', value: 'm-d-Y' },
       { text: 'd-m-Y', value: 'd-m-Y' },
@@ -96,7 +96,7 @@ export default defineComponent({
 
     const timeFormat = ref('')
     const timeFormatOptions = [
-      { text: '(locale short)', value: '' },
+      { text: 'default', value: '' },
       { text: 'H:i', value: 'H:i' },
       { text: 'h:ia', value: 'h:ia' },
       { text: 'h:i a', value: 'h:i a' },
@@ -111,7 +111,7 @@ export default defineComponent({
 
     const locale = ref('')
     const localeOpts = [
-      { text: '(browser default)', value: '' },
+      { text: 'default', value: '' },
       { text: 'en-CA', value: 'en-CA' },
       { text: 'de-CH', value: 'de-CH' },
       { text: 'de-DE', value: 'de-DE' },
