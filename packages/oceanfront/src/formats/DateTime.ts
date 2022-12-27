@@ -82,10 +82,6 @@ abstract class DateTimeFormatterBase implements TextFormatter {
     parts.find((p) => p.type === type)?.value
 
   formatterOptions(_editing?: boolean): Intl.DateTimeFormatOptions {
-    const opts = this.options
-    if (opts.nativeOptions !== undefined) {
-      return opts.nativeOptions
-    }
     return { timeZone: this.options.timeZone }
   }
 
@@ -152,6 +148,8 @@ abstract class DateTimeFormatterBase implements TextFormatter {
 
 export class DateTimeFormatter extends DateTimeFormatterBase {
   formatterOptions(_editing?: boolean): Intl.DateTimeFormatOptions {
+    if (this.options.nativeOptions !== undefined)
+      return this.options.nativeOptions
     const options = super.formatterOptions(_editing)
     options.day = '2-digit'
     options.month = '2-digit'
@@ -190,19 +188,29 @@ export class DateTimeFormatter extends DateTimeFormatterBase {
     if (timeFormat == '' && dateFormat == '') {
       return fmt.format(value)
     } else {
-      const tf = new TimeFormatter()
+      const options = super.formatterOptions()
       const tFmt = Intl.DateTimeFormat(
         this.options.locale,
-        tf.formatterOptions()
+        TimeFormatter.adjustOptions(options, timeFormat)
       )
-      const df = new DateFormatter()
       const dFmt = Intl.DateTimeFormat(
         this.options.locale,
-        df.formatterOptions()
+        DateFormatter.adjustOptions(options)
       )
-
-      return df.formatLocale(dFmt, value) + ', ' + tf.formatLocale(tFmt, value)
+      return (
+        (dateFormat === ''
+          ? dFmt.format(value)
+          : this.formatLocaleDate(dFmt.formatToParts(value))) +
+        ', ' +
+        (timeFormat === ''
+          ? tFmt.format(value)
+          : this.formatLocaleTime(tFmt.formatToParts(value)))
+      )
     }
+  }
+
+  formatFixed(modelValue: string): string {
+    return this.format(modelValue).textValue ?? modelValue
   }
 
   loadValue(modelValue?: string | Date | number | null): Date | null {
@@ -238,6 +246,17 @@ export class DateTimeFormatter extends DateTimeFormatterBase {
 }
 
 export class DateFormatter extends DateTimeFormatterBase {
+  static adjustOptions(
+    options: Intl.DateTimeFormatOptions
+  ): Intl.DateTimeFormatOptions {
+    return {
+      ...options,
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    }
+  }
+
   formatPortable(date: Date): string {
     const Y = expand(date.getUTCFullYear(), 4)
     const M = expand(date.getUTCMonth() + 1, 2)
@@ -253,11 +272,10 @@ export class DateFormatter extends DateTimeFormatterBase {
   }
 
   formatterOptions(_editing?: boolean): Intl.DateTimeFormatOptions {
+    if (this.options.nativeOptions !== undefined)
+      return this.options.nativeOptions
     const options = super.formatterOptions(_editing)
-    options.day = '2-digit'
-    options.month = '2-digit'
-    options.year = 'numeric'
-    return options
+    return DateFormatter.adjustOptions(options)
   }
 
   loadValue(modelValue?: string | Date | number | null): Date | null {
@@ -289,6 +307,28 @@ export class DateFormatter extends DateTimeFormatterBase {
 }
 
 export class TimeFormatter extends DateTimeFormatterBase {
+  static adjustOptions(
+    options: Intl.DateTimeFormatOptions,
+    timeFormat: string
+  ): Intl.DateTimeFormatOptions {
+    const timeOptions: Intl.DateTimeFormatOptions = {
+      hour: 'numeric',
+      minute: 'numeric',
+    }
+
+    if (timeFormat !== '') {
+      const h12 = timeFormat.search(/[aA]/) !== -1
+      timeOptions.hour = h12 ? 'numeric' : '2-digit'
+      timeOptions.minute = h12 ? 'numeric' : '2-digit'
+      timeOptions.hourCycle = h12 ? 'h12' : 'h24'
+    }
+
+    return {
+      ...options,
+      ...timeOptions,
+    }
+  }
+
   formatPortable(date: Date): string {
     const h = date.getHours()
     const m = date.getMinutes()
@@ -304,19 +344,11 @@ export class TimeFormatter extends DateTimeFormatterBase {
   }
 
   formatterOptions(_editing?: boolean): Intl.DateTimeFormatOptions {
-    const options = super.formatterOptions(_editing)
-    options.hour = 'numeric'
-    options.minute = 'numeric'
-
+    if (this.options.nativeOptions !== undefined)
+      return this.options.nativeOptions
     const timeFormat = this.options.timeFormat as string
-    if (timeFormat !== '') {
-      const h12 = timeFormat.search(/[aA]/) !== -1
-      options.hour = h12 ? 'numeric' : '2-digit'
-      options.minute = h12 ? 'numeric' : '2-digit'
-      options.hourCycle = h12 ? 'h12' : 'h24'
-    }
-
-    return options
+    const options = super.formatterOptions(_editing)
+    return TimeFormatter.adjustOptions(options, timeFormat)
   }
 
   loadValue(modelValue?: string | Date | number | null): Date | null {
@@ -335,7 +367,7 @@ export class TimeFormatter extends DateTimeFormatterBase {
       if (!matches) {
         value = new Date()
       } else {
-        const dateStr = '1970-01-01T' + matches.slice(1, 3).join(':') + ':00'
+        const dateStr = '1970-01-01T' + matches.slice(1, 3).join(':') + ':00Z'
         value = new Date(dateStr)
       }
     } else if (typeof modelValue === 'number') {
