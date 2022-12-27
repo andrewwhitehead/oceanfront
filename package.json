@@ -1,6 +1,7 @@
 {
   "private": true,
   "version": "0.0.1",
+  "name": "oceanfront",
   "packageManager": "yarn@1.22.17",
   "workspaces": [
     "packages/*"
