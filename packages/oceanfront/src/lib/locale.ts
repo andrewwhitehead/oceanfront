@@ -7,20 +7,22 @@ export interface LocaleNumberFormat {
   readonly auto: boolean
 }
 
-export type LocaleDateFormat = {
-  placeholder?: any // LocaleDateFormat will be defined later. placeholder is here just to satisfy build
+export type LocaleDateTimeFormat = {
+  dateFormat?: string
+  timeFormat?: string
+  timeZone?: string
 }
 
 export interface LocaleState {
   readonly locale: string
   readonly numberFormat?: LocaleNumberFormat
-  readonly dateFormat?: LocaleDateFormat
+  readonly dateTimeFormat?: LocaleDateTimeFormat
 }
 
 class LocaleManager implements LocaleState {
   locale: string
   numberFormat?: LocaleNumberFormat
-  dateFormat?: LocaleDateFormat
+  dateTimeFormat?: LocaleDateTimeFormat
 
   constructor() {
     this.locale = navigator.language
@@ -31,6 +33,10 @@ const configManager = new ConfigManager('ofloc', LocaleManager)
 
 export function setLocale(loc: string): void {
   configManager.extendingManager.locale = loc
+}
+
+export function setDateTimeFormat(options: LocaleDateTimeFormat): void {
+  configManager.extendingManager.dateTimeFormat = options
 }
 
 export function useLocale(config?: Config): LocaleState {

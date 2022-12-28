@@ -5,7 +5,9 @@ import { LocaleState, useLocale } from '../lib/locale'
 
 export interface DateTimeFormatterOptions {
   locale?: string
-  dateFormat?: 'short' | 'medium'
+  dateFormat?: string
+  timeFormat?: string
+  timeZone?: string
   nativeOptions?: Intl.DateTimeFormatOptions
 }
 
@@ -22,15 +24,48 @@ abstract class DateTimeFormatterBase implements TextFormatter {
   private _options: Ref<DateTimeFormatterOptions>
 
   constructor(config?: Config, options?: DateTimeFormatterOptions) {
+    const allowedDateFormats = [
+      'Y-m-d',
+      'm-d-Y',
+      'd-m-Y',
+      'Y/m/d',
+      'm/d/Y',
+      'd/m/Y',
+      'Y.m.d',
+      'd.m.Y',
+      'm.d.Y',
+    ]
+    const allowedTimeFormats = [
+      'H:i',
+      'h:ia',
+      'h:i a',
+      'h:iA',
+      'h:i A',
+      'H.i',
+      'h.ia',
+      'h.i a',
+      'h.iA',
+      'h.i A',
+    ]
     this._locale = useLocale(config)
     this._options = computed(() => {
-      const opts: any = {}
+      const opts: DateTimeFormatterOptions = {}
       opts.locale = this._locale.locale
-      Object.assign(opts, this._locale.dateFormat)
+      Object.assign(opts, this._locale.dateTimeFormat)
       if (options) {
         Object.assign(opts, options)
       }
-      if (opts.dateFormat === undefined && !opts.time) opts.dateFormat = 'short'
+      if (
+        opts.dateFormat === undefined ||
+        !allowedDateFormats.includes(opts.dateFormat)
+      )
+        opts.dateFormat = ''
+      if (
+        opts.timeFormat === undefined ||
+        !allowedTimeFormats.includes(opts.timeFormat)
+      )
+        opts.timeFormat = ''
+
       return opts
     })
   }
@@ -43,22 +78,11 @@ abstract class DateTimeFormatterBase implements TextFormatter {
     return 'of--text-datetime'
   }
 
+  getPart = (parts: Intl.DateTimeFormatPart[], type: string) =>
+    parts.find((p) => p.type === type)?.value
+
   formatterOptions(_editing?: boolean): Intl.DateTimeFormatOptions {
-    const opts = this.options
-    if (opts.nativeOptions !== undefined) {
-      return opts.nativeOptions
-    }
-    const fmtOpts = {} as any
-    if (opts.dateFormat == 'medium') {
-      fmtOpts.day = 'numeric'
-      fmtOpts.month = 'short'
-      fmtOpts.year = 'numeric'
-    } else if (opts.dateFormat == 'short') {
-      fmtOpts.day = '2-digit'
-      fmtOpts.month = '2-digit'
-      fmtOpts.year = 'numeric'
-    }
-    return fmtOpts
+    return { timeZone: this.options.timeZone }
   }
 
   unformat(_input: string): Date | null {
@@ -77,8 +101,9 @@ abstract class DateTimeFormatterBase implements TextFormatter {
           this.options.locale,
           this.formatterOptions()
         )
-        textValue = fmt.format(value)
+
         parts = fmt.formatToParts(value)
+        textValue = this.formatLocale(fmt, value)
       }
     } catch (e: any) {
       error = e.toString()
@@ -92,7 +117,29 @@ abstract class DateTimeFormatterBase implements TextFormatter {
     }
   }
 
-  abstract formatPortable(date?: Date): string | undefined
+  formatLocaleTime(parts: Intl.DateTimeFormatPart[]): string {
+    const timeFormat = this.options.timeFormat as string
+    const h = this.getPart(parts, 'hour') ?? ''
+    const i = this.getPart(parts, 'minute') ?? ''
+    const a = this.getPart(parts, 'dayPeriod') ?? ''
+    return timeFormat
+      .replace('H', h)
+      .replace('h', h)
+      .replace('i', i)
+      .replace('a', a.toLowerCase())
+      .replace('A', a.toUpperCase())
+  }
+
+  formatLocaleDate(parts: Intl.DateTimeFormatPart[]): string {
+    const dateFormat = this.options.dateFormat as string
+    const D = this.getPart(parts, 'day') ?? ''
+    const M = this.getPart(parts, 'month') ?? ''
+    const Y = this.getPart(parts, 'year') ?? ''
+    return dateFormat?.replace('Y', Y).replace('m', M).replace('d', D)
+  }
+
+  abstract formatLocale(fmt: Intl.DateTimeFormat, value: Date): string
+  abstract formatPortable(date: Date): string
   abstract loadValue(
     modelValue?: string | Date | number | null,
     dateOnly?: boolean
@@ -101,14 +148,18 @@ abstract class DateTimeFormatterBase implements TextFormatter {
 
 export class DateTimeFormatter extends DateTimeFormatterBase {
   formatterOptions(_editing?: boolean): Intl.DateTimeFormatOptions {
-    const fmtOpts = super.formatterOptions(_editing)
-    fmtOpts.hour = '2-digit'
-    fmtOpts.minute = '2-digit'
-    return fmtOpts
+    if (this.options.nativeOptions !== undefined)
+      return this.options.nativeOptions
+    const options = super.formatterOptions(_editing)
+    options.day = '2-digit'
+    options.month = '2-digit'
+    options.year = 'numeric'
+    options.hour = 'numeric'
+    options.minute = 'numeric'
+    return options
   }
 
-  formatPortable(date?: Date): string | undefined {
-    if (!date) return undefined
+  formatPortable(date: Date): string {
     const Y = date.getUTCFullYear()
     const M = date.getUTCMonth() + 1
     const D = date.getUTCDate()
@@ -128,6 +179,38 @@ export class DateTimeFormatter extends DateTimeFormatterBase {
       ':' +
       expand(s, 2)
     )
+  }
+
+  formatLocale(fmt: Intl.DateTimeFormat, value: Date): string {
+    const timeFormat = this.options.timeFormat as string
+    const dateFormat = this.options.dateFormat as string
+
+    if (timeFormat == '' && dateFormat == '') {
+      return fmt.format(value)
+    } else {
+      const options = super.formatterOptions()
+      const tFmt = Intl.DateTimeFormat(
+        this.options.locale,
+        TimeFormatter.adjustOptions(options, timeFormat)
+      )
+      const dFmt = Intl.DateTimeFormat(
+        this.options.locale,
+        DateFormatter.adjustOptions(options)
+      )
+      return (
+        (dateFormat === ''
+          ? dFmt.format(value)
+          : this.formatLocaleDate(dFmt.formatToParts(value))) +
+        ', ' +
+        (timeFormat === ''
+          ? tFmt.format(value)
+          : this.formatLocaleTime(tFmt.formatToParts(value)))
+      )
+    }
+  }
+
+  formatFixed(modelValue: string): string {
+    return this.format(modelValue).textValue ?? modelValue
   }
 
   loadValue(modelValue?: string | Date | number | null): Date | null {
@@ -163,12 +246,36 @@ export class DateTimeFormatter extends DateTimeFormatterBase {
 }
 
 export class DateFormatter extends DateTimeFormatterBase {
-  formatPortable(date?: Date): string | undefined {
-    if (!date) return undefined
-    const Y = date.getUTCFullYear()
-    const M = date.getUTCMonth() + 1
-    const D = date.getUTCDate()
-    return expand(Y, 4) + '-' + expand(M, 2) + '-' + expand(D, 2)
+  static adjustOptions(
+    options: Intl.DateTimeFormatOptions
+  ): Intl.DateTimeFormatOptions {
+    return {
+      ...options,
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    }
+  }
+
+  formatPortable(date: Date): string {
+    const Y = expand(date.getUTCFullYear(), 4)
+    const M = expand(date.getUTCMonth() + 1, 2)
+    const D = expand(date.getUTCDate(), 2)
+    return Y + '-' + M + '-' + D
+  }
+
+  formatLocale(fmt: Intl.DateTimeFormat, value: Date): string {
+    const dateFormat = this.options.dateFormat as string
+    return dateFormat === ''
+      ? fmt.format(value)
+      : this.formatLocaleDate(fmt.formatToParts(value))
+  }
+
+  formatterOptions(_editing?: boolean): Intl.DateTimeFormatOptions {
+    if (this.options.nativeOptions !== undefined)
+      return this.options.nativeOptions
+    const options = super.formatterOptions(_editing)
+    return DateFormatter.adjustOptions(options)
   }
 
   loadValue(modelValue?: string | Date | number | null): Date | null {
@@ -200,19 +307,48 @@ export class DateFormatter extends DateTimeFormatterBase {
 }
 
 export class TimeFormatter extends DateTimeFormatterBase {
-  formatPortable(date?: Date): string | undefined {
-    if (!date) return undefined
+  static adjustOptions(
+    options: Intl.DateTimeFormatOptions,
+    timeFormat: string
+  ): Intl.DateTimeFormatOptions {
+    const timeOptions: Intl.DateTimeFormatOptions = {
+      hour: 'numeric',
+      minute: 'numeric',
+    }
+
+    if (timeFormat !== '') {
+      const h12 = timeFormat.search(/[aA]/) !== -1
+      timeOptions.hour = h12 ? 'numeric' : '2-digit'
+      timeOptions.minute = h12 ? 'numeric' : '2-digit'
+      timeOptions.hourCycle = h12 ? 'h12' : 'h24'
+    }
+
+    return {
+      ...options,
+      ...timeOptions,
+    }
+  }
+
+  formatPortable(date: Date): string {
     const h = date.getHours()
     const m = date.getMinutes()
     const s = date.getSeconds()
     return expand(h, 2) + ':' + expand(m, 2) + ':' + expand(s, 2)
   }
 
+  formatLocale(fmt: Intl.DateTimeFormat, value: Date): string {
+    const timeFormat = this.options.timeFormat as string
+    return timeFormat === ''
+      ? fmt.format(value)
+      : this.formatLocaleTime(fmt.formatToParts(value))
+  }
+
   formatterOptions(_editing?: boolean): Intl.DateTimeFormatOptions {
-    return {
-      hour: '2-digit',
-      minute: '2-digit',
-    }
+    if (this.options.nativeOptions !== undefined)
+      return this.options.nativeOptions
+    const timeFormat = this.options.timeFormat as string
+    const options = super.formatterOptions(_editing)
+    return TimeFormatter.adjustOptions(options, timeFormat)
   }
 
   loadValue(modelValue?: string | Date | number | null): Date | null {
@@ -231,7 +367,7 @@ export class TimeFormatter extends DateTimeFormatterBase {
       if (!matches) {
         value = new Date()
       } else {
-        const dateStr = '1970-01-01T' + matches.slice(1, 3).join(':') + ':00'
+        const dateStr = '1970-01-01T' + matches.slice(1, 3).join(':') + ':00Z'
         value = new Date(dateStr)
       }
     } else if (typeof modelValue === 'number') {

@@ -61,17 +61,11 @@ const defineField = (type: InputType, name: string, cls: string) =>
       const formatter = computed(() => {
         switch (type) {
           case 'date':
-            return formatMgr.getTextFormatter('date', {
-              dateFormat: 'short',
-            }) as DateFormatter
+            return formatMgr.getTextFormatter('date') as DateFormatter
           case 'time':
-            return formatMgr.getTextFormatter('time', {
-              dateFormat: 'short',
-            }) as TimeFormatter
+            return formatMgr.getTextFormatter('time') as TimeFormatter
           default:
-            return formatMgr.getTextFormatter('datetime', {
-              dateFormat: 'short',
-            }) as DateTimeFormatter
+            return formatMgr.getTextFormatter('datetime') as DateTimeFormatter
         }
       })
 
