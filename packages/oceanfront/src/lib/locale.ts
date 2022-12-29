@@ -39,6 +39,10 @@ export function setDateTimeFormat(options: LocaleDateTimeFormat): void {
   configManager.extendingManager.dateTimeFormat = options
 }
 
+export function setNumberFormat(options: LocaleNumberFormat): void {
+  configManager.extendingManager.numberFormat = options
+}
+
 export function useLocale(config?: Config): LocaleState {
   const mgr = configManager.inject(config)
   return readonlyUnref(mgr)

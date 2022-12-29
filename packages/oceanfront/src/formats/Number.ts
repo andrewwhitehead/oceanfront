@@ -30,6 +30,7 @@ export class NumberFormatter implements TextFormatter {
   private _options: Ref<NumberFormatterOptions>
 
   constructor(config?: Config, options?: NumberFormatterOptions) {
+    const allowedSeparators = ['', ' ', '.', ',', "'"]
     this._locale = useLocale(config)
     this._options = computed(() => {
       const opts: any = {}
@@ -37,6 +38,18 @@ export class NumberFormatter implements TextFormatter {
       Object.assign(opts, this._locale.numberFormat)
       if (options) {
         Object.assign(opts, options)
+      }
+      if (
+        opts.groupSeparator === undefined ||
+        !allowedSeparators.includes(opts.groupSeparator)
+      ) {
+        opts.groupSeparator = undefined
+      }
+      if (
+        opts.decimalSeparator === undefined ||
+        !allowedSeparators.includes(opts.decimalSeparator)
+      ) {
+        opts.decimalSeparator = undefined
       }
       return opts
     })
@@ -149,8 +162,8 @@ export class NumberFormatter implements TextFormatter {
           decimal = part.value
       }
     }
-    decimal = decimal || '.'
-    group = group || ','
+    decimal = decimal === undefined ? '.' : decimal
+    group = group === undefined ? ',' : group
     return { decimal, group }
   }
 
