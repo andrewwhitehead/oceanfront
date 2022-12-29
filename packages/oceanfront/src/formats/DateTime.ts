@@ -271,6 +271,10 @@ export class DateFormatter extends DateTimeFormatterBase {
       : this.formatLocaleDate(fmt.formatToParts(value))
   }
 
+  formatFixed(modelValue: string): string {
+    return this.format(modelValue).textValue ?? modelValue
+  }
+
   formatterOptions(_editing?: boolean): Intl.DateTimeFormatOptions {
     if (this.options.nativeOptions !== undefined)
       return this.options.nativeOptions
@@ -341,6 +345,10 @@ export class TimeFormatter extends DateTimeFormatterBase {
     return timeFormat === ''
       ? fmt.format(value)
       : this.formatLocaleTime(fmt.formatToParts(value))
+  }
+
+  formatFixed(modelValue: string): string {
+    return this.format(modelValue).textValue ?? modelValue
   }
 
   formatterOptions(_editing?: boolean): Intl.DateTimeFormatOptions {
