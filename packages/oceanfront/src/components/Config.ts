@@ -5,8 +5,10 @@ import { useLayout } from '../lib/layout'
 import {
   setLocale,
   setDateTimeFormat,
+  setNumberFormat,
   useLocale,
   LocaleDateTimeFormat,
+  LocaleNumberFormat,
 } from '../lib/locale'
 import { FormRecord, setCurrentRecord } from '../lib/records'
 
@@ -17,6 +19,7 @@ export const OfConfig = defineComponent({
     icons: Object as PropType<IconSet>,
     locale: String,
     dateTimeFormat: Object as PropType<LocaleDateTimeFormat>,
+    numberFormat: Object as PropType<LocaleNumberFormat>,
     record: Object as PropType<FormRecord>,
     theme: [String, Object],
   },
@@ -25,6 +28,7 @@ export const OfConfig = defineComponent({
       if (props.icons) registerIconSet(props.icons)
       if (props.locale) setLocale(props.locale)
       if (props.dateTimeFormat) setDateTimeFormat(props.dateTimeFormat)
+      if (props.numberFormat) setNumberFormat(props.numberFormat)
       if (props.record !== undefined) {
         setCurrentRecord(props.record)
       }
