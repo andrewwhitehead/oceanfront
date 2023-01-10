@@ -1,6 +1,6 @@
 <template>
   <of-config
-    :date-time-format="{ dateFormat, timeFormat, timeZone }"
+    :locale-params="{ dateTimeFormat: { dateFormat, timeFormat, timeZone } }"
     :locale="locale"
   >
     <div class="container">

@@ -35,7 +35,7 @@ export class NumberFormatter implements TextFormatter {
     this._options = computed(() => {
       const opts: any = {}
       opts.locale = this._locale.locale
-      Object.assign(opts, this._locale.numberFormat)
+      Object.assign(opts, this._locale.localeParams?.numberFormat)
       if (options) {
         Object.assign(opts, options)
       }

@@ -13,19 +13,19 @@ export type LocaleDateTimeFormat = {
   timeZone?: string
 }
 
-export type LocaleParams = { [key: string]: any }
+export type LocaleParams = {
+  numberFormat?: LocaleNumberFormat
+  dateTimeFormat?: LocaleDateTimeFormat
+  [key: string]: any
+}
 
 export interface LocaleState {
   readonly locale: string
-  readonly numberFormat?: LocaleNumberFormat
-  readonly dateTimeFormat?: LocaleDateTimeFormat
   readonly localeParams?: LocaleParams
 }
 
 class LocaleManager implements LocaleState {
   locale: string
-  numberFormat?: LocaleNumberFormat
-  dateTimeFormat?: LocaleDateTimeFormat
   localeParams?: LocaleParams
 
   constructor() {
@@ -37,14 +37,6 @@ const configManager = new ConfigManager('ofloc', LocaleManager)
 
 export function setLocale(loc: string): void {
   configManager.extendingManager.locale = loc
-}
-
-export function setDateTimeFormat(options: LocaleDateTimeFormat): void {
-  configManager.extendingManager.dateTimeFormat = options
-}
-
-export function setNumberFormat(options: LocaleNumberFormat): void {
-  configManager.extendingManager.numberFormat = options
 }
 
 export function setLocaleParams(params: LocaleParams): void {
