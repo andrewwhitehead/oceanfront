@@ -334,9 +334,9 @@ export class TimeFormatter extends DateTimeFormatterBase {
   }
 
   formatPortable(date: Date): string {
-    const h = date.getHours()
-    const m = date.getMinutes()
-    const s = date.getSeconds()
+    const h = date.getUTCHours()
+    const m = date.getUTCMinutes()
+    const s = date.getUTCSeconds()
     return expand(h, 2) + ':' + expand(m, 2) + ':' + expand(s, 2)
   }
 
@@ -375,7 +375,7 @@ export class TimeFormatter extends DateTimeFormatterBase {
       if (!matches) {
         value = new Date()
       } else {
-        const dateStr = '1970-01-01T' + matches.slice(1, 3).join(':') + ':00'
+        const dateStr = '1970-01-01T' + matches.slice(1, 3).join(':') + ':00Z'
         value = new Date(dateStr)
       }
     } else if (typeof modelValue === 'number') {
