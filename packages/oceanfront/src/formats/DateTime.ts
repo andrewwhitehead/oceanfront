@@ -51,7 +51,7 @@ abstract class DateTimeFormatterBase implements TextFormatter {
     this._options = computed(() => {
       const opts: DateTimeFormatterOptions = {}
       opts.locale = this._locale.locale
-      Object.assign(opts, this._locale.dateTimeFormat)
+      Object.assign(opts, this._locale.localeParams?.dateTimeFormat)
       if (options) {
         Object.assign(opts, options)
       }
