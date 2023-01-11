@@ -161,6 +161,7 @@ import {
   VNode,
   resolveComponent,
 } from 'vue'
+import { useLocale } from 'src/lib/locale'
 
 export default defineComponent({
   name: 'OfDateTimePopup',
@@ -185,6 +186,8 @@ export default defineComponent({
     const timeSelector = ref<any>(null)
     const dateSelector = ref<any>(null)
 
+    const locale = useLocale()
+    const timeZone = locale.localeParams?.dateTimeFormat?.timeZone
     const formatMgr = useFormats()
     const titleFormat = formatMgr.getTextFormatter('datetime', {
       nativeOptions: {
@@ -194,10 +197,17 @@ export default defineComponent({
         weekday: 'short',
         hour: 'numeric',
         minute: 'numeric',
+        timeZone,
       },
     })
+    const hourFormat = formatMgr.getTextFormatter('time', {
+      nativeOptions: { hour: 'numeric', timeZone },
+    })
+    const minuteFormat = formatMgr.getTextFormatter('time', {
+      nativeOptions: { minute: 'numeric', timeZone },
+    })
     const monthFormat = formatMgr.getTextFormatter('date', {
-      nativeOptions: { month: 'short', year: 'numeric' },
+      nativeOptions: { month: 'short', year: 'numeric', timeZone },
     })
 
     const selectDate = (selected: Date, focusTime = false) => {
@@ -388,8 +398,12 @@ export default defineComponent({
       monthYear: computed(
         () => monthFormat?.format(selMonthStart.value).textValue
       ),
-      hours: computed(() => expand(selDate.value.getHours(), 2)),
-      minutes: computed(() => expand(selDate.value.getMinutes(), 2)),
+      hours: computed(() =>
+        expand(hourFormat?.format(selDate.value).textValue || 0, 2)
+      ),
+      minutes: computed(() =>
+        expand(minuteFormat?.format(selDate.value).textValue || 0, 2)
+      ),
       selDate,
       focusedDate,
       editingYear,

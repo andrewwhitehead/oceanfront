@@ -375,7 +375,7 @@ export class TimeFormatter extends DateTimeFormatterBase {
       if (!matches) {
         value = new Date()
       } else {
-        const dateStr = '1970-01-01T' + matches.slice(1, 3).join(':') + ':00Z'
+        const dateStr = '1970-01-01T' + matches.slice(1, 3).join(':') + ':00'
         value = new Date(dateStr)
       }
     } else if (typeof modelValue === 'number') {
