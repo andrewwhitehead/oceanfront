@@ -203,10 +203,14 @@ export default defineComponent({
       },
     })
     const hourFormat = formatMgr.getTextFormatter('time', {
-      nativeOptions: { hour: 'numeric', timeZone },
+      locale: 'en-US',
+      timeFormat: '',
+      nativeOptions: { hour: '2-digit', hour12: false, timeZone },
     })
     const minuteFormat = formatMgr.getTextFormatter('time', {
-      nativeOptions: { minute: 'numeric', timeZone },
+      locale: 'en-US',
+      timeFormat: '',
+      nativeOptions: { minute: '2-digit', hour12: false, timeZone },
     })
     const monthFormat = formatMgr.getTextFormatter('date', {
       nativeOptions: { month: 'short', year: 'numeric', timeZone },
