@@ -334,9 +334,9 @@ export class TimeFormatter extends DateTimeFormatterBase {
   }
 
   formatPortable(date: Date): string {
-    const h = date.getHours()
-    const m = date.getMinutes()
-    const s = date.getSeconds()
+    const h = date.getUTCHours()
+    const m = date.getUTCMinutes()
+    const s = date.getUTCSeconds()
     return expand(h, 2) + ':' + expand(m, 2) + ':' + expand(s, 2)
   }
 
