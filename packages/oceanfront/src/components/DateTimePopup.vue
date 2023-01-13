@@ -189,22 +189,28 @@ export default defineComponent({
     const locale = useLocale()
     const timeZone = locale.localeParams?.dateTimeFormat?.timeZone
     const formatMgr = useFormats()
+    const timeOpts = props.withTime
+      ? { hour: 'numeric', minute: 'numeric' }
+      : {}
     const titleFormat = formatMgr.getTextFormatter('datetime', {
       nativeOptions: {
+        timeZone,
         month: 'short',
         year: 'numeric',
         day: 'numeric',
         weekday: 'short',
-        hour: 'numeric',
-        minute: 'numeric',
-        timeZone,
+        ...timeOpts,
       },
     })
     const hourFormat = formatMgr.getTextFormatter('time', {
-      nativeOptions: { hour: 'numeric', timeZone },
+      locale: 'en-US',
+      timeFormat: '',
+      nativeOptions: { hour: '2-digit', hour12: false, timeZone },
     })
     const minuteFormat = formatMgr.getTextFormatter('time', {
-      nativeOptions: { minute: 'numeric', timeZone },
+      locale: 'en-US',
+      timeFormat: '',
+      nativeOptions: { minute: '2-digit', hour12: false, timeZone },
     })
     const monthFormat = formatMgr.getTextFormatter('date', {
       nativeOptions: { month: 'short', year: 'numeric', timeZone },
