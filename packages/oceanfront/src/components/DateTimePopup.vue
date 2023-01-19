@@ -51,9 +51,8 @@
           :key="cell.date.toString()"
           class="picker-date"
           :class="{
-            'selected-date': selDate.toDateString() == cell.date.toDateString(),
-            'focused-date':
-              focusedDate?.toDateString() == cell.date.toDateString(),
+            'selected-date': checkSelected(cell),
+            'focused-date': checkFocused(cell),
             today: cell.today,
             'other-month': cell.otherMonth,
           }"
@@ -141,7 +140,6 @@
 </template>
 
 <script lang="ts">
-import { expand } from '../formats/DateTime'
 import {
   monthGrid,
   MonthGridCell,
@@ -160,6 +158,7 @@ import {
   ref,
   VNode,
   resolveComponent,
+  watch,
 } from 'vue'
 import { useLocale } from 'src/lib/locale'
 
@@ -179,6 +178,7 @@ export default defineComponent({
   setup(props, _ctx: SetupContext) {
     let theNode: VNode | null
     const selDate = ref(props.date ?? new Date())
+    const selDateLocale = ref(props.date ?? new Date())
     const focusedDate = ref(props.date ?? new Date())
     const selMonthStart = ref(props.monthStart || selDate.value)
     const editingYear = ref(false)
@@ -187,46 +187,105 @@ export default defineComponent({
     const dateSelector = ref<any>(null)
 
     const locale = useLocale()
-    const timeZone = locale.localeParams?.dateTimeFormat?.timeZone
     const formatMgr = useFormats()
+    const localeOffset = ref(0)
+    const timeZone = computed(() =>
+      props.withTime ? locale.localeParams?.dateTimeFormat?.timeZone : undefined
+    )
+    const datetimeFormatter = computed(() =>
+      formatMgr.getTextFormatter('datetime', {
+        locale: 'en-US',
+        timeFormat: '',
+        dateFormat: '',
+        nativeOptions: {
+          timeZone: timeZone.value,
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+          hourCycle: 'h23',
+        },
+      })
+    )
+    const dateTimeParts = computed(
+      () => datetimeFormatter.value?.format(selDate.value).parts
+    )
+    const getFormattedPart = (
+      type: string,
+      defaultValue: string | undefined = undefined
+    ) =>
+      dateTimeParts.value.find((p: any) => p.type === type)?.value ??
+      defaultValue
+
+    watch(
+      () => selDate.value,
+      () => {
+        const dateStr =
+          getFormattedPart('year') +
+          '-' +
+          getFormattedPart('month') +
+          '-' +
+          getFormattedPart('day') +
+          'T' +
+          getFormattedPart('hour') +
+          ':' +
+          getFormattedPart('minute') +
+          ':00.000Z'
+
+        selDateLocale.value = new Date(dateStr)
+        localeOffset.value =
+          (selDateLocale.value.getTime() - selDate.value.getTime()) / 1000
+      },
+      {
+        immediate: true,
+      }
+    )
+    const updateSelected = (selected: Date) => {
+      const date = new Date(selected)
+      date.setSeconds(date.getSeconds() - localeOffset.value)
+      selDate.value = new Date(date)
+    }
     const timeOpts = props.withTime
       ? { hour: 'numeric', minute: 'numeric' }
       : {}
-    const titleFormat = formatMgr.getTextFormatter('datetime', {
+    const titleFormater = formatMgr.getTextFormatter(
+      props.withTime ? 'datetime' : 'date',
+      {
+        timeFormat: '',
+        dateFormat: '',
+        nativeOptions: {
+          timeZone: timeZone.value,
+          month: 'short',
+          year: 'numeric',
+          day: 'numeric',
+          weekday: 'short',
+          ...timeOpts,
+        },
+      }
+    )
+    const monthYearFormater = formatMgr.getTextFormatter('date', {
+      locale: 'en-US',
+      timeFormat: '',
+      dateFormat: '',
       nativeOptions: {
-        timeZone,
+        timeZone: timeZone.value,
         month: 'short',
         year: 'numeric',
-        day: 'numeric',
-        weekday: 'short',
-        ...timeOpts,
       },
     })
-    const hourFormat = formatMgr.getTextFormatter('time', {
-      locale: 'en-US',
-      timeFormat: '',
-      nativeOptions: { hour: '2-digit', hour12: false, timeZone },
-    })
-    const minuteFormat = formatMgr.getTextFormatter('time', {
-      locale: 'en-US',
-      timeFormat: '',
-      nativeOptions: { minute: '2-digit', hour12: false, timeZone },
-    })
-    const monthFormat = formatMgr.getTextFormatter('date', {
-      nativeOptions: { month: 'short', year: 'numeric', timeZone },
-    })
-
+    focusedDate.value = selDateLocale.value
     const selectDate = (selected: Date, focusTime = false) => {
-      const date = new Date(selDate.value.valueOf())
+      const date = new Date(selDateLocale.value.valueOf())
       date.setFullYear(
         selected.getFullYear(),
         selected.getMonth(),
         selected.getDate()
       )
       if (props.withTime) {
-        selDate.value = date
         if (focusTime) timeSelector?.value?.focus()
       } else props.accept?.(date)
+      updateSelected(date)
     }
 
     const focusYearInput = (vn: VNode) => {
@@ -235,8 +294,20 @@ export default defineComponent({
       el.setSelectionRange(0, 999999)
     }
 
-    const isSelected = (cell: MonthGridCell) =>
-      sameDate(selDate.value, cell.date)
+    const isSelected = (cell: MonthGridCell) => {
+      const dateStr =
+        getFormattedPart('year') +
+        '-' +
+        getFormattedPart('month') +
+        '-' +
+        getFormattedPart('day') +
+        'T00:00:00.000Z'
+      const date = new Date(dateStr)
+      return sameDate(date, cell.date)
+    }
+    const isFocused = (cell: MonthGridCell) => {
+      return sameDate(focusedDate.value, cell.date)
+    }
 
     const nextMonth = () => {
       selMonthStart.value = _nextMonth(selMonthStart.value)
@@ -347,14 +418,15 @@ export default defineComponent({
     }
 
     const updateTime = (which: 'h' | 'm', delta: number) => {
-      const date = new Date(selDate.value.valueOf())
-      let value = which == 'h' ? date.getHours() : date.getMinutes()
+      const date = new Date(selDateLocale.value)
+      let value = which == 'h' ? date.getUTCHours() : date.getUTCMinutes()
       const limit = which == 'h' ? 23 : 59
       value += delta
       if (value < 0) value = limit
       if (value > limit) value = 0
-      const _ = which == 'h' ? date.setHours(value) : date.setMinutes(value)
-      selDate.value = date
+      const _ =
+        which == 'h' ? date.setUTCHours(value) : date.setUTCMinutes(value)
+      updateSelected(date)
     }
 
     let timeout: number | undefined
@@ -387,6 +459,7 @@ export default defineComponent({
 
       selectDate,
       checkSelected: computed(() => props.isSelected || isSelected),
+      checkFocused: computed(() => isFocused),
       nextMonth,
       prevMonth,
       editYear,
@@ -400,16 +473,12 @@ export default defineComponent({
       onTimeKeydown,
       onTimeKeyup,
 
-      title: computed(() => titleFormat?.format(selDate.value).textValue),
+      title: computed(() => titleFormater?.format(selDate.value).textValue),
       monthYear: computed(
-        () => monthFormat?.format(selMonthStart.value).textValue
+        () => monthYearFormater?.format(selMonthStart.value).textValue
       ),
-      hours: computed(() =>
-        expand(hourFormat?.format(selDate.value).textValue || 0, 2)
-      ),
-      minutes: computed(() =>
-        expand(minuteFormat?.format(selDate.value).textValue || 0, 2)
-      ),
+      hours: computed(() => getFormattedPart('hour', '00')),
+      minutes: computed(() => getFormattedPart('minute', '00')),
       selDate,
       focusedDate,
       editingYear,

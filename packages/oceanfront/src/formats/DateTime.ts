@@ -195,7 +195,7 @@ export class DateTimeFormatter extends DateTimeFormatterBase {
       )
       const dFmt = Intl.DateTimeFormat(
         this.options.locale,
-        DateFormatter.adjustOptions(options)
+        DateFormatter.adjustOptions(options, false)
       )
       return (
         (dateFormat === ''
@@ -247,14 +247,15 @@ export class DateTimeFormatter extends DateTimeFormatterBase {
 
 export class DateFormatter extends DateTimeFormatterBase {
   static adjustOptions(
-    options: Intl.DateTimeFormatOptions
+    options: Intl.DateTimeFormatOptions,
+    ignoreTimezone = true
   ): Intl.DateTimeFormatOptions {
     return {
       ...options,
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',
-      timeZone: undefined,
+      timeZone: ignoreTimezone ? undefined : options.timeZone,
     }
   }
 
@@ -325,7 +326,7 @@ export class TimeFormatter extends DateTimeFormatterBase {
       const h12 = timeFormat.search(/[aA]/) !== -1
       timeOptions.hour = h12 ? 'numeric' : '2-digit'
       timeOptions.minute = h12 ? 'numeric' : '2-digit'
-      timeOptions.hourCycle = h12 ? 'h12' : 'h24'
+      timeOptions.hourCycle = h12 ? 'h12' : 'h23'
     }
 
     return {
