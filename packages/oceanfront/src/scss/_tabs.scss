@@ -191,8 +191,7 @@
       white-space: nowrap;
       scrollbar-width: none;
       -ms-overflow-style: none;
-      overflow-x: auto;
-      overflow-y: visible;
+      overflow: hidden;
 
       &::-webkit-scrollbar {
         display: none;
