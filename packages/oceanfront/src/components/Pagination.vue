@@ -53,7 +53,6 @@
 
       <of-overlay
         :active="offsetPopupOpened"
-        :capture="false"
         :shade="false"
         :target="'#' + outerId + '-expand'"
         @blur="closeOffsetPopup()"
@@ -268,6 +267,8 @@ export default defineComponent({
     }
 
     const closeOffsetPopup = () => {
+      console.log('BLUR')
+
       offsetPopupOpened.value = false
     }
 
