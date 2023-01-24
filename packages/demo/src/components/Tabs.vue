@@ -110,7 +110,7 @@
         :rounded="params.rounded"
         :with-border="params.border"
         :active-offset="params.borderWidth"
-        style="width: 400px"
+        style="max-width: 400px"
       />
       <div
         :class="{
@@ -134,7 +134,7 @@
         :rounded="params.rounded"
         :with-border="params.border"
         :active-offset="params.borderWidth"
-        style="width: 400px"
+        style="max-width: 400px"
         @select-tab="selectTab"
       />
       <div
