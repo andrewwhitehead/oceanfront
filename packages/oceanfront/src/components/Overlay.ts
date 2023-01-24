@@ -271,6 +271,9 @@ export const OfOverlay = defineComponent({
                       'div',
                       {
                         class: ['of-overlay', cls, props.class],
+                        style: {
+                          'z-index': overlayZIndex,
+                        },
                         id: props.id,
                         role: 'document',
                         ref: elt,
