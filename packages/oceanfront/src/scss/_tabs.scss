@@ -136,12 +136,17 @@
       background: var(--tabs-bg-color);
       padding: 0 3px;
       box-sizing: border-box;
+      overflow-x: auto;
+      overflow-y: hidden;
 
       .of-tabs-navigation {
         opacity: 0;
         visibility: hidden;
       }
 
+      &.of-tabs-navigation-header-has-navigation .of-tabs-header {
+        overflow: hidden;
+      }
       &.of-tabs-navigation-header-show-next-navigation {
         .of-tabs-navigation-next {
           opacity: 1;
@@ -191,8 +196,6 @@
       white-space: nowrap;
       scrollbar-width: none;
       -ms-overflow-style: none;
-      overflow-x: auto;
-      overflow-y: visible;
 
       &::-webkit-scrollbar {
         display: none;
