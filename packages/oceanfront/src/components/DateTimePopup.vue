@@ -218,6 +218,15 @@ export default defineComponent({
       dateTimeParts.value.find((p: any) => p.type === type)?.value ??
       defaultValue
 
+    const focusedISOString =
+      getFormattedPart('year') +
+      '-' +
+      getFormattedPart('month') +
+      '-' +
+      getFormattedPart('day') +
+      'T00:00:00.000Z'
+    focusedDate.value = new Date(focusedISOString)
+
     watch(
       () => selDate.value,
       () => {
@@ -274,10 +283,9 @@ export default defineComponent({
         year: 'numeric',
       },
     })
-    focusedDate.value = selDateLocale.value
     const selectDate = (selected: Date, focusTime = false) => {
       const date = new Date(selDateLocale.value.valueOf())
-      date.setFullYear(
+      date.setUTCFullYear(
         selected.getFullYear(),
         selected.getMonth(),
         selected.getDate()
