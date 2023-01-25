@@ -94,6 +94,9 @@ abstract class DateTimeFormatterBase implements TextFormatter {
     let textValue = ''
     let value = modelValue
     let parts
+    let localeValue
+    let tzOffset
+    let tzName
     try {
       value = this.loadValue(value)
       if (value !== null) {
@@ -104,6 +107,24 @@ abstract class DateTimeFormatterBase implements TextFormatter {
 
         parts = fmt.formatToParts(value)
         textValue = this.formatLocale(fmt, value)
+        const dateStr =
+          this.getPart(parts, 'year') +
+          '-' +
+          this.getPart(parts, 'month') +
+          '-' +
+          this.getPart(parts, 'day') +
+          'T' +
+          this.getPart(parts, 'hour') +
+          ':' +
+          this.getPart(parts, 'minute') +
+          ':00.000Z'
+
+        const localeDate = new Date(dateStr)
+        if (!isNaN(localeDate.getTime())) {
+          tzOffset = (localeDate.getTime() - value.getTime()) / 1000
+          tzName = this.options.timeZone
+          localeValue = localeDate
+        }
       }
     } catch (e: any) {
       error = e.toString()
@@ -112,6 +133,9 @@ abstract class DateTimeFormatterBase implements TextFormatter {
       textValue,
       error,
       value,
+      localeValue,
+      tzOffset,
+      tzName,
       textClass: this.inputClass,
       parts,
     }
