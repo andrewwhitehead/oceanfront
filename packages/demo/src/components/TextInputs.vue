@@ -139,7 +139,7 @@ export default defineComponent({
       { text: 'Items2', value: 'Items2' },
       { text: 'Items3', value: 'Items3' },
     ]
-    const withItemsVal = ref('Items')
+    const withItemsVal = ref('')
     const upd = (v: any) => (withItemsVal.value = v)
 
     const customProps = reactive({ multiline: false })
