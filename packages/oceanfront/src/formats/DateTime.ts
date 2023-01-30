@@ -104,9 +104,19 @@ abstract class DateTimeFormatterBase implements TextFormatter {
           this.options.locale,
           this.formatterOptions()
         )
-
-        parts = fmt.formatToParts(value)
         textValue = this.formatLocale(fmt, value)
+
+        const partsFmt = Intl.DateTimeFormat('en-US', {
+          timeZone: this.options.timeZone,
+          day: '2-digit',
+          hour: 'numeric',
+          minute: 'numeric',
+          month: '2-digit',
+          year: 'numeric',
+          hourCycle: 'h23',
+        })
+        parts = partsFmt.formatToParts(value)
+
         const dateStr =
           this.getPart(parts, 'year') +
           '-' +
@@ -121,7 +131,10 @@ abstract class DateTimeFormatterBase implements TextFormatter {
 
         const localeDate = new Date(dateStr)
         if (!isNaN(localeDate.getTime())) {
-          tzOffset = (localeDate.getTime() - value.getTime()) / 1000
+          const valueDate = new Date(value.getTime())
+          valueDate.setSeconds(0)
+          valueDate.setMilliseconds(0)
+          tzOffset = (localeDate.getTime() - valueDate.getTime()) / 1000
           tzName = this.options.timeZone
           localeValue = localeDate
         }

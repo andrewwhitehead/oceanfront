@@ -9,7 +9,9 @@ export const addMonths = (d: Date, months: number): Date => {
 }
 
 export const addDays = (d: Date, days: number): Date => {
-  return new Date(d.getFullYear(), d.getMonth(), d.getDate() + days)
+  const date = new Date(d.getTime())
+  date.setDate(date.getDate() + days)
+  return date
 }
 
 export const addMinutes = (d: Date, minutes: number): Date => {
