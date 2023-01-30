@@ -306,6 +306,22 @@ export const OfTextField = defineComponent({
         } else if (evt.key == 'Tab' || evt.key === 'Escape') {
           closeItemsPopup()
         } else if (
+          !(
+            /(^Key([A-Z]$))/.test(evt.code) ||
+            !/(^Digit([0-9]$))/.test(evt.code)
+          ) ||
+          evt.altKey ||
+          evt.metaKey ||
+          evt.ctrlKey
+        ) {
+          const fmt = formatter.value
+          if (fmt?.handleKeyDown) {
+            fmt.handleKeyDown(evt)
+          }
+        }
+      },
+      onKeypress(evt: KeyboardEvent) {
+        if (
           (/(^Key([A-Z]$))/.test(evt.code) ||
             /(^Digit([0-9]$))/.test(evt.code)) &&
           !evt.altKey &&
@@ -313,11 +329,6 @@ export const OfTextField = defineComponent({
           !evt.ctrlKey
         ) {
           if (!itemsOpened.value) openItemsPopup()
-        } else {
-          const fmt = formatter.value
-          if (fmt?.handleKeyDown) {
-            fmt.handleKeyDown(evt)
-          }
         }
       },
       onVnodeMounted(vnode: VNode) {
