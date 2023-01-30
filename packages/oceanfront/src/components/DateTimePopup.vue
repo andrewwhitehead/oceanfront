@@ -208,6 +208,9 @@ export default defineComponent({
         },
       })
     )
+    const dateTimeFormatted = computed(() =>
+      datetimeFormatter.value?.format(selDate.value)
+    )
     const dateTimeParts = computed(
       () => datetimeFormatter.value?.format(selDate.value).parts
     )
@@ -218,42 +221,23 @@ export default defineComponent({
       dateTimeParts.value.find((p: any) => p.type === type)?.value ??
       defaultValue
 
-    const focusedISOString =
-      getFormattedPart('year') +
-      '-' +
-      getFormattedPart('month') +
-      '-' +
-      getFormattedPart('day') +
-      'T00:00:00.000Z'
-    focusedDate.value = new Date(focusedISOString)
+    focusedDate.value = new Date(
+      dateTimeFormatted.value?.localeValue.getTime() -
+        dateTimeFormatted.value?.tzOffset * 1000
+    )
 
     watch(
       () => selDate.value,
       () => {
-        const dateStr =
-          getFormattedPart('year') +
-          '-' +
-          getFormattedPart('month') +
-          '-' +
-          getFormattedPart('day') +
-          'T' +
-          getFormattedPart('hour') +
-          ':' +
-          getFormattedPart('minute') +
-          ':00.000Z'
-
-        selDateLocale.value = new Date(dateStr)
-        localeOffset.value =
-          (selDateLocale.value.getTime() - selDate.value.getTime()) / 1000
+        selDateLocale.value = dateTimeFormatted.value?.localeValue
+        localeOffset.value = dateTimeFormatted.value?.tzOffset * 1000
       },
       {
         immediate: true,
       }
     )
     const updateSelected = (selected: Date) => {
-      const date = new Date(selected)
-      date.setSeconds(date.getSeconds() - localeOffset.value)
-      selDate.value = new Date(date)
+      selDate.value = new Date(selected.getTime() - localeOffset.value)
     }
     const timeOpts = props.withTime
       ? { hour: 'numeric', minute: 'numeric' }
@@ -303,18 +287,23 @@ export default defineComponent({
     }
 
     const isSelected = (cell: MonthGridCell) => {
-      const dateStr =
-        getFormattedPart('year') +
-        '-' +
-        getFormattedPart('month') +
-        '-' +
-        getFormattedPart('day') +
-        'T00:00:00.000Z'
-      const date = new Date(dateStr)
+      const date = new Date(
+        props.withTime
+          ? selDateLocale.value.getTime() +
+            selDateLocale.value.getTimezoneOffset() * 60 * 1000
+          : selDate.value.getTime()
+      )
       return sameDate(date, cell.date)
     }
     const isFocused = (cell: MonthGridCell) => {
-      return sameDate(focusedDate.value, cell.date)
+      let date = new Date(
+        props.withTime
+          ? focusedDate.value.getTime() +
+            localeOffset.value +
+            focusedDate.value.getTimezoneOffset() * 60 * 1000
+          : focusedDate.value.getTime()
+      )
+      return sameDate(date, cell.date)
     }
 
     const nextMonth = () => {
@@ -351,7 +340,14 @@ export default defineComponent({
       let consumed = false
       if (event.code == 'Enter') {
         consumed = true
-        selectDate(focusedDate.value, true)
+        const date = new Date(
+          props.withTime
+            ? focusedDate.value.getTime() +
+              localeOffset.value +
+              selDateLocale.value.getTimezoneOffset() * 60 * 1000
+            : focusedDate.value.getTime()
+        )
+        selectDate(date, true)
       } else if (['ArrowUp', 'ArrowDown'].includes(event.code)) {
         consumed = true
         const arrowUp = event.code == 'ArrowUp'
@@ -426,7 +422,7 @@ export default defineComponent({
     }
 
     const updateTime = (which: 'h' | 'm', delta: number) => {
-      const date = new Date(selDateLocale.value)
+      const date = new Date(selDateLocale.value.getTime())
       let value = which == 'h' ? date.getUTCHours() : date.getUTCMinutes()
       const limit = which == 'h' ? 23 : 59
       value += delta
@@ -482,9 +478,12 @@ export default defineComponent({
       onTimeKeyup,
 
       title: computed(() => titleFormater?.format(selDate.value).textValue),
-      monthYear: computed(
-        () => monthYearFormater?.format(selMonthStart.value).textValue
-      ),
+      monthYear: computed(() => {
+        const date = new Date(
+          selMonthStart.value.getTime() - localeOffset.value
+        )
+        return monthYearFormater?.format(date).textValue
+      }),
       hours: computed(() => getFormattedPart('hour', '00')),
       minutes: computed(() => getFormattedPart('minute', '00')),
       selDate,
