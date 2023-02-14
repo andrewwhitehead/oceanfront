@@ -6,7 +6,6 @@ import {
   ref,
   SetupContext,
   shallowRef,
-  Teleport,
   triggerRef,
   watch,
   watchEffect,
@@ -62,7 +61,6 @@ export const OfSliderField = defineComponent({
     watch(
       () => fieldCtx?.value || null,
       (val) => {
-        console.log(val)
         if (isNaN(val))
           val = opts.value.min + (opts.value.max - opts.value.min) / 2
         pendingValue.value = val
@@ -139,7 +137,6 @@ export const OfSliderField = defineComponent({
     }
     const trackHooks = {
       onMousedown(evt: MouseEvent) {
-        console.log('onMousedown 141')
         const tg = evt.target as HTMLDivElement | null
         if (!tg || !fieldCtx.editable) return
         const dims = tg.getBoundingClientRect()
@@ -169,28 +166,13 @@ export const OfSliderField = defineComponent({
     }
     const handleMove = (evt: MouseEvent) => {
       const tw = trackWidth.value
-      const te = thumbElt.value
-      const tpe = trackProcessElt.value
-
-      console.log('handleMove')
+      thumbClass.value = 'of-slider-thumb-moved'
 
       if (tw) {
         pendingValue.value = fixValue(
           startVal + ((evt.pageX - startX) * opts.value.delta) / tw
         )
-        thumbClass.value = 'of-slider-thumb-moved'
-
-        if (tpe && te) {
-          let tpeWidth = Math.round(
-            (tw / opts.value.delta) * pendingValue.value
-          )
-          if (pendingValue.value != 0) tpeWidth -= te.offsetWidth
-          if (pendingValue.value == opts.value.delta) {
-            tpeWidth += te.offsetWidth
-          }
-
-          tpe.style.width = tpeWidth.toString() + 'px'
-        }
+        setActiveTrack(thumbElt.value, trackProcessElt.value)
       }
     }
     const setValue = (val: number) => {
@@ -201,31 +183,45 @@ export const OfSliderField = defineComponent({
       if (fieldCtx.onUpdate) fieldCtx.onUpdate(val)
     }
 
+    const setActiveTrack = (
+      thumbElt: HTMLDivElement | undefined,
+      trackProcessElt: HTMLDivElement | undefined
+    ) => {
+      if (!thumbElt || !trackProcessElt) {
+        return
+      }
+      let tpeWidth = Math.round(
+        (trackWidth.value / opts.value.delta) * pendingValue.value
+      )
+      if (pendingValue.value != 0) {
+        tpeWidth = tpeWidth - thumbElt.offsetWidth + thumbElt.offsetWidth * 0.3
+      }
+      trackProcessElt.style.width = tpeWidth.toString() + 'px'
+    }
+
     const trackPos = watchPosition({ immediate: true })
     watch(trackPos.positions, (entries) => {
-      console.log('trackPos.positions')
       const first = entries.values().next().value
       trackWidth.value = Math.round(first?.width || 0)
     })
     watch(trackElt, (track) => {
-      console.log('trackElt')
       trackPos.disconnect()
       if (track && trackProcessElt) {
         trackPos.observe(track)
       }
     })
-    // position thumb
+    // position thumb + active track width
     watchEffect(() => {
-      console.log('watchEffect')
-
       const { delta, min } = opts.value
       const tw = trackWidth.value
       const val = pendingValue.value
       const thumb = thumbElt.value
+      const trackProcess = trackProcessElt.value
       const left = Math.round((((val - min) * tw) / delta) * 100) / 100 + 'px'
 
-      if (thumb && delta && tw) {
+      if (thumb && delta && tw && trackProcess) {
         thumb.style.left = left
+        setActiveTrack(thumb, trackProcess)
       }
     })
 
@@ -264,7 +260,7 @@ export const OfSliderField = defineComponent({
                   ref: labelElt,
                   class: 'of-slider-label-container',
                 },
-                stateValue.value
+                pendingValue.value
               )
             ),
             h(
