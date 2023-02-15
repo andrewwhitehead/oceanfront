@@ -807,7 +807,7 @@
     @extend .of-slider-thumb;
     box-shadow: 0 0 5px 9px rgba(100, 100, 100, 0.15);
     .of-slider-label-container {
-      visibility: visible;
+      display: block;
     }
   }
   &-label-container {
@@ -825,7 +825,7 @@
     top: -2.2em;
     white-space: nowrap;
     width: 1.8em;
-    visibility: hidden;
+    display: none;
 
     &:after {
       top: 100%;

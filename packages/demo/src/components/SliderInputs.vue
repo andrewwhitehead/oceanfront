@@ -22,7 +22,7 @@ import { ref, defineComponent } from 'vue'
 
 export default defineComponent({
   setup() {
-    const sliderValue = ref(62)
+    const sliderValue = ref(65)
     const sliderMax = 150
     const sampleCode = `
 <of-slider-field

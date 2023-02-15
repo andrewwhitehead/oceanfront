@@ -193,9 +193,9 @@ export const OfSliderField = defineComponent({
       let tpeWidth = Math.round(
         (trackWidth.value / opts.value.delta) * pendingValue.value
       )
-      if (pendingValue.value != 0) {
-        tpeWidth = tpeWidth - thumbElt.offsetWidth + thumbElt.offsetWidth * 0.3
-      }
+      tpeWidth = tpeWidth - thumbElt.offsetWidth + thumbElt.offsetWidth * 0.3
+      if (tpeWidth <= 0) tpeWidth = 0
+
       trackProcessElt.style.width = tpeWidth.toString() + 'px'
     }
 
