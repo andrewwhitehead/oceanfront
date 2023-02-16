@@ -193,7 +193,7 @@ export const OfSliderField = defineComponent({
       let tpeWidth = Math.round(
         (trackWidth.value / opts.value.delta) * pendingValue.value
       )
-      tpeWidth = tpeWidth - thumbElt.offsetWidth + thumbElt.offsetWidth * 0.3
+      tpeWidth = tpeWidth - thumbElt.offsetWidth + thumbElt.offsetWidth * 0.7
       if (tpeWidth <= 0) tpeWidth = 0
 
       trackProcessElt.style.width = tpeWidth.toString() + 'px'
@@ -217,10 +217,11 @@ export const OfSliderField = defineComponent({
       const val = pendingValue.value
       const thumb = thumbElt.value
       const trackProcess = trackProcessElt.value
-      const left = Math.round((((val - min) * tw) / delta) * 100) / 100 + 'px'
 
       if (thumb && delta && tw && trackProcess) {
-        thumb.style.left = left
+        const left =
+          ((((val - min) * tw) / delta) * 100) / 100 + thumb.offsetWidth
+        thumb.style.left = left + 'px'
         setActiveTrack(thumb, trackProcess)
       }
     })
