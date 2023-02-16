@@ -38,6 +38,8 @@ export const OfSliderField = defineComponent({
   setup(props, ctx: SetupContext) {
     const pendingValue = ref<number>(0)
     const stateValue = ref()
+    const thumbClass = ref('of-slider-thumb')
+
     const fieldCtx = provideFieldContext(props, ctx)
     const initialValue = computed(() => {
       let initial = fieldCtx.initialValue
@@ -84,7 +86,9 @@ export const OfSliderField = defineComponent({
     let startVal = 0
     const inputElt = shallowRef<HTMLInputElement | undefined>()
     const thumbElt = shallowRef<HTMLDivElement | undefined>()
+    const labelElt = shallowRef<HTMLDivElement | undefined>()
     const trackElt = shallowRef<HTMLDivElement | undefined>()
+    const trackProcessElt = shallowRef<HTMLDivElement | undefined>()
     const trackWidth = ref(0)
     const focused = ref(false)
     const focus = () => {
@@ -154,6 +158,7 @@ export const OfSliderField = defineComponent({
     const cancelMove = () => {
       document.removeEventListener('mousemove', handleMove)
       document.removeEventListener('mouseup', stopMove)
+      thumbClass.value = 'of-slider-thumb'
     }
     const stopMove = () => {
       cancelMove()
@@ -161,10 +166,13 @@ export const OfSliderField = defineComponent({
     }
     const handleMove = (evt: MouseEvent) => {
       const tw = trackWidth.value
+      thumbClass.value = 'of-slider-thumb-moved'
+
       if (tw) {
         pendingValue.value = fixValue(
           startVal + ((evt.pageX - startX) * opts.value.delta) / tw
         )
+        setActiveTrack(thumbElt.value, trackProcessElt.value)
       }
     }
     const setValue = (val: number) => {
@@ -175,6 +183,22 @@ export const OfSliderField = defineComponent({
       if (fieldCtx.onUpdate) fieldCtx.onUpdate(val)
     }
 
+    const setActiveTrack = (
+      thumbElt: HTMLDivElement | undefined,
+      trackProcessElt: HTMLDivElement | undefined
+    ) => {
+      if (!thumbElt || !trackProcessElt) {
+        return
+      }
+      let tpeWidth = Math.round(
+        (trackWidth.value / opts.value.delta) * pendingValue.value
+      )
+      tpeWidth = tpeWidth - thumbElt.offsetWidth + thumbElt.offsetWidth * 0.7
+      if (tpeWidth <= 0) tpeWidth = 0
+
+      trackProcessElt.style.width = tpeWidth.toString() + 'px'
+    }
+
     const trackPos = watchPosition({ immediate: true })
     watch(trackPos.positions, (entries) => {
       const first = entries.values().next().value
@@ -182,17 +206,23 @@ export const OfSliderField = defineComponent({
     })
     watch(trackElt, (track) => {
       trackPos.disconnect()
-      if (track) trackPos.observe(track)
+      if (track && trackProcessElt) {
+        trackPos.observe(track)
+      }
     })
-    // position thumb
+    // position thumb + active track width
     watchEffect(() => {
       const { delta, min } = opts.value
       const tw = trackWidth.value
       const val = pendingValue.value
       const thumb = thumbElt.value
-      if (thumb && delta && tw) {
-        thumb.style.left =
-          Math.round((((val - min) * tw) / delta) * 100) / 100 + 'px'
+      const trackProcess = trackProcessElt.value
+
+      if (thumb && delta && tw && trackProcess) {
+        const left =
+          ((((val - min) * tw) / delta) * 100) / 100 + thumb.offsetWidth
+        thumb.style.left = left + 'px'
+        setActiveTrack(thumb, trackProcess)
       }
     })
 
@@ -218,15 +248,33 @@ export const OfSliderField = defineComponent({
               value: lazyInputValue,
               ...inputHooks,
             }),
-            h('div', {
-              class: 'of-slider-thumb',
-              ref: thumbElt,
-              ...thumbHooks,
-            }),
-            h('div', {
-              class: 'of-slider-track',
-              ref: trackElt,
-            }),
+            h(
+              'div',
+              {
+                class: thumbClass.value,
+                ref: thumbElt,
+                ...thumbHooks,
+              },
+              h(
+                'div',
+                {
+                  ref: labelElt,
+                  class: 'of-slider-label-container',
+                },
+                pendingValue.value
+              )
+            ),
+            h(
+              'div',
+              {
+                class: 'of-slider-track',
+                ref: trackElt,
+              },
+              h('div', {
+                class: 'of-slider-track-process',
+                ref: trackProcessElt,
+              })
+            ),
           ]
         )
       },
@@ -241,9 +289,8 @@ export const OfSliderField = defineComponent({
     })
     provideFieldRender(fRender)
 
-    const render = () => {
+    return () => {
       return h(OfFieldBase, props, { ...slots, ...ctx.slots })
     }
-    return render
   },
 })

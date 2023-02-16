@@ -366,7 +366,6 @@
   align-items: flex-start;
   box-sizing: border-box;
   display: flex;
-  overflow: hidden;
   margin: calc(0px - var(--field-border-width));
   min-height: calc(var(--field-v-pad) + var(--field-input-height));
   position: relative;
@@ -379,7 +378,7 @@
   display: flex;
   width: 0; // allow element to resize smaller in firefox when nowrap is used
 
-  > *:not(.of--unpadded):not([class*='of--density-']) {
+  > *:not(.of--unpadded):not([class*='of--density-']):not(.of-slider) {
     padding: var(--field-v-pad) var(--field-h-pad);
   }
 }
@@ -767,33 +766,74 @@
   align-items: center;
   display: flex;
   height: 1em;
-  margin: 0.25em 0.9em;
-  position: relative;
+  margin: 0.25em 0;
   width: 100%;
-
-  .of-field-inner > & {
-    padding-left: 0;
-    padding-right: 0;
-  }
+  padding: var(--field-v-pad) 1.2em;
 
   &-track {
     border-radius: 0.25em;
     width: 100%;
-    z-index: 0;
     height: 0.5em;
+    background-color: var(--of-inverse-tint);
+    cursor: pointer;
+  }
+  &-track-process {
+    @extend .of-slider-track;
+    border-radius: 0;
     background-color: var(--of-primary-tint);
-    opacity: 60%;
+    opacity: 50%;
+    cursor: pointer;
   }
   &-thumb {
     background-color: var(--of-primary-tint);
     border-radius: 50%;
     box-shadow: 0 2px 1px 0 rgba(100, 100, 100, 0.15);
     box-sizing: border-box;
-    height: 1em;
-    width: 1em;
+    height: 1.3em;
+    width: 1.3em;
     position: absolute;
     transform: translateX(-50%);
     z-index: 2;
+    cursor: pointer;
+  }
+
+  &-thumb-moved {
+    @extend .of-slider-thumb;
+    box-shadow: 0 0 5px 9px rgba(100, 100, 100, 0.15);
+    .of-slider-label-container {
+      display: block;
+    }
+  }
+  &-label-container {
+    background-color: var(--of-primary-tint);
+    border-color: var(--of-primary-tint);
+    border-radius: 5px;
+    box-sizing: content-box;
+    color: #fff;
+    font-size: 14px;
+    min-width: 20px;
+    padding: 4px 5px;
+    position: absolute;
+    right: -.5em;
+    text-align: center;
+    top: -2.2em;
+    white-space: nowrap;
+    width: 1.8em;
+    display: none;
+
+    &:after {
+      top: 100%;
+      left: 50%;
+      transform: translate(-50%, 0);
+      height: 0;
+      width: 0;
+      border-color: transparent;
+      border-style: solid;
+      border-width: 5px;
+      border-top-color: inherit;
+      content: "";
+      position: absolute;
+    }
   }
   &:not(.of--readonly) .of-slider-thumb {
     cursor: pointer;
