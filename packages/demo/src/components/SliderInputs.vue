@@ -7,7 +7,7 @@
       <template #default="props">
         <of-slider-field
           :max="sliderMax"
-          :step="5"
+          :step="1"
           :label="'Test Slider (' + sliderValue + ')'"
           v-model="sliderValue"
           v-bind="props"
