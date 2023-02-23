@@ -248,16 +248,17 @@ div.of-date-picker-cur-year {
 }
 
 .of-calendar-event {
+  background: $color-bg-event;
+  color: $color-event;
+  border: solid 1px $color-border-event;
   cursor: pointer;
   position: absolute;
   white-space: nowrap;
   overflow: hidden;
-  border: solid 1px #eee;
   border-radius: 4px;
   margin-left: 2px;
   margin-right: 2px;
   box-sizing: border-box;
-  color: #000;
   padding-left: 2px;
   padding-right: 2px;
   &.conflict {

@@ -71,6 +71,8 @@ export interface InternalEvent {
   readonly name?: string
   /** Event color */
   readonly color?: string
+  /** Event class */
+  readonly class?: string
   /** Event category */
   readonly category?: string | string[]
 
@@ -155,6 +157,7 @@ export const parseEvent = (
     uniq: '',
     name: e.name,
     color: e.color,
+    class: e.class,
     allDay: allDay,
     startTS: startTS,
     endTS: endTS,

@@ -184,7 +184,12 @@ const categories = ['Conference room', 'HD Projector', 'Auditorium A']
 
 const names = ['Meeting', 'Discussion', 'Lunch']
 
-const colors = ['LightSalmon', 'DimGrey', 'SlateGrey', 'DarkSeaGreen']
+const classes = [
+  'state-danger',
+  'state-ignore',
+  'state-special',
+  'state-primary',
+]
 
 function randomElement<T>(list: T[]): T {
   const idx = Math.floor(Math.random() * list.length)
@@ -233,7 +238,7 @@ function regenerateEvents() {
         name: randomElement(names) + ' ' + number++,
         start: formatDate(start),
         duration,
-        color: randomElement(colors),
+        class: randomElement(classes),
         allDay: Math.random() > 0.8,
         category: randomElement(categories),
       }
