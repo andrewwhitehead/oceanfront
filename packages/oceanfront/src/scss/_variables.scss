@@ -59,7 +59,9 @@ $border-radius-badge: 0.5em;
 $border-radius-button: var(--border-radius-button, 5px);
 $border-width-badge: 1px !default;
 $bg-badge: var(--bg-badge, --of-color-background);
-
+$color-bg-event: var(--color-bg-event);
+$color-event: var(--color-event);
+$color-border-event: var(--color-border-event);
 $font-family-input: var(--font-family-input, inherit);
 $font-size-badge: var(--font-size-badge, 0.8rem);
 $font-size-badge-sm: var(--font-size-badge-sm, 0.55rem);

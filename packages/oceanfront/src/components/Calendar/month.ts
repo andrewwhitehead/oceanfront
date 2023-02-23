@@ -120,7 +120,8 @@ export default defineComponent({
     renderRowDayEvent(e: InternalEvent, idx: number) {
       const top = this.eventHeightNumber * idx
       const finalColor = this.$props.eventColor?.(e) ?? e.color
-      const eventClass = this.$props.eventClass?.(e) ?? {}
+      const eventClass =
+        this.$props.eventClass?.(e) ?? (e.class ? { [e.class]: true } : {})
       return h(
         'div',
         {

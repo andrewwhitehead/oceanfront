@@ -258,7 +258,9 @@ export default defineComponent({
       return (e: CalendarAlldayEventPlacement) => {
         acc.height = Math.max(e.top, acc.height)
         const finalColor = this.$props.eventColor?.(e.event) ?? e.event.color
-        const eventClass = this.$props.eventClass?.(e.event) ?? {}
+        const eventClass =
+          this.$props.eventClass?.(e.event) ??
+          (e.event.class ? { [e.event.class]: true } : {})
         const slot = this.$slots['allday-event-content']
         return h(
           'div',
@@ -435,7 +437,9 @@ export default defineComponent({
         const separator = !brk ? ' ' : h('br')
         const formattedRange = formatRange(this.formatMgr, e.event, cat.date)
         const finalColor = this.$props.eventColor?.(e.event) ?? e.event.color
-        const eventClass = this.$props.eventClass?.(e.event) ?? {}
+        const eventClass =
+          this.$props.eventClass?.(e.event) ??
+          (e.event.class ? { [e.event.class]: true } : {})
         const finalEvent = { ...e.event, color: finalColor }
         return h(
           'div',
