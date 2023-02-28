@@ -6,6 +6,17 @@ import { useThemeOptions } from '../lib/theme'
 
 let sysMenuTargetIndex = 0
 
+const sizeClass = (size: string | undefined) => {
+  switch (size) {
+    case 'sm':
+      return { 'of--small': true }
+    case 'lg':
+      return { 'of--large': true }
+    default:
+      return {}
+  }
+}
+
 export const OfButton = defineComponent({
   name: 'OfButton',
   props: {
@@ -21,6 +32,7 @@ export const OfButton = defineComponent({
       type: Boolean,
       default: undefined,
     },
+    size: String,
     split: Boolean,
     type: String,
     variant: String,
@@ -185,7 +197,7 @@ export const OfButton = defineComponent({
           h(
             'button',
             {
-              class: 'of-button-main',
+              class: ['of-button-main', sizeClass(props.size)],
               disabled,
               id: buttonId,
               ref: split && items ? undefined : menuButton,
@@ -201,7 +213,7 @@ export const OfButton = defineComponent({
             ? h(
                 'button',
                 {
-                  class: 'of-button-split',
+                  class: ['of-button-split', sizeClass(props.size)],
                   disabled,
                   id: splitId,
                   ref: menuButton,

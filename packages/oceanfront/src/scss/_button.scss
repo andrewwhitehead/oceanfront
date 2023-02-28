@@ -238,7 +238,22 @@
     padding: 0 var(--button-h-pad);
     position: relative;
     white-space: nowrap;
-
+    font-size: $font-size-button;
+    svg {
+      width: $button-icon-size;
+    }
+    &.of--small {
+      --font-size-button: #{$font-size-button-sm};
+      svg {
+        --button-icon-size: #{$button-icon-size-sm};
+      }
+    }
+    &.of--large {
+      --font-size-button: #{$font-size-button-lg};
+      svg {
+        --button-icon-size: #{$button-icon-size-lg};
+      }
+    }
     > .of-button-content {
       padding: var(--button-v-pad) 0;
       label {
