@@ -87,7 +87,7 @@ export const OfToggleField = defineComponent({
         return h(
           ToggleInner,
           {
-            switch: inputType.value === 'switch',
+            switch: inputType.value === 'switch' || props.mode === 'fixed',
             checked: stateValue.value,
             label: fieldCtx.inputLabel,
             inputId: inputId.value,
