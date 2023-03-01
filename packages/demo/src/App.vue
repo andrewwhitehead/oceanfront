@@ -80,6 +80,7 @@
             <of-list-item to="/slider-inputs">Slider Inputs</of-list-item>
             <of-list-item to="/text-inputs">Text Inputs</of-list-item>
             <of-list-item to="/toggle-inputs">Toggle Inputs</of-list-item>
+            <of-list-item to="/radio-inputs">Radio Inputs</of-list-item>
             <of-list-item to="/datetime-inputs"
               >Date &amp; Time Inputs</of-list-item
             >
