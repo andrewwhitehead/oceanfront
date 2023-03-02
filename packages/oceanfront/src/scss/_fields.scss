@@ -274,6 +274,12 @@
     --field-border-color: #{use-color(field-border, invalid)};
     --field-border-opacity: #{use-opacity(field-border, invalid)};
   }
+  &.of--mode-fixed {
+    .of-toggle-input{
+      --field-color: #{use-color(field-color, disabled)};
+      --field-opacity: #{use-opacity(field-color, disabled)};
+    }
+  }
 
   box-sizing: border-box;
   color: var(--field-color);
@@ -866,5 +872,8 @@
     .of-switch-thumb {
       background-color: #989c92;
     }
+  }
+  .of-icon svg {
+    fill: #989c92;
   }
 }

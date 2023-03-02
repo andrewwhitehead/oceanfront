@@ -187,7 +187,7 @@ export default defineComponent({
       density: 'default',
       rounded: false,
       tint: 'default',
-      size: 'nm'
+      size: 'nm',
     })
     return {
       sampleCode,
