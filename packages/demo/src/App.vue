@@ -126,7 +126,6 @@ import {
   nextTick,
   onErrorCaptured,
   ref,
-  SetupContext,
   watch,
 } from 'vue'
 import { useRouter } from 'vue-router'
@@ -139,7 +138,7 @@ const tints = ['primary', 'secondary', 'tertiary']
 
 export default defineComponent({
   name: 'App',
-  setup(_props: {}, _ctx: SetupContext) {
+  setup() {
     const tint = ref('primary')
     const error = ref<any>(null)
     onErrorCaptured((e) => {

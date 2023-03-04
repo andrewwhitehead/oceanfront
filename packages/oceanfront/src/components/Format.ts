@@ -11,7 +11,7 @@ export const OfFormat = defineComponent({
       default: undefined,
     },
   },
-  setup(props, _ctx) {
+  setup(props) {
     const formatMgr = useFormats()
     const formatter = computed(() =>
       props.type

@@ -5,7 +5,6 @@ import {
   PropType,
   reactive,
   ref,
-  SetupContext,
   watch,
 } from 'vue'
 import { useNavGroup } from '../lib/nav'
@@ -28,7 +27,7 @@ export const OfListItem = defineComponent({
     blur: null,
     focus: null,
   },
-  setup(props, ctx: SetupContext) {
+  setup(props, ctx) {
     const navGroup = useNavGroup()
     const elt = ref<HTMLElement>()
     const expand = computed(() => props.expand)

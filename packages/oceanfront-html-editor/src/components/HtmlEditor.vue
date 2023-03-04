@@ -117,16 +117,16 @@ import {
   ComputedRef,
   ref,
   Ref,
-  SetupContext,
   onMounted,
   nextTick,
   ShallowRef,
 } from 'vue'
 import {
-  useEditor,
+  Editor,
   EditorContent,
   Extension,
   FocusPosition,
+  useEditor,
 } from '@tiptap/vue-3'
 import StarterKit from '@tiptap/starter-kit'
 import TextAlign from '@tiptap/extension-text-align'
@@ -143,7 +143,6 @@ import TableCell from '@tiptap/extension-table-cell'
 import TableHeader from '@tiptap/extension-table-header'
 import { FontSize } from '../extensions/font_size'
 import { FormRecord } from 'oceanfront'
-import { Editor } from '@tiptap/core'
 
 type ToolbarMenuItem = {
   name: string
@@ -188,7 +187,7 @@ export default defineComponent({
     'update:modelValue': null,
     updated: null,
   },
-  setup(props, ctx: SetupContext) {
+  setup(props, ctx) {
     const focused: Ref<boolean> = ref(false)
     const isEditable: ComputedRef<boolean> = computed(() => props.editable)
 

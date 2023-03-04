@@ -12,7 +12,6 @@
         :style="{
           'z-index': p.zIndex,
           'background-color': p.event.color,
-          height: '50px',
           border: 'solid 1px #000',
           'border-radius': '4px',
           position: 'absolute',
@@ -86,6 +85,10 @@ function mockData(): InternalEvent[] {
       endDay: getDayIdentifier(ets),
       endTime: getTimeIdentifier(ets),
       end: getTimestampIdintifier(ets),
+      startTS: sts,
+      endTS: ets,
+      uniq: '',
+      orig: null,
     }
   })
 }
@@ -109,7 +112,9 @@ export default defineComponent({
         getDayIdentifier(nowTS),
         false,
         undefined,
-        layout.value
+        layout.value,
+        0,
+        [8, 17]
       )
       const placements: CalendarEventPlacement[] = []
       for (const g of groups) {

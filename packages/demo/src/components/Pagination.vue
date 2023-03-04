@@ -31,11 +31,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, reactive } from 'vue'
-import {
-  Paginator,
-  calcStartRecord,
-  calcPageValue,
-} from 'oceanfront/src/lib/paginator'
+import { Paginator, calcStartRecord, calcPageValue } from 'oceanfront'
 
 const variants = ['outlined', 'tonal', 'filled', 'elevated']
 export default defineComponent({

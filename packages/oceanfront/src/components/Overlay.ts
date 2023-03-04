@@ -6,7 +6,6 @@ import {
   ref,
   watch,
   PropType,
-  SetupContext,
   Teleport,
   Transition,
 } from 'vue'
@@ -75,7 +74,7 @@ export const OfOverlay = defineComponent({
     transition: String,
   },
   emits: ['blur'],
-  setup(props, ctx: SetupContext) {
+  setup(props, ctx) {
     const id = Math.random()
     let focused = false
     const layout = useLayout()

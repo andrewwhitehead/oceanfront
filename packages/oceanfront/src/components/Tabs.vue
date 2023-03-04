@@ -13,10 +13,8 @@
         <div
           :class="{
             'of-tabs-navigation-header': true,
-            'of-tabs-navigation-header-show-next-navigation':
-              ofTabsNavigationHeaderShowNextNavigation,
-            'of-tabs-navigation-header-show-previous-navigation':
-              ofTabsNavigationHeaderShowPreviousNavigation,
+            'of-tabs-navigation-header-show-next-navigation': ofTabsNavigationHeaderShowNextNavigation,
+            'of-tabs-navigation-header-show-previous-navigation': ofTabsNavigationHeaderShowPreviousNavigation,
             'of-tabs-navigation-header-has-navigation': showNavigation,
           }"
         >
@@ -137,19 +135,17 @@ import {
   onMounted,
   onBeforeMount,
   PropType,
-  SetupContext,
   computed,
   nextTick,
   watch,
   onBeforeUnmount,
 } from 'vue'
-
 import { watchPosition } from '../lib/util'
-import { ItemList, useItems } from '../lib/items'
-import { OfOverlay } from './Overlay'
-import OfOptionList from './OptionList.vue'
+import { ItemsProp, useItems } from '../lib/items'
 import { Tab } from '../lib/tab'
 import { useThemeOptions } from '../lib/theme'
+import { OfOverlay } from './Overlay'
+import OfOptionList from './OptionList.vue'
 
 const elementWidth = (el?: HTMLElement): number => {
   let w = el?.offsetWidth ?? 0
@@ -221,7 +217,7 @@ export default defineComponent({
   name: 'OfTabs',
   components: { OfOverlay, OfOptionList },
   props: {
-    items: { type: [Object, Array] } as any as PropType<ItemList>,
+    items: { type: [String, Object, Array] as PropType<ItemsProp> },
     modelValue: Number,
     scrolling: { type: Boolean, default: false },
     overflowButton: { type: Boolean, default: false },
@@ -233,8 +229,11 @@ export default defineComponent({
     tabsList: Array,
     submenu: Boolean,
   },
-  emits: ['update:modelValue', 'select-tab'],
-  setup(props, context: SetupContext) {
+  emits: {
+    'update:modelValue'(_index: number) {},
+    'select-tab'(_tab: Tab) {},
+  },
+  setup(props, context) {
     const themeOptions = useThemeOptions()
     let tabs: any = ref([])
 
@@ -325,20 +324,16 @@ export default defineComponent({
     const lastActiveTabIdx = ref()
 
     const fillItems = function () {
-      const result = {
+      const itemList = {
         disabledKey: 'disabled',
         iconKey: 'icon',
         textKey: 'text',
         items: [],
       }
-      const list = itemMgr.getItemList(props.items)
+      Object.assign(itemList, itemMgr.getItemList(props.items))
 
-      if (list) {
-        Object.assign(result, list)
-      }
-
-      for (const index in result.items) {
-        let item: any = result.items[index]
+      for (const index in itemList.items) {
+        let item: any = itemList.items[index]
 
         if (typeof item === 'string' && item !== '') {
           item = { text: item, key: parseInt(index), visible: true }
@@ -359,10 +354,10 @@ export default defineComponent({
           lastActiveTabIdx.value = item.key
         }
 
-        result.items[index] = item as never
+        itemList.items[index] = item as never
       }
 
-      items.value = result
+      items.value = itemList
     }
 
     const tabsList = computed(() => {
@@ -711,7 +706,7 @@ export default defineComponent({
       }
     }
 
-    const tabsRefs = ref<HTMLElement[]>([])
+    const tabsRefs: { [_: string]: any } = {}
     const focusedTab = ref<HTMLElement | null>(null)
     const focusedTabKey = ref()
     const openedMenuTabKey = ref()
@@ -724,7 +719,7 @@ export default defineComponent({
         } else if (val == -1) {
           focusedTab.value = overflowButtonEl.value
         } else {
-          focusedTab.value = tabsRefs.value[val]
+          focusedTab.value = tabsRefs[val]
         }
       }
     )

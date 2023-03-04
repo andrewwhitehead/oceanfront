@@ -5,7 +5,6 @@ import {
   ref,
   Ref,
   resolveComponent,
-  SetupContext,
   VNode,
   watch,
   WatchStopHandle,
@@ -103,9 +102,9 @@ export const OfFieldBase = defineComponent({
   inheritAttrs: false,
   props: BaseFieldProps,
   emits: ['update:modelValue', 'input', 'click'],
-  setup(props, ctx: SetupContext) {
+  setup(props, ctx) {
     const fieldRender = useFieldRender()
-    const fieldCtx = provideFieldContext(props, ctx)
+    const fieldCtx = provideFieldContext(props, ctx as any)
     const mode = computed(() => fieldCtx.mode)
     const interactive = computed(() => fieldCtx.interactive)
     const labelPosition = computed(() => fieldCtx.labelPosition)
