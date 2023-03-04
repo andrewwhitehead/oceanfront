@@ -1,23 +1,23 @@
 import { PropType, computed, defineComponent, h, VNode } from 'vue'
 import { OfIcon } from './Icon'
 import { FieldMode } from '../lib/fields'
+
 export const RadioInner = defineComponent({
   props: {
-    switch: Boolean,
     checked: [Boolean, Number],
     label: String,
     inputId: String,
     align: String,
     name: String,
     mode: String as PropType<FieldMode>,
+    value: String,
   },
-  emits: ['focus', 'blur', 'inputMounted'],
+  emits: ['focus', 'blur', 'inputMounted', 'selectItem'],
   setup(props, ctx) {
     const icon = computed(() => {
       const checked = !!props.checked
       return 'radio' + (checked ? ' checked' : '')
     })
-    console.log(icon, 'icooooooooooooon')
     const hooks = {
       onFocus() {
         ctx.emit('focus')
@@ -29,7 +29,6 @@ export const RadioInner = defineComponent({
         ctx.emit('inputMounted', vnode)
       },
     }
-    console.log(ctx.slots.icon, 'ctx.slots.icon')
     return () => {
       const inputLabel = props.label
       const label = inputLabel
@@ -51,20 +50,18 @@ export const RadioInner = defineComponent({
           h('input', {
             class: 'of-field-input',
             checked: props.checked,
+            onClick: () => {
+              ctx.emit('selectItem', props.value)
+            },
             id: props.inputId,
             // disabled: disabled.value,
             tabindex: props.mode === 'fixed' ? -1 : 0,
             name: props.name,
             type: 'radio',
-            value: '1',
+            value: props.value,
             ...hooks,
           }),
-          props.switch
-            ? h('div', { class: 'of-switch' }, [
-                h('div', { class: 'of-switch-track' }),
-                h('div', { class: 'of-switch-thumb' }),
-              ])
-            : ctx.slots.icon
+          ctx.slots.icon
             ? ctx.slots.icon(props.checked)
             : h(OfIcon, {
                 class: 'of-toggle-icon',
@@ -84,8 +81,5 @@ export const RadioInner = defineComponent({
         ),
       ]
     }
-  },
-  created() {
-    console.log(this.$props, 'yahaaaaaaaaay blya')
   },
 })

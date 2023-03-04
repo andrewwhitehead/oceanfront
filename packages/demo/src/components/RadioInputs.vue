@@ -5,22 +5,22 @@
 
     <of-demo-field allow-input-label-position>
       <template #default="props">
-        <of-field
-          type="radio"
+        <of-radio-field
           label="Radio Field"
+          :items="['value1', 'value2', 'value3']"
           v-model="checkedValue"
           v-bind="{
             ...props,
-            inputType: customProps.switch ? 'switch' : null,
-            inputLabel: checkedValue ? 'On' : 'Off',
+            grid: customProps.grid,
           }"
         />
       </template>
       <template #options>
-        <of-toggle-field
-          label="Render as switch"
-          label-position="input"
-          v-model="customProps.switch"
+        <of-field
+          v-model="customProps.grid"
+          label="Grid"
+          type="select"
+          :items="gridOptions"
         />
       </template>
     </of-demo-field>
@@ -33,18 +33,15 @@ import { defineComponent, reactive, ref } from 'vue'
 export default defineComponent({
   setup() {
     const sampleCode = `
-<of-toggle-field
+<of-radio-field
   label="Field Label"
-  v-model:checked="fieldChecked"
+  :items="['value1', 'value2', 'value3']"
+  v-model="selectedValue"
 />`
-
-    const customProps = reactive({ switch: false })
-    const checkedValue = ref(false)
-    const sss4 = (elem: boolean) => {
-      console.log('sss4sss4')
-      checkedValue.value = elem
-    }
-    return { checkedValue, sss4, customProps, sampleCode }
+    const customProps = reactive({ grid: 'column' })
+    const gridOptions = ['column', 'row']
+    const checkedValue = ref('')
+    return { checkedValue, customProps, sampleCode, gridOptions }
   },
 })
 </script>

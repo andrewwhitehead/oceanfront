@@ -877,3 +877,14 @@
     fill: #989c92;
   }
 }
+.radio-group{
+  width: 100%;
+  display: flex;
+
+}
+.of--column{
+  flex-direction: column;
+}
+.of--row{
+  flex-direction: row;
+}

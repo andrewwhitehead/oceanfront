@@ -236,14 +236,15 @@ export const OfButton = defineComponent({
                     menuShown.value = false
                   },
                 },
-                () =>
-                  h(OfOptionList, {
+                () => {
+                  return h(OfOptionList, {
                     class: 'of--elevated-1',
                     items,
                     onClick: onClickItem,
                     onBlur: onBlurList,
                     ...menuMouseEvts,
                   })
+                }
               )
             : undefined,
           h('div', { class: 'of--layer of--layer-state' }),

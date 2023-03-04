@@ -9,12 +9,23 @@ import {
   provideFieldContext,
   provideFieldRender,
 } from '../lib/fields'
+import { isArray } from '../lib/util'
 
 export const supportedTypes = new Set(['radio'])
 
+const gridClass = (grid: string | undefined) => {
+  switch (grid) {
+    case 'column':
+      return { 'of--column': true }
+    case 'row':
+      return { 'of--row': true }
+    default:
+      return {}
+  }
+}
 export const OfRadioField = defineComponent({
   name: 'OfRadioField',
-  props: { ...BaseFieldProps, inputType: String },
+  props: { ...BaseFieldProps, grid: String },
   setup(props, ctx) {
     const fieldCtx = provideFieldContext(props, ctx)
     const initialValue = computed(() => {
@@ -33,7 +44,16 @@ export const OfRadioField = defineComponent({
         immediate: true,
       }
     )
-
+    // todo check items other types
+    const items = computed(() => {
+      if (typeof props.items === 'string') {
+        return [props.items]
+      } else if (isArray(props.items)) {
+        return props.items
+      } else {
+        return []
+      }
+    })
     const elt = ref<HTMLInputElement | undefined>()
     const focused = ref(false)
     let defaultFieldId: string
@@ -45,19 +65,13 @@ export const OfRadioField = defineComponent({
       }
       return id
     })
-    const inputType = computed(() => {
-      const pi = props.inputType
-      return pi && supportedTypes.has(pi) ? pi : 'radio'
-    })
-
     const focus = () => {
       const curelt = elt.value
       if (curelt) curelt.focus()
     }
-    const clickToggle = (_evt?: MouseEvent) => {
+    const clickToggle = (data?: any) => {
       if (fieldCtx.editable) {
-        stateValue.value = !stateValue.value
-        if (fieldCtx.onUpdate) fieldCtx.onUpdate(stateValue.value)
+        if (fieldCtx.onUpdate) fieldCtx.onUpdate(data)
       }
       focus()
       return false
@@ -77,23 +91,35 @@ export const OfRadioField = defineComponent({
         if (fieldCtx.onUpdate) fieldCtx.onUpdate(stateValue.value)
       },
     }
-
     const slots = {
       interactiveContent: () => {
-        return h(
-          RadioInner,
-          {
-            switch: inputType.value === 'switch' || props.mode === 'fixed',
-            checked: stateValue.value,
-            label: fieldCtx.inputLabel,
-            inputId: inputId.value,
-            align: props.align,
-            name: props.name,
-            mode: fieldCtx.mode,
-            ...hooks,
-          },
-          { icon: ctx.slots.icon }
-        )
+        return h('div', { class: ['radio-group', gridClass(props.grid)] }, [
+          items.value.map((item) =>
+            h(
+              RadioInner,
+              {
+                onSelectItem: (value) => {
+                  clickToggle(value)
+                },
+                checked:
+                  typeof item === 'object'
+                    ? stateValue.value === item.value
+                    : stateValue.value === item,
+                label: typeof item === 'object' ? item.text : item,
+                value: typeof item === 'object' ? item.value : item,
+                inputId:
+                  typeof item === 'object'
+                    ? inputId.value + item.value
+                    : inputId.value + item,
+                align: props.align,
+                name: props.name,
+                mode: fieldCtx.mode,
+                ...hooks,
+              },
+              { icon: ctx.slots.icon }
+            )
+          ),
+        ])
       },
     }
 
@@ -103,7 +129,6 @@ export const OfRadioField = defineComponent({
       class: computed(() => {
         return { 'of-toggle-field': true, 'of--checked': !!stateValue.value }
       }),
-      click: clickToggle,
       cursor: computed(() => (fieldCtx.editable ? 'pointer' : null)),
       focus,
       focused,
