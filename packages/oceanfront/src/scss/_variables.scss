@@ -66,6 +66,14 @@ $font-family-input: var(--font-family-input, inherit);
 $font-size-badge: var(--font-size-badge, 0.8rem);
 $font-size-badge-sm: var(--font-size-badge-sm, 0.55rem);
 $font-size-badge-lg: var(--font-size-badge-lg, 1.05rem);
+
+$font-size-button: var(--font-size-button, 1rem);
+$font-size-button-sm: var(--font-size-button-sm, 0.6rem);
+$font-size-button-lg: var(--font-size-button-lg, 1.1rem);
+$button-icon-size: var(--button-icon-size, 1.5rem);
+$button-icon-size-sm: var(--button-icon-size-sm, 1rem);
+$button-icon-size-lg: var(--button-icon-size-lg, 2rem);
+
 $font-size-input: var(--font-size-input, 1rem);
 $font-size-input-sm: var(--font-size-input-sm, 0.8125rem); // 13/16
 $font-size-input-lg: var(--font-size-input-lg, 1.125rem); // 18/16

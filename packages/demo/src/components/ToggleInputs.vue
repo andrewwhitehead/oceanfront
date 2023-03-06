@@ -5,7 +5,7 @@
 
     <of-demo-field allow-input-label-position>
       <template #default="props">
-        <of-field
+        <of-toggle-field
           type="toggle"
           label="Toggle Field"
           v-model="checkedValue"

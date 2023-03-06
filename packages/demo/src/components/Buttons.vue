@@ -29,6 +29,14 @@
           :items="tintOptions"
         />
       </div>
+      <div class="column spaced">
+        <of-field
+          v-model="params.size"
+          label="Size"
+          type="select"
+          :items="sizeOptions"
+        />
+      </div>
     </div>
     <div class="demo-fields of--elevated-1">
       <div class="row" v-for="variant in variants" :key="variant">
@@ -174,16 +182,19 @@ export default defineComponent({
 
     const densityOptions = ['default', '0', '1', '2', '3']
     const tintOptions = ['default', 'primary', 'secondary', 'tertiary']
+    const sizeOptions = ['sm', 'nm', 'lg']
     const params = reactive({
       density: 'default',
       rounded: false,
       tint: 'default',
+      size: 'nm',
     })
     return {
       sampleCode,
       testItems,
       densityOptions,
       tintOptions,
+      sizeOptions,
       params,
       menuClick,
       variants,

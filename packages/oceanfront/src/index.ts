@@ -29,7 +29,9 @@ import OfTabs from './components/Tabs.vue'
 import { OfTextField } from './fields/Text'
 import { OfTimeField } from './fields/DateTime'
 import { OfToggleField } from './fields/Toggle'
+import { OfRadioField } from './fields/Radio'
 import { OfToggle } from './components/Toggle'
+import { OfRadio } from './components/Radio'
 import Hue from './components/Hue'
 import Saturation from './components/Saturation'
 import { ColorFormatter } from './formats/Color'
@@ -77,7 +79,9 @@ export const components: Record<string, Component> = {
   OfCalendar,
   OfTextField,
   OfToggleField,
+  OfRadioField,
   OfToggle,
+  OfRadio,
   OfSpinner,
   OfButton,
   OfColorField,
@@ -94,6 +98,7 @@ export const fieldTypes: Record<string, Component> = {
   password: OfTextField,
   slider: OfSliderField,
   toggle: OfToggleField,
+  radio: OfRadioField,
   datetime: OfDatetimeField,
   date: OfDateField,
   time: OfTimeField,
