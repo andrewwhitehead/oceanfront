@@ -57,7 +57,6 @@ export const OfRadio = defineComponent({
       },
       onClick() {
         const val = !value.value
-        console.log(value.value, 'value.valuevalue.value')
         if (props.name && record.value) record.value.value[props.name] = val
         else {
           ctx.emit('update:checked', val)

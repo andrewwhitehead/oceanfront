@@ -20,7 +20,10 @@ export interface ItemList {
   loading?: boolean | string // string for placeholder message
   lookup?: (key: any) => any
 }
-
+export interface Item {
+  value: String | Number
+  text: String | Number
+}
 export const transformItemsList = (
   mgr: ItemsState,
   source?: string | any[] | ItemList,
@@ -60,6 +63,37 @@ export function makeItemList(items?: any[] | ItemList): ItemList {
     }
   }
   return markRaw(items)
+}
+
+export function makeItems(
+  items: String | Number | Number[] | String[] | Item[]
+): Item[] {
+  if (typeof items === 'string' || typeof items === 'number') {
+    return [
+      {
+        value: items,
+        text: items,
+      },
+    ]
+  }
+  if (Array.isArray(items)) {
+    const newItems: Item[] = []
+    items.forEach((item) => {
+      if (typeof item === 'string' || typeof item === 'number') {
+        newItems.push({
+          value: item,
+          text: item,
+        })
+      } else {
+        if (!((item as Item).value && (item as Item).text)) {
+          throw 'Object properties is wrong'
+        }
+        newItems.push(item as Item)
+      }
+    })
+    return newItems
+  }
+  return []
 }
 
 export interface ItemsState {
