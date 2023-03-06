@@ -5,12 +5,12 @@ import { FieldMode } from '../lib/fields'
 export const RadioInner = defineComponent({
   props: {
     checked: [Boolean, Number],
-    label: String,
+    label: [String, Number],
     inputId: String,
     align: String,
     name: String,
     mode: String as PropType<FieldMode>,
-    value: String,
+    value: [String, Number],
   },
   emits: ['focus', 'blur', 'inputMounted', 'selectItem'],
   setup(props, ctx) {

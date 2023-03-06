@@ -9,9 +9,7 @@ import {
   provideFieldContext,
   provideFieldRender,
 } from '../lib/fields'
-import { isArray } from '../lib/util'
-
-export const supportedTypes = new Set(['radio'])
+import { makeItems } from '../lib/items'
 
 const gridClass = (grid: string | undefined) => {
   switch (grid) {
@@ -44,15 +42,11 @@ export const OfRadioField = defineComponent({
         immediate: true,
       }
     )
-    // todo check items other types
-    const items = computed(() => {
-      if (typeof props.items === 'string') {
-        return [props.items]
-      } else if (isArray(props.items)) {
-        return props.items
-      } else {
-        return []
+    const items: any = computed(() => {
+      if (typeof props.items === 'string' || Array.isArray(props.items)) {
+        return makeItems(props.items)
       }
+      return []
     })
     const elt = ref<HTMLInputElement | undefined>()
     const focused = ref(false)
@@ -94,23 +88,17 @@ export const OfRadioField = defineComponent({
     const slots = {
       interactiveContent: () => {
         return h('div', { class: ['radio-group', gridClass(props.grid)] }, [
-          items.value.map((item) =>
+          items.value.map((item: any) =>
             h(
               RadioInner,
               {
-                onSelectItem: (value) => {
+                onSelectItem: (value: String | Number) => {
                   clickToggle(value)
                 },
-                checked:
-                  typeof item === 'object'
-                    ? stateValue.value === item.value
-                    : stateValue.value === item,
-                label: typeof item === 'object' ? item.text : item,
-                value: typeof item === 'object' ? item.value : item,
-                inputId:
-                  typeof item === 'object'
-                    ? inputId.value + item.value
-                    : inputId.value + item,
+                checked: stateValue.value === item.value,
+                label: item.text,
+                value: item.value,
+                inputId: inputId.value + item.value,
                 align: props.align,
                 name: props.name,
                 mode: fieldCtx.mode,
