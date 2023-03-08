@@ -50,6 +50,8 @@
     "@vitejs/plugin-vue": "~4.0",
     "@vitest/coverage-c8": "~0.29",
     "@vue/test-utils": "~2.3",
+    "eslint": "^8",
+    "eslint-plugin-vitest": "0.0.54",
     "jsdom": "~21.1",
     "prettier": "~2.8",
     "tslib": "^2.4",
