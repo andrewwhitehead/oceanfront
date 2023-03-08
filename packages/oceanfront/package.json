@@ -18,12 +18,12 @@
   ],
   "scripts": {
     "build": "vite build",
-    "build-dev": "vite build -m dev",
-    "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist",
+    "build-dev": "vite build -m development",
+    "clean": "rm -rf .turbo .vite node_modules dist",
     "coverage": "vitest run --coverage",
-    "demo": "vite build -m dev --watch",
+    "demo": "vite build -m development --watch",
     "lint": "eslint src",
-    "test": "vitest"
+    "test": "vitest --watch=false"
   },
   "peerDependencies": {
     "vue": "~3.2"
@@ -31,11 +31,16 @@
   "dependencies": {},
   "devDependencies": {
     "@types/resize-observer-browser": "~0.1.7",
+    "@typescript-eslint/eslint-plugin": "^5",
+    "@typescript-eslint/parser": "^5",
     "@vitejs/plugin-vue": "~4.0",
     "@vitest/coverage-c8": "~0.29",
     "@vue/test-utils": "~2.3",
     "eslint": "^8",
+    "eslint-config-prettier": "^8",
+    "eslint-plugin-prettier": "^4",
     "eslint-plugin-vitest": "0.0.54",
+    "eslint-plugin-vue": "^9",
     "jsdom": "~21.1",
     "prettier": "~2.8",
     "tslib": "~2.4",
@@ -44,8 +49,7 @@
     "vitest": "~0.29",
     "unplugin-auto-import": "~0.15",
     "vite-plugin-dts": "~2.0",
-    "vue": "~3.2",
-    "vue-tsc": "~1.2"
+    "vue": "~3.2"
   },
   "sideEffects": [
     "*.css",

@@ -1,3 +1,5 @@
+/* eslint-disable vue/prefer-import-from-vue */
+
 import {
   Ref,
   ToRef,
