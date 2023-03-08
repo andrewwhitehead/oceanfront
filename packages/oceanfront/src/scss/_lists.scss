@@ -1,6 +1,5 @@
 .of-list-group {
   overflow: hidden;
-  max-height: 100%;
   padding-left: 1em;
 
   &.v-enter-active {
@@ -14,6 +13,10 @@
   &.v-enter-from,
   &.v-leave-to {
     max-height: 0;
+  }
+
+  .of-menu & {
+    max-height: 100%;
   }
 }
 

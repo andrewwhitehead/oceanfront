@@ -10,7 +10,8 @@
     // "allowSyntheticDefaultImports": true,
     "sourceMap": true,
     "baseUrl": ".",
-    "types": [],
+    "types": [
+    ],
     "lib": [
       "esnext",
       "dom",

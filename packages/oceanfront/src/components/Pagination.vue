@@ -93,7 +93,6 @@
 <script lang="ts">
 import {
   defineComponent,
-  SetupContext,
   computed,
   ref,
   Ref,
@@ -123,7 +122,7 @@ export default defineComponent({
     ariaLabels: Object,
   },
   emits: ['update:modelValue', 'select-page', 'update-offset'],
-  setup(props, context: SetupContext) {
+  setup(props, context) {
     let page: Ref<number> = computed(() => props.modelValue || 1)
     const totalVisible: Ref<number> = computed(() => props.totalVisible || 5)
     const activeButton = ref<any>(null)

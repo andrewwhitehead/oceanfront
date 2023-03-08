@@ -144,9 +144,23 @@ export const Oceanfront: Plugin = {
 export { OfFieldBase } from './components/FieldBase'
 export { OfSelectPopup } from './fields/SelectPopup'
 
-export { extendConfig, useConfig, Config, ConfigFunction } from './lib/config'
-export { addDays, addMonths } from './lib/datetime'
+export type { CalendarEvent, InternalEvent } from './lib/calendar/common'
+export { extendConfig, useConfig } from './lib/config'
+export type { Config, ConfigFunction } from './lib/config'
+export { addDays, addMonths, addMinutes } from './lib/datetime'
 export {
+  defineFieldType,
+  extendFieldFormat,
+  newFieldId,
+  BaseFieldProps,
+  makeFieldContext,
+  fieldRender,
+  provideFieldContext,
+  useFieldContext,
+  provideFieldRender,
+  useFieldRender,
+} from './lib/fields'
+export type {
   FieldContext,
   FieldDragIn,
   FieldPopup,
@@ -154,70 +168,52 @@ export {
   FieldFormatProp,
   FieldMode,
   FieldLabelPositionProp,
-  defineFieldType,
-  extendFieldFormat,
-  newFieldId,
-  BaseFieldProps,
-  makeFieldContext,
-  fieldRender,
   FieldRender,
-  provideFieldContext,
-  useFieldContext,
-  provideFieldRender,
-  useFieldRender,
 } from './lib/fields'
-
 export { Hue, Saturation }
-export { FocusGroup, provideFocusGroup, useFocusGroup } from './lib/focus'
+export { provideFocusGroup, useFocusGroup } from './lib/focus'
+export type { FocusGroup } from './lib/focus'
 export { provideLanguage, useLanguage } from './lib/language'
 export {
-  FormatState,
   registerFieldType,
   registerTextFormatter,
+  useFormats,
+} from './lib/formats'
+export type {
+  FormatState,
   TextFormatResult,
   TextFormatter,
   TextFormatterProp,
   TextInputResult,
-  useFormats,
 } from './lib/formats'
 export {
-  IconSet,
-  SvgIcon,
-  SvgIconEffect,
   registerIconSet,
   registerSvgIconEffect,
   showMissingIcons,
   useIcons,
 } from './lib/icons'
+export type { IconSet, SvgIcon, SvgIconEffect } from './lib/icons'
 export { registerItemList, useItems } from './lib/items'
 export { setMobileBreakpoint, useLayout } from './lib/layout'
 export { useLocale } from './lib/locale'
-export { ThemeOptions, useThemeOptions, setThemeOptions } from './lib/theme'
-export {
-  NavGroup,
-  NavGroupTarget,
-  NavGroupUnregister,
-  provideNavGroup,
-  useNavGroup,
-} from './lib/nav'
+export { useThemeOptions, setThemeOptions } from './lib/theme'
+export type { ThemeOptions } from './lib/theme'
+export { provideNavGroup, useNavGroup } from './lib/nav'
+export type { NavGroup, NavGroupTarget, NavGroupUnregister } from './lib/nav'
 export {
   calcOffset,
   calcPageValue,
   calcStartRecord,
   calcTotalPages,
-  Paginator,
 } from './lib/paginator'
-export {
+export type { Paginator } from './lib/paginator'
+export { makeRecord, setCurrentRecord, useRecords } from './lib/records'
+export type {
   FieldMetadata,
   FieldRecordState,
   FormRecord,
   Lock,
   LockOptions,
-  makeRecord,
   RecordMetadata,
-  setCurrentRecord,
-  useRecords,
 } from './lib/records'
-export { Tab } from './lib/tab'
-
-export default Oceanfront
+export type { Tab } from './lib/tab'

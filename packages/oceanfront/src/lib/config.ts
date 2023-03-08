@@ -9,7 +9,7 @@ import {
 } from 'vue'
 
 export type Config = ConfigState
-export type ConfigFunction = (state: ConfigState) => void
+export type ConfigFunction = (state: Config) => void
 
 let cfgId = 0
 

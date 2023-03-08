@@ -1,7 +1,8 @@
-import { defineComponent, computed, nextTick, h, ref } from 'vue'
+import { PropType, defineComponent, computed, nextTick, h, ref } from 'vue'
 import { OfIcon } from './Icon'
 import { OfOverlay } from './Overlay'
 import OfOptionList from './OptionList.vue'
+import { ItemsProp } from '../lib/items'
 import { useThemeOptions } from '../lib/theme'
 
 let sysMenuTargetIndex = 0
@@ -25,7 +26,7 @@ export const OfButton = defineComponent({
     disabled: Boolean,
     icon: String,
     id: String,
-    items: [String, Array, Object],
+    items: [String, Array, Object] as PropType<ItemsProp>,
     label: String,
     name: String,
     rounded: {

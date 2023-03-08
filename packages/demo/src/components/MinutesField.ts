@@ -6,12 +6,12 @@ import {
   provideFieldRender,
   useRecords,
 } from 'oceanfront'
-import { computed, defineComponent, h, ref, SetupContext } from 'vue'
+import { computed, defineComponent, h, ref } from 'vue'
 
 export default defineComponent({
   name: 'Minutes',
   props: BaseFieldProps,
-  setup(props, ctx: SetupContext) {
+  setup(props, ctx) {
     const fieldCtx = provideFieldContext(props, ctx)
     const recordMgr = useRecords()
     const record = computed(() => {

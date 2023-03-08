@@ -141,9 +141,10 @@ import { defineComponent, Ref, ref } from 'vue'
 import {
   CalendarEvent,
   InternalEvent,
-} from 'oceanfront/src/lib/calendar/common'
-import { makeRecord } from 'oceanfront'
-import { addDays, addMinutes } from 'oceanfront/src/lib/datetime'
+  makeRecord,
+  addDays,
+  addMinutes,
+} from 'oceanfront'
 
 const types = [
   { value: 'day', text: 'Day' },

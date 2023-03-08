@@ -4,7 +4,6 @@ module.exports = {
     node: true,
   },
   extends: [
-    'plugin:jest/recommended',
     'plugin:vue/vue3-recommended',
     'plugin:@typescript-eslint/recommended',
     'plugin:prettier/recommended',
@@ -31,6 +30,7 @@ module.exports = {
     parser: '@typescript-eslint/parser',
     extraFileExtensions: ['.vue'],
   },
+  plugins: ['vitest'],
   overrides: [
     {
       files: ['**/__tests__/*.{j,t}s?(x)'],

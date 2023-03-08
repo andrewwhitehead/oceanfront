@@ -153,14 +153,13 @@ import {
 import { useFormats } from '../lib/formats'
 import {
   defineComponent,
-  SetupContext,
   computed,
   ref,
   VNode,
   resolveComponent,
   watch,
 } from 'vue'
-import { useLocale } from 'src/lib/locale'
+import { useLocale } from '../lib/locale'
 
 export default defineComponent({
   name: 'OfDateTimePopup',
@@ -175,7 +174,7 @@ export default defineComponent({
     accept: Function,
     withoutTitle: Boolean,
   },
-  setup(props, _ctx: SetupContext) {
+  setup(props) {
     let theNode: VNode | null
     const selDate = ref(props.date ?? new Date())
     const selDateLocale = ref(props.date ?? new Date())

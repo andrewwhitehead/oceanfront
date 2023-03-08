@@ -1,13 +1,5 @@
 import { useConfig } from '../lib/config'
-import {
-  computed,
-  defineComponent,
-  h,
-  ref,
-  SetupContext,
-  VNode,
-  watch,
-} from 'vue'
+import { computed, defineComponent, h, ref, VNode, watch } from 'vue'
 import { OfFieldBase } from '../components/FieldBase'
 import {
   BaseFieldProps,
@@ -20,7 +12,7 @@ import {
 import OfOptionList from '../components/OptionList.vue'
 import { TextFormatter, useFormats } from '../lib/formats'
 import { removeEmpty, throttle } from '../lib/util'
-import { useItems } from 'src/lib/items'
+import { useItems } from '../lib/items'
 
 // editing a list field does not necessarily mean swapping input to edit mode
 // it may/should show a popup instead (this might be implied by 'muted' flag)
@@ -49,7 +41,7 @@ export const OfTextField = defineComponent({
     rows: [Number, String],
     inputType: String,
   },
-  setup(props, ctx: SetupContext) {
+  setup(props, ctx) {
     const fieldCtx = makeFieldContext(props, ctx)
     const config = useConfig()
     const itemMgr = useItems(config)

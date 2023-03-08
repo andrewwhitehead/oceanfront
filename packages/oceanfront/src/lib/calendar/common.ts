@@ -68,7 +68,7 @@ export interface InternalEvent {
   /** True if the event occupies all day */
   readonly allDay?: boolean
   /** Event name */
-  readonly name?: string
+  readonly name: string
   /** Event color */
   readonly color?: string
   /** Event class */
