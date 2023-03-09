@@ -27,7 +27,6 @@ export const OfIcon = defineComponent({
       }
       return sz || undefined
     })
-
     return () => {
       const iconVal = icon.value
       const sz = size.value

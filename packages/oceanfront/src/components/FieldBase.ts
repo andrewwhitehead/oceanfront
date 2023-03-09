@@ -20,7 +20,7 @@ import {
 import { useFocusGroup } from '../lib/focus'
 import { useRecords } from '../lib/records'
 import { useThemeOptions } from '../lib/theme'
-import { PositionObserver, watchPosition } from '../lib/util'
+import { PositionObserver, sizeClass, watchPosition } from '../lib/util'
 import { OfOverlay } from './Overlay'
 
 const renderSlot = (
@@ -212,6 +212,7 @@ export const OfFieldBase = defineComponent({
         const cls = [
           'of-field ',
           {
+            ...sizeClass(fieldCtx.size),
             'of--tinted': !!tint.value,
             ['of--tint-' + tint.value]: !!tint.value,
             'of--active': fieldRender.active || !blank, // overridden for toggle input to avoid hiding content

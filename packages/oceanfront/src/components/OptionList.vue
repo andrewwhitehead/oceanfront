@@ -86,8 +86,8 @@ import {
   nextTick,
   watch,
 } from 'vue'
-import { OfNavGroup } from '../components/NavGroup'
-import { OfListItem } from '../components/ListItem'
+import { OfNavGroup } from './NavGroup'
+import { OfListItem } from './ListItem'
 import { throttle } from '../lib/util'
 import { useLanguage } from '../lib/language'
 

@@ -92,6 +92,7 @@ export interface FieldContext {
   onUpdate?: (value: any) => void
   required?: boolean
   value?: any
+  size?: string
 }
 
 export interface FieldProps {
@@ -246,6 +247,9 @@ export const makeFieldContext = (
   const record = computed(() => {
     return props.record || recordMgr.getCurrentRecord() || undefined
   })
+  const size = computed(() => {
+    return props.size || undefined
+  })
   const metadata = computed(() =>
     props.name ? record.value?.metadata?.[props.name] : null
   )
@@ -312,6 +316,7 @@ export const makeFieldContext = (
     editable,
     fieldType,
     initialValue,
+    size,
     inputLabel,
     interactive,
     labelPosition,

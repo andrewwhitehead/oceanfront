@@ -410,3 +410,15 @@ export const throttle = <T>(
   }
   return func
 }
+export type Size = 'nm' | 'sm' | 'lg'
+
+export const sizeClass = (size: string | undefined) => {
+  switch (size) {
+    case 'sm':
+      return { 'of--small': true }
+    case 'lg':
+      return { 'of--large': true }
+    default:
+      return {}
+  }
+}
