@@ -207,9 +207,9 @@
 
 .of-field {
   --field-background: transparent;
-  --field-background-opacity: 0%;
+  --field-background-opacity: 0;
   --field-border-color: transparent;
-  --field-border-opacity: 100%;
+  --field-border-opacity: 1;
   --field-border-radius: #{$border-radius-input};
   --field-border-style: solid;
   --field-border-width: 1px;
@@ -252,7 +252,7 @@
     --field-label-opacity: #{use-opacity(field-label, disabled)};
   }
   &.of--mode-editable:hover {
-    &:not(.of--invalid) {
+    &:not(.of--invalid):not(.of--undecorated) {
       --field-border-color: #{use-color(field-border, hover)};
       --field-border-opacity: #{use-opacity(field-border, hover)};
     }
@@ -260,7 +260,7 @@
     --field-label-opacity: #{use-opacity(field-label, hover)};
   }
   &.of--interactive.of--focused {
-    &:not(.of--invalid) {
+    &:not(.of--invalid):not(.of--undecorated) {
       --field-border-color: #{use-color(field-border, focus)};
       --field-border-opacity: #{use-opacity(field-border, focus)};
     }
@@ -275,7 +275,7 @@
     --field-border-opacity: #{use-opacity(field-border, invalid)};
   }
   &.of--mode-fixed {
-    .of-toggle-input{
+    .of-toggle-input {
       --field-color: #{use-color(field-color, disabled)};
       --field-opacity: #{use-opacity(field-color, disabled)};
     }
@@ -328,6 +328,14 @@
 
   &.of--rounded {
     --field-border-radius: calc(var(--field-v-pad) + 0.5em + 2px);
+  }
+
+  &.of--undecorated {
+    --field-border-opacity: 0;
+
+    .of--layer-bg {
+      opacity: 0;
+    }
   }
 
   > .of-field-main > .of-field-body > .of-field-inner > textarea {
@@ -385,7 +393,7 @@
   display: flex;
   width: 0; // allow element to resize smaller in firefox when nowrap is used
 
-  > *:not(.of--unpadded):not([class*='of--density-']):not(.of-slider) {
+  > *:not(.of--unpadded):not([class*='of--density-']) {
     padding: var(--field-v-pad) var(--field-h-pad);
   }
 }
@@ -393,12 +401,14 @@
 .of-field-content-text {
   cursor: inherit;
   flex: auto;
-  overflow: hidden;
   text-overflow: ellipsis;
   font-size: var(--field-font-size);
-  &:empty:after {
+  &:empty::after {
     content: '\200b';
   }
+}
+.of-field-content-text {
+  overflow: hidden;
 }
 
 .of-field-input {
@@ -613,7 +623,7 @@
     --field-label-opacity: #{use-opacity(field-filled-label, focus)};
   }
 
-  &.of--interactive > .of-field-main::after {
+  &.of--interactive .of--layer-brd::after {
     // ripple
     background: #{use-color(field-border, focus)};
     content: '';
@@ -629,10 +639,10 @@
     will-change: opacity, transform;
     z-index: 1;
   }
-  &.of--interactive.of--invalid > .of-field-main::after {
+  &.of--interactive.of--invalid .of--layer-brd::after {
     background: #{use-color(field-border, invalid)};
   }
-  &.of--interactive.of--focused > .of-field-main::after {
+  &.of--interactive.of--focused .of--layer-brd::after {
     opacity: #{use-opacity(field-border, focus)};
     transform: scaleX(1);
   }
@@ -740,7 +750,7 @@
     box-sizing: border-box;
     box-shadow: 0 2px 1px 0 rgba(100, 100, 100, 0.15),
       0 -2px 1px 0 rgba(100, 100, 100, 0.15);
-    content: ' ';
+    content: '';
     height: 1em;
     left: 0;
     position: absolute;
@@ -755,7 +765,7 @@
     box-sizing: border-box;
     flex: auto;
     height: 100%;
-    transition: background 0.15s ease-in-out, border 0.15s ease-in-out;
+    transition: background-color 0.15s ease-in-out, border 0.15s ease-in-out;
   }
   .of--checked & {
     .of-switch-thumb {
@@ -767,29 +777,52 @@
       opacity: 72%;
     }
   }
+  &:hover {
+    .of-switch-thumb {
+      box-shadow: 0 0 5px 9px rgba(100, 100, 100, 0.15);
+    }
+  }
+  .of--focused & {
+    .of-switch-thumb {
+      box-shadow: 0 0 0 9px rgba(100, 100, 100, 0.2);
+    }  
+  }
 }
 
 .of-slider {
+  --field-h-pad: 1.2em;
+
   align-items: center;
   display: flex;
   height: 1em;
   margin: 0.25em 0;
   width: 100%;
-  padding: var(--field-v-pad) 1.2em;
 
   &-track {
-    border-radius: 0.25em;
     width: 100%;
     height: 0.5em;
-    background-color: var(--of-inverse-tint);
+    position: relative;
     cursor: pointer;
+
+    &::after {
+      background-color: #{use-color(field-border)};
+      border-radius: 0.25em;
+      content: '';
+      display: block;
+      position: absolute;
+      opacity: 0.5;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+    }
   }
   &-track-process {
-    @extend .of-slider-track;
-    border-radius: 0;
-    background-color: var(--of-primary-tint);
-    opacity: 50%;
-    cursor: pointer;
+    background-color: #{use-color(field-border)};
+    border-radius: 0.25em 0 0 0.25em;
+    display: block;
+    position: absolute;
+    height: 100%;
   }
   &-thumb {
     background-color: var(--of-primary-tint);
@@ -802,13 +835,22 @@
     transform: translateX(-50%);
     z-index: 2;
     cursor: pointer;
-  }
 
-  &-thumb-moved {
-    @extend .of-slider-thumb;
-    box-shadow: 0 0 5px 9px rgba(100, 100, 100, 0.15);
-    .of-slider-label-container {
-      display: block;
+    &.of--moved {
+      box-shadow: 0 0 5px 9px rgba(100, 100, 100, 0.2);
+      .of-slider-label-container {
+        display: block;
+      }
+    }
+  }
+  &:hover {
+    .of-slider-thumb {
+      box-shadow: 0 0 5px 9px rgba(100, 100, 100, 0.15);
+    }
+  }
+  &.of--focused {
+    .of-slider-thumb {
+      box-shadow: 0 0 0 9px rgba(100, 100, 100, 0.2);
     }
   }
   &-label-container {
@@ -828,7 +870,7 @@
     width: 1.8em;
     display: none;
 
-    &:after {
+    &::after {
       top: 100%;
       left: 50%;
       transform: translate(-50%, 0);
@@ -878,14 +920,13 @@
     fill: #989c92;
   }
 }
-.radio-group{
+.radio-group {
   width: 100%;
   display: flex;
-
 }
-.of--column{
+.of--column {
   flex-direction: column;
 }
-.of--row{
+.of--row {
   flex-direction: row;
 }

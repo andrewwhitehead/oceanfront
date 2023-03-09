@@ -163,7 +163,6 @@ export const OfFieldBase = defineComponent({
         const outerId = (fieldRender.inputId ?? props.id) + '-outer'
         const mainId = (fieldRender.inputId ?? props.id) + '-main'
         let overlay, overlayActive, overlayBlur
-        // if(ctx.slots.overlay) overlay = ctx.slots.overlay(); else
         const dragIn =
           fieldRender.dragIn && makeDragIn(fieldRender.dragIn, dragOver)
         if (fieldRender.popup) {
@@ -225,6 +224,7 @@ export const OfFieldBase = defineComponent({
             'of--required': required.value,
             'of--loading': fieldRender.loading,
             'of--rounded': props.rounded,
+            'of--undecorated': !!fieldRender.undecorated,
             'of--updated': fieldRender.updated,
           },
           'of--cursor-' + (fieldRender.cursor || 'default'),
