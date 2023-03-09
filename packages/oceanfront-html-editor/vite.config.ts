@@ -4,7 +4,13 @@ import vue from '@vitejs/plugin-vue'
 import dts from 'vite-plugin-dts'
 
 export default defineConfig(({ command, mode }) => {
-  const node_env = process.env.NODE_ENV || 'development'
+  const dev = mode === 'development'
+  const plugins = [
+    vue(),
+    dts({
+      rollupTypes: true,
+    }),
+  ]
   return {
     build: {
       lib: {
@@ -14,11 +20,11 @@ export default defineConfig(({ command, mode }) => {
         fileName: 'oceanfront-html-editor',
       },
       define: {
-        __DEV__: JSON.stringify(node_env === 'development'),
+        __DEV__: JSON.stringify(dev),
         __VUE_OPTIONS_API__: 'true',
         __VUE_PROD_DEVTOOLS__: 'false',
       },
-      emptyOutDir: mode !== 'dev',
+      emptyOutDir: !dev,
       rollupOptions: {
         // make sure to externalize deps that shouldn't be bundled
         // into your library
@@ -33,13 +39,9 @@ export default defineConfig(({ command, mode }) => {
           assetFileNames: 'oceanfront-html-editor.[ext]',
         },
       },
-      sourcemap: mode === 'dev',
+      reportCompressedSize: !dev,
+      sourcemap: !dev,
     },
-    plugins: [
-      vue(),
-      dts({
-        rollupTypes: true,
-      }),
-    ],
+    plugins,
   }
 })

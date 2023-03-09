@@ -32,8 +32,8 @@ import { OfToggleField } from './fields/Toggle'
 import { OfRadioField } from './fields/Radio'
 import { OfToggle } from './components/Toggle'
 import { OfRadio } from './components/Radio'
-import Hue from './components/Hue'
-import Saturation from './components/Saturation'
+import ColorHue from './components/ColorHue'
+import ColorSaturation from './components/ColorSaturation'
 import { ColorFormatter } from './formats/Color'
 import {
   DateFormatter,
@@ -170,7 +170,7 @@ export type {
   FieldLabelPositionProp,
   FieldRender,
 } from './lib/fields'
-export { Hue, Saturation }
+export { ColorHue, ColorSaturation }
 export { provideFocusGroup, useFocusGroup } from './lib/focus'
 export type { FocusGroup } from './lib/focus'
 export { provideLanguage, useLanguage } from './lib/language'

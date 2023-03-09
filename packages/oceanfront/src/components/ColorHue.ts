@@ -3,7 +3,7 @@ import { defineComponent, nextTick, onMounted, ref, watch, h } from 'vue'
 import { DragEventOptions, triggerDragEvent } from '../lib/colorpicker'
 
 export default defineComponent({
-  name: 'Hue',
+  name: 'ColorHue',
   props: {
     hue: {
       type: Number,

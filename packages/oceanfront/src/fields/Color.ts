@@ -8,8 +8,8 @@ import {
   watch,
 } from 'vue'
 import { OfFieldBase } from '../components/FieldBase'
-import Hue from '../components/Hue'
-import Saturation from '../components/Saturation'
+import ColorHue from '../components/ColorHue'
+import ColorSaturation from '../components/ColorSaturation'
 import {
   hexToRgb,
   hslToRgb,
@@ -260,7 +260,7 @@ export const OfColorField = defineComponent({
           class: 'of-menu of-colorpicker-popup of--elevated-1',
         },
         h('div', { class: 'color-picker' }, [
-          h(Saturation, {
+          h(ColorSaturation, {
             tabindex: saturationFocused.value ? '-1' : '0',
             saturation: hsv.s,
             hue: hsv.h,
@@ -271,7 +271,7 @@ export const OfColorField = defineComponent({
             onFocus: onSaturationFocus,
             onSelect: closePopup,
           }),
-          h(Hue, {
+          h(ColorHue, {
             tabindex: !saturationFocused.value ? '-1' : '0',
             hue: hsv.h,
             onChange: (h: number) => setHsv({ ...hsv, h }),

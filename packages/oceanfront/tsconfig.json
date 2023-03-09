@@ -12,6 +12,7 @@
     "sourceMap": true,
     "baseUrl": ".",
     "types": [
+      "./src/shims",
       "resize-observer-browser",
       "vitest/globals"
     ],
