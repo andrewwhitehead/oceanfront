@@ -5,6 +5,7 @@
 <script lang="ts">
 import { useThemeOptions } from '../lib/theme'
 import { computed, defineComponent, PropType } from 'vue'
+import { Size, sizeClass } from '../lib/util'
 
 type Status =
   | 'success'
@@ -24,19 +25,6 @@ type Status =
   | 'primary'
   | 'secondar'
   | 'tertiary'
-
-type Size = 'normal' | 'small' | 'large'
-
-const sizeClass = (size: Size | undefined) => {
-  switch (size) {
-    case 'small':
-      return { 'of--small': true }
-    case 'large':
-      return { 'of--large': true }
-    default:
-      return {}
-  }
-}
 
 export default defineComponent({
   name: 'OfBadge',

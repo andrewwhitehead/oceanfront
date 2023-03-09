@@ -113,7 +113,7 @@ export const OfFileField = defineComponent({
         )
           return h(OfIcon, {
             name: 'cancel circle',
-            size: 'input',
+            size: props.size || 'input',
             onClick: clickClear,
           })
       },
@@ -160,7 +160,7 @@ export const OfFileField = defineComponent({
         ])
       },
       prepend() {
-        return h(OfIcon, { name: 'attach', size: 'input' })
+        return h(OfIcon, { name: 'attach', size: props.size || 'input' })
       },
     }
 

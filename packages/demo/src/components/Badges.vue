@@ -22,13 +22,13 @@
         >{{ status }}</of-badge
       >
       <h2>Size</h2>
-      <of-badge size="small" status="warning" :density="params.density"
+      <of-badge size="sm" status="warning" :density="params.density"
         >small</of-badge
       >
-      <of-badge size="normal" status="warning" :density="params.density"
+      <of-badge size="nm" status="warning" :density="params.density"
         >normal</of-badge
       >
-      <of-badge size="large" status="warning" :density="params.density"
+      <of-badge size="lg" status="warning" :density="params.density"
         >large</of-badge
       >
       <h2>Icons</h2>
@@ -58,19 +58,19 @@
         ><of-icon name="print" />{{ status }}</of-badge
       >
       <h2>Icon only</h2>
-      <of-badge icon size="small" status="warning" :density="params.density"
+      <of-badge icon size="sm" status="warning" :density="params.density"
         ><of-icon name="print"
       /></of-badge>
-      <of-badge icon size="normal" status="warning" :density="params.density"
+      <of-badge icon size="nm" status="warning" :density="params.density"
         ><of-icon name="print"
       /></of-badge>
-      <of-badge icon size="large" status="warning" :density="params.density"
+      <of-badge icon size="lg" status="warning" :density="params.density"
         ><of-icon name="print"
       /></of-badge>
       <of-badge
         icon
         circular
-        size="small"
+        size="sm"
         status="warning"
         :density="params.density"
         ><of-icon name="print"
@@ -78,7 +78,7 @@
       <of-badge
         icon
         circular
-        size="normal"
+        size="nm"
         status="warning"
         :density="params.density"
         ><of-icon name="print"
@@ -86,7 +86,7 @@
       <of-badge
         icon
         circular
-        size="large"
+        size="lg"
         status="warning"
         :density="params.density"
         ><of-icon name="print"
@@ -118,8 +118,8 @@ import { defineComponent, reactive } from 'vue'
 const sampleCode = `
 <!-- State -->
 <of-badge status="info">Info</of-badge>
-<of-badge status="info" size="small">Info</of-badge>
-<of-badge status="info" size="large">Info</of-badge>
+<of-badge status="info" size="sm">Info</of-badge>
+<of-badge status="info" size="lg">Info</of-badge>
 <of-badge status="info"><of-icon name="print" />Info</of-badge>
 <of-badge circular status="info">Info</of-badge>
 <of-badge circular status="info"><of-icon name="print" /></of-badge>

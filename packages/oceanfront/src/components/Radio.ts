@@ -10,7 +10,6 @@ export const OfRadio = defineComponent({
     checked: { type: [Boolean, Number], default: false },
     id: String,
     initialValue: { type: Boolean, default: undefined },
-    inputType: String,
     label: String,
     loading: Boolean,
     locked: Boolean,
@@ -20,7 +19,6 @@ export const OfRadio = defineComponent({
     readonly: Boolean,
     record: Object as PropType<FormRecord>,
     required: Boolean,
-    switch: Boolean,
     value: String,
   },
   emits: {
@@ -61,7 +59,6 @@ export const OfRadio = defineComponent({
     }
     return () => {
       const content = h(RadioInner, {
-        switch: props.inputType === 'switch' || props.switch,
         checked: props.checked,
         label: props.label,
         inputId: inputId.value,

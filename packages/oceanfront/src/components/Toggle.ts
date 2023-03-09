@@ -22,6 +22,7 @@ export const OfToggle = defineComponent({
     required: Boolean,
     switch: Boolean,
     value: String,
+    size: [String, Number],
   },
   emits: {
     'update:checked': null,
@@ -32,6 +33,7 @@ export const OfToggle = defineComponent({
     const record = computed(() => {
       return props.record || recordMgr.getCurrentRecord() || undefined
     })
+    console.log(props.size, 'toggle')
     const inputId = computed(() => props.id || defaultId)
     const value = computed(() => {
       const val =
@@ -69,6 +71,7 @@ export const OfToggle = defineComponent({
         label: props.label,
         inputId: inputId.value,
         name: props.name,
+        size: props.size,
         onInputMounted: setElt,
       })
       return h(

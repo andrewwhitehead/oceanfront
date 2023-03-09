@@ -144,7 +144,7 @@ import { defineComponent, reactive } from 'vue'
 export default defineComponent({
   setup() {
     const sampleCode = `
-<of-button>Submit</of-button>
+<of-button size="nm">Submit</of-button>
 <of-button variant="outlined">Submit</of-button>
 <of-button variant="text">Submit</of-button>
 <of-button disabled>Disabled</of-button>

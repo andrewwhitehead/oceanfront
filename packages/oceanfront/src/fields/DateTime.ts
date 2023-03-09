@@ -208,7 +208,7 @@ const defineField = (type: InputType, name: string, cls: string) =>
               withDate
                 ? h(OfIcon, {
                     name: 'date',
-                    size: 'input',
+                    size: props.size || 'input',
                   })
                 : null,
               withTime && !withDate
@@ -222,7 +222,7 @@ const defineField = (type: InputType, name: string, cls: string) =>
               stateValue.value
                 ? h(OfIcon, {
                     name: 'cancel circle',
-                    size: 'input',
+                    size: props.size || 'input',
                     tabindex: '0',
                     class: 'of-icon-clear-calendar',
                     onClick: onCancel,

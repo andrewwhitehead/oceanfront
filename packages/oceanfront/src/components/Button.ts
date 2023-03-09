@@ -4,19 +4,9 @@ import { OfOverlay } from './Overlay'
 import OfOptionList from './OptionList.vue'
 import { ItemsProp } from '../lib/items'
 import { useThemeOptions } from '../lib/theme'
+import { Size, sizeClass } from '../lib/util'
 
 let sysMenuTargetIndex = 0
-
-const sizeClass = (size: string | undefined) => {
-  switch (size) {
-    case 'sm':
-      return { 'of--small': true }
-    case 'lg':
-      return { 'of--large': true }
-    default:
-      return {}
-  }
-}
 
 export const OfButton = defineComponent({
   name: 'OfButton',
@@ -33,7 +23,7 @@ export const OfButton = defineComponent({
       type: Boolean,
       default: undefined,
     },
-    size: String,
+    size: String as PropType<Size>,
     split: Boolean,
     type: String,
     variant: String,

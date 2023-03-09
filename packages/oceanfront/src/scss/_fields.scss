@@ -360,6 +360,7 @@
   flex-flow: column nowrap;
   grid-area: main;
   min-height: calc(2 * var(--field-v-pad) + var(--field-input-height));
+  //justify-content: center;
   outline: none;
   position: relative;
 }
@@ -394,6 +395,7 @@
   flex: auto;
   overflow: hidden;
   text-overflow: ellipsis;
+  font-size: var(--field-font-size);
   &:empty:after {
     content: '\200b';
   }
@@ -405,9 +407,8 @@
   display: block;
   flex: auto;
   font-family: inherit;
-  font-size: inherit;
   line-height: inherit;
-
+  font-size: var(--field-font-size);
   // may want to restrict to certain variants:
   appearance: none;
   background: none;
