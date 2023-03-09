@@ -126,7 +126,6 @@ import {
   ref,
   watch,
   PropType,
-  SetupContext,
   ComputedRef,
   Ref,
 } from 'vue'
@@ -166,9 +165,9 @@ export default defineComponent({
   // components: { OfFormat },
   props: {
     footerItems: { type: Array as PropType<any[]>, default: () => [] },
-    headers: { type: Array, default: () => [] } as any as object &
+    headers: ({ type: Array, default: () => [] } as any) as object &
       PropType<DataTableHeader[]>,
-    items: { type: Array, default: () => [] } as any as object &
+    items: ({ type: Array, default: () => [] } as any) as object &
       PropType<Record<string, any>>,
     itemsCount: [String, Number],
     itemsPerPage: [String, Number],
@@ -185,7 +184,7 @@ export default defineComponent({
     'rows-deselect-all': null,
     'rows-sorted': null,
   },
-  setup(props, ctx: SetupContext) {
+  setup(props, ctx) {
     const themeOptions = useThemeOptions()
     const sort = ref({ column: '', order: '' })
 

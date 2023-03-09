@@ -4,7 +4,6 @@ import {
   h,
   nextTick,
   ref,
-  SetupContext,
   shallowRef,
   triggerRef,
   watch,
@@ -35,7 +34,7 @@ export const OfSliderField = defineComponent({
     max: [String, Number],
     step: [String, Number],
   },
-  setup(props, ctx: SetupContext) {
+  setup(props, ctx) {
     const pendingValue = ref<number>(0)
     const stateValue = ref()
     const thumbClass = ref('of-slider-thumb')

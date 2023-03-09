@@ -6,7 +6,6 @@ import {
   defineComponent,
   h,
   ref,
-  SetupContext,
   shallowRef,
   watch,
 } from 'vue'
@@ -16,7 +15,7 @@ import { extendReactive } from '../lib/util'
 
 export const OfField = defineComponent({
   name: 'OfField',
-  setup(props, ctx: SetupContext) {
+  setup(props, ctx) {
     const format = ref()
     const type_ = ref()
     const comp = shallowRef<DefineComponent>()

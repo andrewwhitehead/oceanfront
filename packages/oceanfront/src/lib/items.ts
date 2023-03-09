@@ -3,6 +3,8 @@ import { Config, ConfigManager } from './config'
 import { FormRecord } from './records'
 import { readonlyUnref } from './util'
 
+export type ItemsProp = ItemList | string | any[]
+
 export interface ItemList {
   avatarKey?: string
   disabledKey?: string
@@ -97,14 +99,14 @@ export function makeItems(
 }
 
 export interface ItemsState {
-  getItemList(items?: string | any[] | ItemList): ItemList | undefined
+  getItemList(items?: ItemsProp): ItemList | undefined
 }
 
 class ItemsManager implements ItemsState {
   readonly lists: Record<string, ItemList> = {}
   // constructor(_config: Config) {}
 
-  getItemList(items?: string | any[] | ItemList): ItemList | undefined {
+  getItemList(items?: ItemsProp): ItemList | undefined {
     // FIXME may also load from language manager
     if (typeof items === 'string') return this.lists[items]
     else return makeItemList(items)

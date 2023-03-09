@@ -1,12 +1,4 @@
-import {
-  computed,
-  defineComponent,
-  h,
-  PropType,
-  ref,
-  SetupContext,
-  VNode,
-} from 'vue'
+import { computed, defineComponent, h, PropType, ref, VNode } from 'vue'
 import { FieldMode, newFieldId } from '../lib/fields'
 import { FormRecord, useRecords } from '../lib/records'
 import { ToggleInner } from './ToggleInner'
@@ -35,7 +27,7 @@ export const OfToggle = defineComponent({
   emits: {
     'update:checked': null,
   },
-  setup(props, ctx: SetupContext) {
+  setup(props, ctx) {
     const defaultId = newFieldId()
     const recordMgr = useRecords()
     const record = computed(() => {

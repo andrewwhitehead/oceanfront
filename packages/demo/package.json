@@ -8,18 +8,17 @@
     "demo": "vite"
   },
   "dependencies": {
-    "hsluv": "^0.1.0",
     "oceanfront": "*",
     "oceanfront-html-editor": "*",
     "of-colorscheme-editor": "*",
     "vue": "~3.2",
-    "vue-router": "~4.0"
+    "vue-router": "~4.1"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^4.32",
     "@typescript-eslint/parser": "^4.32",
-    "@vitejs/plugin-vue": "~3.1",
-    "eslint": "^7.32",
+    "@vitejs/plugin-vue": "~4.0",
+    "eslint": "^7.0",
     "eslint-config-prettier": "^8.3",
     "eslint-plugin-import": "^2.24",
     "eslint-plugin-node": "^11.1",
@@ -27,10 +26,10 @@
     "eslint-plugin-promise": "^5.1",
     "eslint-plugin-vue": "^7.18",
     "highlight.js": "^11",
-    "prettier": "^2.4",
+    "prettier": "~2.8",
     "sass": "^1.42",
-    "typescript": "^4.4",
-    "vite": "~3.1"
+    "typescript": "~4.4",
+    "vite": "~4.1"
   },
   "sideEffects": [
     "*.scss",

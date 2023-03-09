@@ -48,7 +48,7 @@
 </template>
 
 <script lang="ts">
-import { ref, defineComponent, SetupContext, computed, watch, Ref } from 'vue'
+import { ref, defineComponent, computed, watch, Ref } from 'vue'
 import { OfOverlay } from './Overlay'
 
 export default defineComponent({
@@ -67,7 +67,7 @@ export default defineComponent({
     showCloseButton: { type: Boolean, default: false },
   },
   emits: ['update:modelValue'],
-  setup: function (props, ctx: SetupContext) {
+  setup: function (props, ctx) {
     const dialog = ref<any>()
     const dialogHeader: Ref<HTMLDivElement | undefined> = ref()
     const active = ref(props.modelValue)

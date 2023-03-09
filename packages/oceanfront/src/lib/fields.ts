@@ -209,11 +209,11 @@ export function extendFieldFormat(
   return extendReactive(format, props)
 }
 
-export const makeFieldContext = (
+export function makeFieldContext<C>(
   // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
   props: any,
-  ctx: SetupContext
-): FieldContext => {
+  ctx: SetupContext<C>
+): FieldContext {
   const themeOptions = useThemeOptions()
   const parseDensity = (density: string) => {
     const d = parseInt(density, 10)
@@ -324,11 +324,11 @@ export const makeFieldContext = (
     record,
     value,
     onInput: (input: any, value: any) => {
-      ctx.emit('input', input, value)
+      ;(ctx.emit as any)('input', input, value)
     },
     onUpdate: (value: any) => {
       if (props.name && record.value) record.value.value[props.name] = value
-      else ctx.emit('update:modelValue', value)
+      else (ctx.emit as any)('update:modelValue', value)
     },
     ...extractRefs(props, [
       'id',
@@ -353,11 +353,11 @@ export function fieldRender<T extends object>(props: T): FieldRender {
 const fieldContextKey = Symbol('[oceanfront-field-context')
 const fieldRenderKey = Symbol('[oceanfront-field-render')
 
-export const provideFieldContext = (
+export function provideFieldContext<C>(
   // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
   props: any,
-  ctx: SetupContext
-): FieldContext => {
+  ctx: SetupContext<C>
+): FieldContext {
   const fCtx = makeFieldContext(props, ctx)
   provide(fieldContextKey, fCtx)
   return fCtx

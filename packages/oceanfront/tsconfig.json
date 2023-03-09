@@ -1,19 +1,19 @@
 {
   "compilerOptions": {
-    "target": "es2018",
+    "target": "esnext",
     "module": "esnext",
     "strict": true,
     "outDir": "dist",
     "importHelpers": true,
+    "isolatedModules": true,
     "moduleResolution": "node",
     "esModuleInterop": true,
-    // "allowSyntheticDefaultImports": true,
-    // "skipLibCheck": true,
+    "skipLibCheck": true,
     "sourceMap": true,
     "baseUrl": ".",
     "types": [
-      "jest",
-      "resize-observer-browser"
+      "resize-observer-browser",
+      "vitest/globals"
     ],
     "lib": [
       "esnext",

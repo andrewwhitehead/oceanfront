@@ -37,6 +37,12 @@
           type="select"
           :items="tintOptions"
         />
+        <of-field
+          v-model="params.size"
+          label="Size"
+          type="select"
+          :items="sizeOptions"
+        />
       </div>
       <hr />
       <div class="options-fields">
@@ -77,11 +83,13 @@ export default defineComponent({
       mode: 'editable',
       variant: 'compare',
       tint: 'default',
+      size: 'nm',
       containerTint: 'default',
     })
 
     const densityOptions = ['default', '0', '1', '2', '3']
     const tintOptions = ['default', 'primary', 'secondary', 'tertiary']
+    const sizeOptions = ['sm', 'nm', 'lg']
     const labelPosOptions = [
       'default',
       'none',
@@ -126,6 +134,7 @@ export default defineComponent({
       checkedValue,
       props,
       customProps,
+      sizeOptions,
     }
   },
 })

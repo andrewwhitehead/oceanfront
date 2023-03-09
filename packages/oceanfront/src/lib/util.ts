@@ -401,7 +401,7 @@ export const throttle = <T>(
     }
     timeout = setTimeout(() => {
       handler(input)
-    }, inteval)
+    }, inteval) as any as number
   }
   func.cancel = () => {
     if (timeout !== null) {

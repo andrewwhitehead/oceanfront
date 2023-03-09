@@ -1,12 +1,4 @@
-import {
-  computed,
-  defineComponent,
-  h,
-  ref,
-  SetupContext,
-  VNode,
-  watch,
-} from 'vue'
+import { computed, defineComponent, h, ref, VNode, watch } from 'vue'
 import { OfFieldBase } from '../components/FieldBase'
 import { OfIcon } from '../components/Icon'
 import {
@@ -23,7 +15,7 @@ export const OfFileField = defineComponent({
   props: {
     ...BaseFieldProps,
   },
-  setup(props, ctx: SetupContext) {
+  setup(props, ctx) {
     const fieldCtx = makeFieldContext(props, ctx)
     const initialValue = computed(() => {
       let initial = fieldCtx.initialValue

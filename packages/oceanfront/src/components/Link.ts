@@ -6,7 +6,6 @@ import {
   resolveComponent,
   ComponentInternalInstance,
   PropType,
-  SetupContext,
 } from 'vue'
 
 export type Link = {
@@ -91,7 +90,7 @@ export const OfLink = defineComponent({
     to: [String, Object] as PropType<LinkTo>,
     beforeNavigate: { type: Array as PropType<Function[]>, default: null },
   },
-  setup(props, ctx: SetupContext) {
+  setup(props, ctx) {
     const inst = getCurrentInstance() as ComponentInternalInstance
     const focus = () => {
       const elt = findChildElement(inst)

@@ -7,7 +7,7 @@
     @blur="hide"
   >
     <template #default="{ active, state }">
-      <transition :name="state === 'overlay' ? 'slide-right' : null">
+      <transition :name="state === 'overlay' ? 'slide-right' : undefined">
         <nav
           class="of-sidebar"
           :class="classAttr"
@@ -23,7 +23,7 @@
 </template>
 
 <script lang="ts">
-import { ref, defineComponent, SetupContext, computed, watch } from 'vue'
+import { ref, defineComponent, computed, watch } from 'vue'
 import { OfOverlay } from './Overlay'
 
 export default defineComponent({
@@ -38,7 +38,7 @@ export default defineComponent({
     modelValue: Boolean,
   },
   emits: ['update:modelValue'],
-  setup(props, ctx: SetupContext) {
+  setup(props, ctx) {
     const active = ref(props.modelValue)
     watch(
       () => props.modelValue,

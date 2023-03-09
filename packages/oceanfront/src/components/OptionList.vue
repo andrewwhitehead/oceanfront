@@ -43,7 +43,7 @@
       </div>
       <template v-if="!isEmpty">
         <div class="of-list-outer" ref="listOuter">
-          <template v-for="(item, idx) of theItems" :key="idx">
+          <template v-for="(item, idx) of filterItems" :key="idx">
             <div class="of-list-header" v-if="item.special === 'header'">
               {{ item.text }}
             </div>
@@ -57,6 +57,7 @@
               @blur="onItemBlur"
               @focus="onItemFocus"
               :attrs="item.attrs"
+              :key="idx"
             >
               <slot name="option-icon" v-bind="item">
                 <of-icon v-if="item.icon" :name="item.icon" size="input" />
@@ -86,14 +87,17 @@ import {
   nextTick,
   watch,
 } from 'vue'
-import { OfNavGroup } from './NavGroup'
-import { OfListItem } from './ListItem'
+import { OfField } from '../components/Field'
+import { OfNavGroup } from '../components/NavGroup'
+import { OfListItem } from '../components/ListItem'
+import { ItemsProp, useItems } from '../lib/items'
 import { throttle } from '../lib/util'
 import { useLanguage } from '../lib/language'
 
 const OfOptionList = defineComponent({
   name: 'OfOptionList',
   components: {
+    OfField,
     OfListItem,
     OfNavGroup,
   },
@@ -102,16 +106,22 @@ const OfOptionList = defineComponent({
     class: [Object, String],
     style: [Object, String],
     items: {
-      type: Array as PropType<any[]>,
+      type: [String, Object, Array] as PropType<ItemsProp>,
       default: () => [],
     },
-    onClick: { type: Function, required: true },
     addSearch: { type: Boolean, default: false },
   },
-  emits: ['blur'],
+  emits: ['blur', 'click'],
   setup(props, ctx) {
-    const isEmpty = computed(() => !theItems.value || !theItems.value.length)
-    const theItems = ref(props.items as any[])
+    const itemMgr = useItems()
+    const allItems = computed(() => {
+      return (
+        itemMgr.getItemList(props.items) || {
+          items: [],
+        }
+      )
+    })
+    const isEmpty = computed(() => filterItems.value.length == 0)
     const menuClass = computed(() => props.class)
     const menuStyle = computed(() => props.style)
     const itemFocused: Ref<boolean> = ref(false)
@@ -135,44 +145,30 @@ const OfOptionList = defineComponent({
       listOuter?.value?.scroll?.(0, 0)
     }
 
-    watch(
-      () => props.items,
-      (value) => {
-        theItems.value = value
-      }
-    )
-
     let prevSearchText: string | null = null
-    watch(
-      () => [searchText.value, props.items],
-      () => {
-        const showAll = searchText.value.trim() === ''
-        theItems.value = props.items.filter((item) => {
-          if (item.special) return true
-          if (item.value !== undefined) {
-            const optionText: string = item.text
-            return (
-              showAll ||
-              optionText
-                .toLowerCase()
-                .includes(searchText.value.trim().toLowerCase())
-            )
-          }
-        })
-        //Remove empty special items
-        theItems.value = theItems.value.filter((item, index) => {
-          if (item.special) {
-            const nextItem = theItems.value[index + 1] ?? null
-            return nextItem && !nextItem.special
-          } else {
-            return true
-          }
-        })
-        if (searchText.value !== prevSearchText) scrollListTop()
-        prevSearchText = searchText.value
-      },
-      { immediate: true }
-    )
+    const filterItems = computed(() => {
+      const normQuery = (searchText.value || '').trim().toLowerCase()
+      const showAll = normQuery === ''
+      let itemList = allItems.value.items.filter((item) => {
+        if (item.special) return true
+        if (item.value !== undefined) {
+          const optionText: string = item.text
+          return showAll || optionText.toLowerCase().includes(normQuery)
+        }
+      })
+      //Remove empty special items
+      itemList = itemList.filter((item, index) => {
+        if (item.special) {
+          const nextItem = itemList[index + 1] ?? null
+          return nextItem && !nextItem.special
+        } else {
+          return true
+        }
+      })
+      if (normQuery !== prevSearchText) scrollListTop()
+      prevSearchText = normQuery
+      return itemList
+    })
 
     const clearSearch = () => {
       searchText.value = ''
@@ -209,7 +205,7 @@ const OfOptionList = defineComponent({
         !evt.metaKey &&
         !evt.ctrlKey
       ) {
-        if (props.addSearch && props.items?.length > 0) {
+        if (props.addSearch && !isEmpty.value) {
           showSearch.value = true
           nextTick(() => {
             focusSearch()
@@ -239,7 +235,7 @@ const OfOptionList = defineComponent({
     }
 
     const blurList = () => {
-      theItems.value.forEach((item) => {
+      filterItems.value.forEach((item) => {
         if (item.attrs?.hasOwnProperty('isFocused')) {
           item.attrs.isFocused = false
         }
@@ -249,27 +245,27 @@ const OfOptionList = defineComponent({
 
     const click = (item: any, event: Event): any => {
       if (item.disabled) return
-      if (props.onClick) props.onClick(item.value, item, event)
+      ctx.emit('click', item.value, item, event)
       showSearch.value = false
       searchText.value = ''
     }
 
     const focusFirstItem = (ignoreSelected = false) => {
-      if (theItems.value.length == 0) return
+      if (filterItems.value.length == 0) return
 
-      const selected = theItems.value.findIndex(
+      const selected = filterItems.value.findIndex(
         (item) => item.selected && item.selected === true
       )
 
       if (!ignoreSelected && selected !== -1) {
-        theItems.value[selected].attrs = {
-          ...theItems.value[selected].attrs,
+        filterItems.value[selected].attrs = {
+          ...filterItems.value[selected].attrs,
           ...{ isFocused: true },
         }
       } else {
         scrollListTop()
 
-        theItems.value.some((item) => {
+        filterItems.value.some((item) => {
           if (!item.special) {
             item.attrs = { ...item.attrs, ...{ isFocused: true } }
             return true
@@ -285,7 +281,7 @@ const OfOptionList = defineComponent({
     return {
       lang,
       isEmpty,
-      theItems,
+      filterItems,
       menuClass,
       menuStyle,
       click,

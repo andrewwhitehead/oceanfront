@@ -5,8 +5,8 @@
   color: var(--of-on-primary-tint);
 }
 
-@import 'oceanfront/dist/oceanfront.css';
-@import 'oceanfront-html-editor/dist/oceanfront-html-editor.css';
+@import 'oceanfront/css';
+@import 'oceanfront-html-editor/css';
 
 .of-code {
   border-radius: 5px;

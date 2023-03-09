@@ -1,13 +1,5 @@
 /* eslint-disable vue/one-component-per-file */
-import {
-  computed,
-  defineComponent,
-  h,
-  Ref,
-  ref,
-  SetupContext,
-  watch,
-} from 'vue'
+import { computed, defineComponent, h, Ref, ref, watch } from 'vue'
 import OfDateTimePopup from '../components/DateTimePopup.vue'
 import { OfFieldBase } from '../components/FieldBase'
 import { OfIcon } from '../components/Icon'
@@ -50,7 +42,7 @@ const defineField = (type: InputType, name: string, cls: string) =>
     name,
     class: cls,
     props: BaseFieldProps,
-    setup(props, ctx: SetupContext) {
+    setup(props, ctx) {
       const fieldCtx = makeFieldContext(props, ctx)
       const withTime = type == 'datetime' || type == 'time'
       const withDate = type == 'datetime' || type == 'date'
@@ -216,7 +208,7 @@ const defineField = (type: InputType, name: string, cls: string) =>
               withDate
                 ? h(OfIcon, {
                     name: 'date',
-                    size: 'input',
+                    size: props.size || 'input',
                   })
                 : null,
               withTime && !withDate
@@ -230,7 +222,7 @@ const defineField = (type: InputType, name: string, cls: string) =>
               stateValue.value
                 ? h(OfIcon, {
                     name: 'cancel circle',
-                    size: 'input',
+                    size: props.size || 'input',
                     tabindex: '0',
                     class: 'of-icon-clear-calendar',
                     onClick: onCancel,

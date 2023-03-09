@@ -159,7 +159,7 @@
 
 <script lang="ts">
 import { defineComponent, reactive, ref } from 'vue'
-import { Tab } from 'oceanfront/src/lib/tab'
+import { Tab } from 'oceanfront'
 
 const variants = ['material', 'attached']
 const borderWidths = ['1px', '2px', '3px']
