@@ -185,8 +185,11 @@ abstract class DateTimeFormatterBase implements TextFormatter {
 
 export class DateTimeFormatter extends DateTimeFormatterBase {
   formatterOptions(_editing?: boolean): Intl.DateTimeFormatOptions {
-    if (this.options.nativeOptions !== undefined)
+    if (this.options.nativeOptions !== undefined) {
+      this.options.dateFormat = ''
+      this.options.timeFormat = ''
       return this.options.nativeOptions
+    }
     const options = super.formatterOptions(_editing)
     options.day = '2-digit'
     options.month = '2-digit'
@@ -315,8 +318,10 @@ export class DateFormatter extends DateTimeFormatterBase {
   }
 
   formatterOptions(_editing?: boolean): Intl.DateTimeFormatOptions {
-    if (this.options.nativeOptions !== undefined)
+    if (this.options.nativeOptions !== undefined) {
+      this.options.dateFormat = ''
       return this.options.nativeOptions
+    }
     const options = super.formatterOptions(_editing)
     return DateFormatter.adjustOptions(options)
   }
@@ -391,8 +396,10 @@ export class TimeFormatter extends DateTimeFormatterBase {
   }
 
   formatterOptions(_editing?: boolean): Intl.DateTimeFormatOptions {
-    if (this.options.nativeOptions !== undefined)
+    if (this.options.nativeOptions !== undefined) {
+      this.options.timeFormat = ''
       return this.options.nativeOptions
+    }
     const timeFormat = this.options.timeFormat as string
     const options = super.formatterOptions(_editing)
     return TimeFormatter.adjustOptions(options, timeFormat)
