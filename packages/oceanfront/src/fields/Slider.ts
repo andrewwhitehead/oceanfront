@@ -136,7 +136,7 @@ export const OfSliderField = defineComponent({
     }
     const trackHooks = {
       onMousedown(evt: MouseEvent) {
-        const tg = evt.target as HTMLDivElement | null
+        const tg = trackElt.value as HTMLDivElement | null
         if (!tg || !fieldCtx.editable) return
         const dims = tg.getBoundingClientRect()
         if (!dims.width) return
