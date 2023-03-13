@@ -122,7 +122,7 @@ export const OfSliderField = defineComponent({
     const thumbHooks = {
       onMousedown(evt: MouseEvent) {
         const elt = thumbElt.value
-        if (!elt || !fieldCtx.editable) return
+        if (!elt || !fieldCtx.editable || evt.button !== 0) return
         evt.stopPropagation()
         evt.preventDefault()
         focus()
@@ -137,7 +137,7 @@ export const OfSliderField = defineComponent({
     const trackHooks = {
       onMousedown(evt: MouseEvent) {
         const tg = trackElt.value as HTMLDivElement | null
-        if (!tg || !fieldCtx.editable) return
+        if (!tg || !fieldCtx.editable || evt.button !== 0) return
         const dims = tg.getBoundingClientRect()
         if (!dims.width) return
         evt.stopPropagation()
@@ -165,7 +165,7 @@ export const OfSliderField = defineComponent({
     }
     const handleMove = (evt: MouseEvent) => {
       const tw = trackWidth.value
-      thumbClass.value = 'of-slider-thumb-moved'
+      thumbClass.value = 'of-slider-thumb of--moved'
 
       if (tw) {
         pendingValue.value = fixValue(
@@ -230,7 +230,10 @@ export const OfSliderField = defineComponent({
         return h(
           'div',
           {
-            class: 'of-slider',
+            class: {
+              'of-slider': true,
+              'of--focused': focused.value,
+            },
             onVnodeMounted: () => {
               // watch is not triggered on first render
               nextTick(() => triggerRef(trackElt))
@@ -284,6 +287,7 @@ export const OfSliderField = defineComponent({
       focused,
       pendingValue,
       updated: computed(() => initialValue.value !== stateValue.value),
+      undecorated: true,
       value: stateValue,
     })
     provideFieldRender(fRender)

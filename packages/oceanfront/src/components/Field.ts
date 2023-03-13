@@ -15,7 +15,7 @@ import { extendReactive } from '../lib/util'
 
 export const OfField = defineComponent({
   name: 'OfField',
-  setup(props, ctx) {
+  setup(_props, ctx) {
     const format = ref()
     const type_ = ref()
     const comp = shallowRef<DefineComponent>()

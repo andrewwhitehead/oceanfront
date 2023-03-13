@@ -48,6 +48,7 @@ export interface FieldRender {
   size?: number | string
   updated?: boolean
   value?: any
+  undecorated?: boolean
 }
 
 export type FieldMode =

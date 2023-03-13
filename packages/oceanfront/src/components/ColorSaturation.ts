@@ -26,7 +26,7 @@ const clamp = (value: number, min: number, max: number) => {
 }
 
 export default defineComponent({
-  name: 'Saturation',
+  name: 'ColorSaturation',
   props: {
     hue: {
       type: Number,
