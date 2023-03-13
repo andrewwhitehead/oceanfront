@@ -89,6 +89,7 @@ export const OfToggleField = defineComponent({
           {
             switch: inputType.value === 'switch',
             checked: stateValue.value,
+            focused: focused.value,
             label: fieldCtx.inputLabel,
             inputId: inputId.value,
             align: props.align,
@@ -115,6 +116,7 @@ export const OfToggleField = defineComponent({
       inputId,
       updated: computed(() => initialValue.value !== stateValue.value),
       value: stateValue,
+      undecorated: true,
       fieldContext: fieldCtx,
     })
     provideFieldRender(fRender)

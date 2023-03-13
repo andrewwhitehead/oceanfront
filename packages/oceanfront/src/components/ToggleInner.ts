@@ -5,6 +5,7 @@ export const ToggleInner = defineComponent({
   props: {
     switch: Boolean,
     checked: [Boolean, Number],
+    focused: Boolean,
     label: String,
     inputId: String,
     align: String,
@@ -46,31 +47,35 @@ export const ToggleInner = defineComponent({
           )
         : undefined
       const inner = [
-        h('div', { class: 'of-toggle-input' }, [
-          h('input', {
-            class: 'of-field-input',
-            checked: props.checked,
-            id: props.inputId,
-            // disabled: disabled.value,
-            tabindex: props.mode === 'fixed' ? -1 : 0,
-            name: props.name,
-            type: 'checkbox',
-            value: '1',
-            ...hooks,
-          }),
-          props.switch
-            ? h('div', { class: 'of-switch' }, [
-                h('div', { class: 'of-switch-track' }),
-                h('div', { class: 'of-switch-thumb' }),
-              ])
-            : ctx.slots.icon
-            ? ctx.slots.icon(props.checked)
-            : h(OfIcon, {
-                class: 'of-toggle-icon',
-                name: icon.value,
-                size: props.size || 'input',
-              }),
-        ]),
+        h(
+          'div',
+          { class: { 'of-toggle-input': true, 'of--focused': props.focused } },
+          [
+            h('input', {
+              class: 'of-field-input',
+              checked: props.checked,
+              id: props.inputId,
+              // disabled: disabled.value,
+              tabindex: props.mode === 'fixed' ? -1 : 0,
+              name: props.name,
+              type: 'checkbox',
+              value: '1',
+              ...hooks,
+            }),
+            props.switch
+              ? h('div', { class: 'of-switch' }, [
+                  h('div', { class: 'of-switch-track' }),
+                  h('div', { class: 'of-switch-thumb' }),
+                ])
+              : ctx.slots.icon
+              ? ctx.slots.icon(props.checked)
+              : h(OfIcon, {
+                  class: 'of-toggle-icon',
+                  name: icon.value,
+                  size: props.size || 'input',
+                }),
+          ]
+        ),
       ]
       if (label) inner.push(label)
       return [
