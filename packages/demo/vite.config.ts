@@ -11,6 +11,10 @@ const config: UserConfig = {
       'highlight.js/lib/languages/xml',
     ],
   },
+  build: {
+    chunkSizeWarningLimit: 1600,
+  },
+
   plugins: [vue()],
 }
 
