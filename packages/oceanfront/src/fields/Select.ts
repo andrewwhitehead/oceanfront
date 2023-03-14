@@ -206,7 +206,7 @@ export const OfSelectField = defineComponent({
         if (fieldCtx.editable || fieldCtx.mode === 'locked')
           return h(OfIcon, {
             class: 'of-select-icon',
-            name: opened.value ? 'bullet up' : 'bullet down',
+            name: opened.value ? 'select up' : 'select down',
             size: 'input',
           })
       },
