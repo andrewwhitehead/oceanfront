@@ -402,6 +402,8 @@ export default defineComponent({
     }
 
     const menuDisabled: ComputedRef<boolean> = computed(() => sourceMode.value)
+    const contentUpdated = ref(false)
+    const dataUpdated = ref(false)
 
     watch(
       () => props.modelValue,
@@ -420,8 +422,11 @@ export default defineComponent({
     watch(
       () => source.value,
       (value: string) => {
-        updateContent(value)
-        updateData()
+        if (!dataUpdated.value) {
+          updateContent(value)
+          updateData()
+        }
+        dataUpdated.value = false
       }
     )
 
@@ -489,8 +494,14 @@ export default defineComponent({
         ? coreExtensions.concat(props.extensions)
         : coreExtensions,
       onUpdate: () => {
-        updateData()
+        dataUpdated.value = true
         source.value = editor.value.getHTML()
+        setTimeout(() => {
+          if (!contentUpdated.value) {
+            updateData()
+          }
+          contentUpdated.value = false
+        })
       },
       onFocus: () => {
         focused.value = true
@@ -501,6 +512,7 @@ export default defineComponent({
     }) as ShallowRef<Editor>
 
     const updateContent = (value: string, emitUpdate = false): void => {
+      contentUpdated.value = true
       const isSame = editor.value.getHTML() === value
       if (isSame) return
       editor.value.commands.setContent(value, emitUpdate)
@@ -518,6 +530,7 @@ export default defineComponent({
         html: editor.value.getHTML(),
         text: editor.value.getText(),
       })
+      contentUpdated.value = false
     }
 
     const getVariant = (name: any, params = {}): string => {
