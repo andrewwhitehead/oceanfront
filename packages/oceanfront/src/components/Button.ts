@@ -73,9 +73,10 @@ export const OfButton = defineComponent({
         ctx.emit('click', evt)
       }
     }
-    const onClickItem = (val: any) => {
+    const onClickItem = (val: any, item: any) => {
       if (typeof val === 'function') val.call(this)
-      closeMenu()
+      if (!item.hasOwnProperty('closeAfterClick') || !!item.closeAfterClick)
+        closeMenu()
     }
     const onBlurList = () => {
       closeMenu()

@@ -23,7 +23,7 @@ export const OfListItem = defineComponent({
   },
   emits: {
     mousedown: null,
-    click: null,
+    keydown: null,
     blur: null,
     focus: null,
   },
@@ -55,9 +55,6 @@ export const OfListItem = defineComponent({
       onBlur() {
         isFocused.value = false
         ctx.emit('blur')
-      },
-      onmousedown() {
-        ctx.emit('mousedown')
       },
     }
     watch(
@@ -108,7 +105,6 @@ export const OfListItem = defineComponent({
               (link.href ? link.isExactActive : navGroup && isCurrent.value)
             const href = link.href
             const activate = (evt: Event) => {
-              ctx.emit('click', evt)
               if (link.href) {
                 link.navigate(evt)
               }
@@ -130,14 +126,18 @@ export const OfListItem = defineComponent({
                 href: link.href,
                 ref: elt,
                 tabIndex: active || attrs.value?.isFocused ? 0 : -1,
-                onClick(evt: MouseEvent) {
+                onMousedown(evt: MouseEvent) {
                   if (evt.button != null && evt.button !== 0) return
+                  ctx.emit('mousedown', evt)
                   activate(evt)
                   return false
                 },
                 onKeydown(evt: KeyboardEvent) {
-                  if ((evt.key === ' ' || evt.key === 'Enter') && activate(evt))
-                    return
+                  if (evt.key === ' ' || evt.key === 'Enter') {
+                    ctx.emit('keydown', evt)
+                    evt.preventDefault()
+                    if (activate(evt)) return
+                  }
                   navGroup?.navigate(evt)
                 },
                 ...handlers,
