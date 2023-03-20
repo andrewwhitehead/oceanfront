@@ -11,12 +11,13 @@
       @blur="hidePopup"
     >
       <div
+        class="state-special"
         :style="{
           width: '200px',
           height: '60px',
-          color: '#FFF',
-          'background-color': detailsEvent.color,
-          border: 'solid 2px #FFF',
+          background: 'var(--color-bg-event)',
+          color: 'var(--color-event)',
+          border: 'solid 1px var(--color-border-event)',
           'border-radius': '10px',
         }"
       >
@@ -296,5 +297,8 @@ export default defineComponent({
 <style>
 .of-calendar-event {
   font-size: 70%;
+}
+.of-calendar-event .of-icon {
+  margin-right: 1px;
 }
 </style>
