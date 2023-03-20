@@ -189,8 +189,10 @@ div.of-date-picker-cur-year {
 }
 
 .of-calendar-allday-row .of-calendar-event {
-  height: var(--of-event-height, 20px);
-  min-height: var(--of-event-height, 20px);
+  height: calc(var(--of-event-height, 20px) - 2px);
+  min-height: calc(var(--of-event-height, 20px) - 2px);
+  line-height: 1rem;
+  margin: 1px 2px;
   z-index: 1;
 }
 
@@ -222,8 +224,9 @@ div.of-date-picker-cur-year {
     border-left: solid 1px var(--calendar-grid-color);
   }
   & .of-calendar-event {
-    height: var(--of-event-height, 20px);
-    width: 100%;
+    height: calc(var(--of-event-height, 20px) - 2px);
+    width: calc(100% - 4px);
+    line-height: 1rem;
     z-index: 1;
   }
   & .events {
@@ -234,12 +237,13 @@ div.of-date-picker-cur-year {
 
 .of-calendar-more {
   text-align: right;
-  width: 100%;
+  width: calc(100% - 4px);
   font-size: 75%;
   font-weight: bold;
   cursor: pointer;
   height: var(--of-event-height, auto);
   position: absolute;
+  margin: 0 2px;
   &:focus,
   &:focus-visible {
     outline: solid 1px var(--calendar-grid-color);
@@ -270,10 +274,10 @@ div.of-date-picker-cur-year {
     outline-offset: 0;
   }
   &:hover {
-    min-height: var(--of-event-height, 20px);
+    min-height: calc(var(--of-event-height, 20px) - 2px);
     min-width: fit-content;
     &.two-lines {
-      min-height: calc(2 * var(--of-event-height, 20px));
+      min-height: calc(2 * calc(var(--of-event-height, 20px) - 2px));
     }
   }
 }
