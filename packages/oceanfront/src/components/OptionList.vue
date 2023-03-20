@@ -53,7 +53,7 @@
               :active="item.selected"
               :disabled="item.disabled"
               @mousedown="(event) => click(item, event)"
-              @click="(event) => click(item, event)"
+              @keydown="(event) => click(item, event)"
               @blur="onItemBlur"
               @focus="onItemFocus"
               :attrs="item.attrs"
@@ -234,16 +234,20 @@ const OfOptionList = defineComponent({
       itemFocused.value = false
     }
 
+    const closeAfterClick = ref(true)
     const blurList = () => {
       filterItems.value.forEach((item) => {
         if (item.attrs?.hasOwnProperty('isFocused')) {
           item.attrs.isFocused = false
         }
       })
-      ctx.emit('blur')
+      nextTick(() => {
+        if (closeAfterClick.value) ctx.emit('blur')
+      })
     }
 
     const click = (item: any, event: Event): any => {
+      closeAfterClick.value = item.closeAfterClick
       if (item.disabled) return
       ctx.emit('click', item.value, item, event)
       showSearch.value = false
