@@ -13,8 +13,10 @@
         <div
           :class="{
             'of-tabs-navigation-header': true,
-            'of-tabs-navigation-header-show-next-navigation': ofTabsNavigationHeaderShowNextNavigation,
-            'of-tabs-navigation-header-show-previous-navigation': ofTabsNavigationHeaderShowPreviousNavigation,
+            'of-tabs-navigation-header-show-next-navigation':
+              ofTabsNavigationHeaderShowNextNavigation,
+            'of-tabs-navigation-header-show-previous-navigation':
+              ofTabsNavigationHeaderShowPreviousNavigation,
             'of-tabs-navigation-header-has-navigation': showNavigation,
           }"
         >
@@ -230,8 +232,8 @@ export default defineComponent({
     submenu: Boolean,
   },
   emits: {
-    'update:modelValue'(_index: number) {},
-    'select-tab'(_tab: Tab) {},
+    'update:modelValue': null,
+    'select-tab': null,
   },
   setup(props, context) {
     const themeOptions = useThemeOptions()
