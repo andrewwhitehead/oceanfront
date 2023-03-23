@@ -5,7 +5,10 @@ export const sameDate = (d1: Date, d2: Date): boolean =>
 
 // always sets day to 1!
 export const addMonths = (d: Date, months: number): Date => {
-  return new Date(d.getFullYear(), d.getMonth() + months, 1)
+  const date = new Date(d.getTime())
+  date.setMonth(date.getMonth() + months)
+  date.setDate(1)
+  return date
 }
 
 export const addDays = (d: Date, days: number): Date => {

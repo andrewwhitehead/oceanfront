@@ -226,6 +226,10 @@ export default defineComponent({
     )
 
     watch(
+      () => props.monthStart,
+      (monthStart) => (selMonthStart.value = monthStart ?? new Date())
+    )
+    watch(
       () => selDate.value,
       () => {
         selDateLocale.value = dateTimeFormatted.value?.localeValue
