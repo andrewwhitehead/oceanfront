@@ -530,19 +530,29 @@
         }
 
         .of-field-header-label {
-          border-bottom: var(--field-border-width) var(--field-border-style)
-            var(--field-border-color);
-          border-top: var(--field-border-width) var(--field-border-style)
-            var(--field-border-color);
-          opacity: var(--field-border-opacity);
-          box-sizing: border-box;
           max-width: calc(100% - 2 * var(--field-h-pad));
           padding: 0 0.25em;
-          transition: border-color 120ms;
+          position: relative;
+
+          &::after {
+            border-bottom: var(--field-border-width) var(--field-border-style)
+              var(--field-border-color);
+            border-top: var(--field-border-width) var(--field-border-style)
+              var(--field-border-color);
+            opacity: var(--field-border-opacity);
+            content: '';
+            box-sizing: border-box;
+            transition: border-color 120ms;
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+          }
 
           .of-field-label {
             position: relative;
-            top: calc(0px - var(--field-border-width));
+            top: 0;
             display: block;
             font-size: 0.75em;
             transform: translateX(var(--field-size-prepend)) scale(1.3333)
@@ -569,7 +579,9 @@
 
         > .of-field-header {
           .of-field-header-label {
-            border-top-color: transparent;
+            &::after {
+              border-top-color: transparent;
+            }
 
             .of-field-label {
               transform: translateY(-0.675em);
