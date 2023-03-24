@@ -97,6 +97,14 @@ const makeDragIn = (spec: FieldDragIn, flag: Ref<boolean>) => {
   }
 }
 
+const parseDimension = (
+  size?: number | string
+): { length: number; unit: string } | null => {
+  const m = ('' + size).match(/^(\d*\.?\d+)(\w+)$/)
+  if (!m) return null
+  return { length: parseInt(m[1], 10), unit: m[2] }
+}
+
 export const OfFieldBase = defineComponent({
   name: 'OfFieldBase',
   inheritAttrs: false,
@@ -239,8 +247,9 @@ export const OfFieldBase = defineComponent({
         ]
         const size = fieldRender.size || props.size // FIXME fetch from config
         const style: Record<string, string> = {}
-        if (size) {
-          style['--field-size'] = `${size}ch`
+        const dim = parseDimension(size)
+        if (dim) {
+          style['--field-size'] = '' + dim.length + (dim.unit || 'ch')
         }
         const contentSlot =
           ctx.slots.default ||
