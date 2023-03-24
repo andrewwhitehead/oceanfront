@@ -285,6 +285,7 @@ export const OfSliderField = defineComponent({
       class: 'of-slider-field',
       focus,
       focused,
+      inputId,
       pendingValue,
       updated: computed(() => initialValue.value !== stateValue.value),
       undecorated: true,
