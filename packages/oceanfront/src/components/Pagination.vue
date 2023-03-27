@@ -41,7 +41,7 @@
           <of-button
             v-if="showCustomOffsetPopup"
             :id="outerId + '-expand'"
-            icon="bullet down"
+            icon="select down"
             :variant="variantVal"
             :density="densityVal"
             :aria-label="ariaLabels?.expand ?? 'Expand'"
