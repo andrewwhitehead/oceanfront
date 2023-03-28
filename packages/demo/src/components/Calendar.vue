@@ -89,6 +89,9 @@
       <template #header v-if="values.useSlots">
         <h3>Additional controls can go here</h3>
       </template>
+      <template #footer v-if="values.useSlots">
+        <h3>Additional information can go here</h3>
+      </template>
       <template #day-title="date" v-if="values.useSlots">
         {{ date.getDate() }}
       </template>
