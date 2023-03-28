@@ -25,6 +25,18 @@
     padding: 0;
     margin: 0;
     text-align: left;
+    .header-rows-selector {
+      .of-button-main {
+        padding-right: 0;
+      }
+      .of-button-split {
+        padding-left: 0;
+        margin-left: 0;
+      }
+      .of-toggle-wrapper {
+        padding-left: calc(var(--field-h-pad) - 0.2em);
+      }
+    }
   }
   .row-selector.of-toggle-field {
     --field-v-pad-base: 0;
