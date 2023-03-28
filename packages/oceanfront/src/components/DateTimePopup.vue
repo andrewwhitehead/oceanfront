@@ -81,7 +81,7 @@
           @mouseup="timeClickHandler()"
           @mouseleave="timeClickHandler()"
           @blur="timeClickHandler()"
-          name="bullet up"
+          name="select up"
           size="lg"
           class="time-picker-arrow"
         />
@@ -91,7 +91,7 @@
           @mouseup="timeClickHandler()"
           @mouseleave="timeClickHandler()"
           @blur="timeClickHandler()"
-          name="bullet up"
+          name="select up"
           size="lg"
           class="time-picker-arrow"
         />
@@ -109,7 +109,7 @@
           @mouseup="timeClickHandler()"
           @mouseleave="timeClickHandler()"
           @blur="timeClickHandler()"
-          name="bullet down"
+          name="select down"
           size="lg"
           class="time-picker-arrow"
         />
@@ -119,7 +119,7 @@
           @mouseup="timeClickHandler()"
           @mouseleave="timeClickHandler()"
           @blur="timeClickHandler()"
-          name="bullet down"
+          name="select down"
           size="lg"
           class="time-picker-arrow"
         />

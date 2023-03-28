@@ -5,6 +5,7 @@
         <slot name="header-rows-selector">
           <of-button
             variant="text"
+            class="header-rows-selector"
             keep-text-color
             split
             :items="selectRowsItems"
@@ -12,7 +13,7 @@
             <of-field
               type="toggle"
               variant="basic"
-              class="row-selector"
+              :class="['row-selector', 'header']"
               v-model="headerRowsSelectorChecked"
               :mode="selectLocked ? 'disabled' : 'editable'"
               :locked="selectLocked"
@@ -50,8 +51,8 @@
           <of-icon
             :name="
               sort.order == RowSortOrders.desc && sort.column == col.value
-                ? 'bullet down'
-                : 'bullet up'
+                ? 'select down'
+                : 'select up'
             "
           />
         </span>
@@ -239,14 +240,14 @@ export default defineComponent({
           text: field.label,
         }
         const itemAsc = {
-          icon: 'bullet up',
+          icon: 'select up',
           selected:
             sort.value.column === field.value &&
             sort.value.order === RowSortOrders.asc,
           order: RowSortOrders.asc,
         }
         const itemDesc = {
-          icon: 'bullet down',
+          icon: 'select down',
           selected:
             sort.value.column === field.value &&
             sort.value.order === RowSortOrders.desc,

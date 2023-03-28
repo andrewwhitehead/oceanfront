@@ -198,14 +198,14 @@ export const OfColorField = defineComponent({
 
         const prepareArrows = (label: any) => {
           const upIcon = h(resolveComponent('OfIcon'), {
-            name: 'bullet up',
+            name: 'select up',
             onClick: () => {
               choseColor(null, label)
             },
           })
 
           const downIcon = h(resolveComponent('OfIcon'), {
-            name: 'bullet down',
+            name: 'select down',
             onClick: () => {
               choseColor(null, label, 'down')
             },
