@@ -557,6 +557,10 @@ export default defineComponent({
       const slot = this.$slots['header']
       return slot?.()
     },
+    footer() {
+      const slot = this.$slots['footer']
+      return slot?.()
+    },
   },
   render() {
     const eventHeight =
@@ -587,6 +591,7 @@ export default defineComponent({
           this.allDayRow(),
           this.dayRow(),
         ]),
+        this.footer(),
       ]
     )
   },

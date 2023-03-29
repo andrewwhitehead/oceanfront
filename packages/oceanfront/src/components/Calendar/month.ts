@@ -72,6 +72,10 @@ export default defineComponent({
       const slot = this.$slots['header']
       return slot?.()
     },
+    footer() {
+      const slot = this.$slots['footer']
+      return slot?.()
+    },
     renderDayNumberOrSlot(day: Date) {
       const slot = this.$slots['day-title']
       const content = slot ? slot(day) : this.renderDayNumber(day, false)
@@ -259,7 +263,7 @@ export default defineComponent({
           e.preventDefault()
         },
       },
-      [this.header(), this.renderGrid()]
+      [this.header(), this.renderGrid(), this.footer()]
     )
   },
 })
