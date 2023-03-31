@@ -56,6 +56,7 @@
           :record="state"
         />
         <of-toggle-field
+          v-if="state.value.type == 'day' || state.value.type == 'week'"
           name="groupAllDayEvents"
           label="Group all day events"
           :record="state"
@@ -96,6 +97,9 @@
       </template>
       <template #footer v-if="values.useSlots">
         <h3>Additional information can go here</h3>
+      </template>
+      <template #all-day-label v-if="values.useSlots">
+        <span class="all-day-label">all-day</span>
       </template>
       <template #day-title="date" v-if="values.useSlots">
         {{ date.getDate() }}
@@ -309,5 +313,8 @@ export default defineComponent({
 }
 .of-calendar-event .of-icon {
   margin-right: 1px;
+}
+.all-day-label {
+  font-size: 70%;
 }
 </style>

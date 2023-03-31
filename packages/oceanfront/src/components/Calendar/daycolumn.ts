@@ -277,6 +277,10 @@ export default defineComponent({
         titles,
       ])
     },
+    allDayLabel() {
+      const slot = this.$slots['all-day-label']
+      return slot?.()
+    },
     allDayRowEvent(
       acc: { height: number; columns: any[] },
       eventHeight: number
@@ -475,10 +479,14 @@ export default defineComponent({
           },
         },
         [
-          h('div', {
-            class: 'of-calendar-gutter',
-            style: this.groupAllDay ? 'height: inherit;' : '',
-          }),
+          h(
+            'div',
+            {
+              class: 'of-calendar-gutter',
+              style: this.groupAllDay ? 'height: inherit;' : '',
+            },
+            this.allDayLabel()
+          ),
           this.groupAllDay ? grouped : columns,
         ]
       )
