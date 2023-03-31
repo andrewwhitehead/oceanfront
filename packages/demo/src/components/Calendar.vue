@@ -45,8 +45,6 @@
           label="Hide adjacent months"
           :record="state"
         />
-      </div>
-      <div class="of-group-row of--pad">
         <of-toggle-field
           name="customColors"
           label="Custom colors"
@@ -55,6 +53,11 @@
         <of-toggle-field
           name="limitHours"
           label="Limit hours"
+          :record="state"
+        />
+        <of-toggle-field
+          name="groupAllDayEvents"
+          label="Group all day events"
           :record="state"
         />
       </div>
@@ -85,6 +88,8 @@
       :hide-other-months="values.hideOtherMonths"
       :day-start="values.limitHours ? 8 : 0"
       :day-end="values.limitHours ? 18 : 24"
+      :group-all-day-events="values.groupAllDayEvents"
+      group-postfix="(s)"
     >
       <template #header v-if="values.useSlots">
         <h3>Additional controls can go here</h3>
@@ -183,9 +188,10 @@ const state = makeRecord({
   limitHours: false,
   type: 'month',
   layout: 'columns',
+  groupAllDayEvents: false,
 })
 
-const categories = ['Conference room', 'HD Projector', 'Auditorium A']
+const categories = ['Project task', 'Event', 'Absence', 'Holiday']
 
 const names = ['Meeting', 'Discussion', 'Lunch']
 
@@ -244,7 +250,7 @@ function regenerateEvents() {
         start: formatDate(start),
         duration,
         class: randomElement(classes),
-        allDay: Math.random() > 0.8,
+        allDay: Math.random() > 0.7,
         category: randomElement(categories),
       }
       list.push(event)
