@@ -73,5 +73,7 @@ export default {
     overlapThreshold: { type: [Number, String], default: '45' },
     dayStart: { type: [Number, String], default: 0 },
     dayEnd: { type: [Number, String], default: 24 },
+    groupAllDayEvents: { type: Boolean, default: false },
+    groupPostfix: { type: String, default: '' },
   },
 }

@@ -2,7 +2,8 @@ import { DateTimeFormatterOptions } from '../../formats/DateTime'
 import { BusyInfo, layoutAllday } from '../../lib/calendar/layout/allday'
 import { addMinutes } from '../../lib/datetime'
 import { FormatState, useFormats } from '../../lib/formats'
-import { defineComponent, h } from 'vue'
+import { defineComponent, h, VNode } from 'vue'
+import { OfOverlay } from '../Overlay'
 import {
   eventsStartingAtDay,
   getDayIdentifier,
@@ -93,6 +94,12 @@ export default defineComponent({
       selectionStart: 0,
       selectionEnd: 0,
       selectionCategory: '',
+      allDayPopups: {
+        active: {},
+        closeTimerId: {},
+        width: {},
+        height: {},
+      } as any,
     }
   },
   computed: {
@@ -116,6 +123,12 @@ export default defineComponent({
     hasAllDay(): boolean {
       return (this.$props.events?.filter((e) => e.allDay).length || 0) > 0
     },
+    groupAllDay(): boolean {
+      return (
+        this.$props.groupAllDayEvents === true &&
+        ['week', 'day'].includes(this.$props.type ?? '')
+      )
+    },
     allDayEvents() {
       const visRange = this.visibleRange || []
       const rangeStart = getDayIdentifier(visRange[0])
@@ -130,12 +143,25 @@ export default defineComponent({
           this.ignoreCategories ? undefined : cat.category,
           true
         )
-        const evs = eventsStartingAtDay(dayEvents, day, rangeStart)
+        const evs = this.groupAllDay
+          ? dayEvents
+          : eventsStartingAtDay(dayEvents, day, rangeStart)
         const layedOut = layoutAllday(evs, visRange, busyInfo)
         if (this.$props.type == 'category')
           busyInfo = { busyColumns: [], currentColumn: 0 }
+        let top = -1
         allDayEvents[cat.category] = layedOut.map((p) => {
-          return { ...p, event: { ...p.event, uniq: uniqEvent(p.event, cat) } }
+          top++
+          return {
+            ...p,
+            ...(this.groupAllDay
+              ? {
+                  top,
+                  daysSpan: 1,
+                }
+              : {}),
+            event: { ...p.event, uniq: uniqEvent(p.event, cat) },
+          }
         })
       }
       return allDayEvents
@@ -251,6 +277,10 @@ export default defineComponent({
         titles,
       ])
     },
+    allDayLabel() {
+      const slot = this.$slots['all-day-label']
+      return slot?.()
+    },
     allDayRowEvent(
       acc: { height: number; columns: any[] },
       eventHeight: number
@@ -318,6 +348,27 @@ export default defineComponent({
       acc.columns.push(vnode)
       return acc
     },
+    allDayCount() {
+      const titles = {} as any
+      const count = {} as any
+      Object.entries(this.allDayEvents).forEach(([key, val]) => {
+        const events: any = val
+        const grouped = events.reduce((acc: any, item: any) => {
+          acc[item.event.category] = [...(acc[item.event.category] || []), item]
+          return acc
+        }, {})
+        Object.entries(grouped).forEach(([category, val]) => {
+          const events: any = val
+          titles[key] = [
+            ...(titles[key] || []),
+            events.length + ' ' + category + this.$props.groupPostfix,
+          ]
+          count[key] = (count[key] ?? 0) + events.length
+        })
+        titles[key] = titles[key] ? titles[key].join(', ') : ''
+      })
+      return { titles, count }
+    },
     allDayRow() {
       if (!this.hasAllDay) return ''
       const eventHeight =
@@ -328,14 +379,116 @@ export default defineComponent({
             height: 0,
             columns: [] as any[],
           })
-      const heightAttr = '' + (height * eventHeight + eventHeight) + 'px'
+      const allDayheight = this.groupAllDay
+        ? eventHeight * 2
+        : height * eventHeight + eventHeight
+      const clearCloseTimer = (id: string) => {
+        if (this.$data.allDayPopups['closeTimerId'][id]) {
+          clearTimeout(this.$data.allDayPopups['closeTimerId'][id])
+          this.$data.allDayPopups['closeTimerId'][id] = undefined
+        }
+      }
+      const closeAllDay = (id: string) => {
+        this.$data.allDayPopups['closeTimerId'][id] = window.setTimeout(() => {
+          this.$data.allDayPopups['active'][id] = false
+        }, 50)
+      }
+      const openAllDay = (e: MouseEvent, id: string) => {
+        clearCloseTimer(id)
+        const el = e.target as HTMLElement
+        this.$data.allDayPopups['active'][id] = true
+        this.$data.allDayPopups['width'][id] = el.clientWidth
+      }
+      const allDay = (eventsNodes: VNode[], index: number | string) => {
+        const id = 'all-day-' + index
+        const { titles, count } = this.groupAllDay
+          ? this.allDayCount()
+          : { titles: '', count: 0 }
+        // if (this.allDayCount() && !count[index]) return []
+        return h(
+          'div',
+          {
+            class: 'of-calendar-day',
+            style: {
+              'z-index': 1,
+            },
+          },
+          [
+            h(
+              'div',
+              {
+                id,
+                class: {
+                  'of--elevated-1': count[index],
+                  'grouped-title': count[index],
+                },
+                style: {
+                  height: this.$data.allDayPopups['active'][id]
+                    ? 'auto'
+                    : allDayheight - 7 + 'px',
+                  'min-height': allDayheight - 7 + 'px',
+                },
+                onMouseenter: (event: any) => openAllDay(event, id),
+                onMouseleave: () =>
+                  this.$data.allDayPopups['active'][id]
+                    ? closeAllDay(id)
+                    : null,
+              },
+              titles[index]
+            ),
+            h(
+              OfOverlay,
+              {
+                active: this.$data.allDayPopups['active'][id],
+                capture: false,
+                shade: false,
+                target: '#' + id,
+                onBlur: () => closeAllDay(id),
+              },
+              () => {
+                return h(
+                  'div',
+                  {
+                    style: {
+                      width: this.$data.allDayPopups['width'][id] + 'px',
+                      height: count[index] * eventHeight + 'px',
+                    },
+                    class: 'of--elevated-1',
+                    onMouseenter: () => clearCloseTimer(id),
+                    onMouseleave: () => closeAllDay(id),
+                  },
+                  eventsNodes
+                )
+              }
+            ),
+          ]
+        )
+      }
+      const grouped =
+        this.$props.type == 'week'
+          ? columns.map((dayColumns, index) => allDay(dayColumns, index))
+          : [allDay(columns, 'Today')]
+
       return h(
         'div',
         {
           class: 'of-calendar-allday-row',
-          style: { height: heightAttr, 'min-height': heightAttr },
+          style: {
+            height: allDayheight + 'px',
+            'min-height': allDayheight + 'px',
+          },
         },
-        [h('div', { class: 'of-calendar-gutter' }), columns]
+        [
+          h(
+            'div',
+            {
+              class: 'of-calendar-gutter',
+              style: this.groupAllDay ? 'height: inherit;' : '',
+            },
+            this.allDayLabel()
+          ),
+          this.groupAllDay ? grouped : columns,
+        ]
       )
     },
     intervalSelectionHandlers(cat: categoryItem) {
