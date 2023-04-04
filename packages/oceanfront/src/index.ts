@@ -88,6 +88,7 @@ export const components: Record<string, Component> = {
   OfDataType,
   OfBadge,
   OfOptionList,
+  OfFileField,
 }
 
 export const fieldTypes: Record<string, Component> = {
