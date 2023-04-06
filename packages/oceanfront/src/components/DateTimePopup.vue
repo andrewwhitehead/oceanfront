@@ -220,10 +220,7 @@ export default defineComponent({
       dateTimeParts.value.find((p: any) => p.type === type)?.value ??
       defaultValue
 
-    focusedDate.value = new Date(
-      dateTimeFormatted.value?.localeValue.getTime() -
-        dateTimeFormatted.value?.tzOffset * 1000
-    )
+    focusedDate.value = new Date(dateTimeFormatted.value?.value.getTime())
 
     watch(
       () => props.monthStart,
@@ -482,9 +479,7 @@ export default defineComponent({
 
       title: computed(() => titleFormater?.format(selDate.value).textValue),
       monthYear: computed(() => {
-        const date = new Date(
-          selMonthStart.value.getTime() - localeOffset.value
-        )
+        const date = new Date(selMonthStart.value.getTime())
         return monthYearFormater?.format(date).textValue
       }),
       hours: computed(() => getFormattedPart('hour', '00')),
